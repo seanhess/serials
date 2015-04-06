@@ -28,5 +28,6 @@ executable serials
                        tagsoup,
                        text,
                        scalpel,
-                       containers
+                       containers,
+                       network-uri
                        --shpider >= 0.2

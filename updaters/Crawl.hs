@@ -5,108 +5,131 @@ import System.IO
 import Text.HTML.Scalpel
 import Data.Maybe (fromMaybe)
 import Data.Map.Strict (Map)
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, nub, stripPrefix)
 import qualified Data.Map.Strict as M
 import Data.Monoid ((<>))
 import Control.Concurrent.Chan
+import Network.URI
+import Data.Maybe (catMaybes, fromJust)
+import Control.Applicative
+
 
 
 type Title = String
 type Url = String
-data Link = Link Url Title deriving (Show, Eq)
 
-parseLinks :: Scraper String [Link]
-parseLinks = chroots "a" parseLink
+type FoundLinks = Map Url Link
 
-parseLink :: Scraper String Link
+data Link = Link {
+  linkURI :: URI,
+  linkTitle :: Title
+} deriving (Show, Eq)
+
+linkPath :: Link -> String
+linkPath = uriPath . linkURI
+
+parseLinks :: Scraper String [Maybe Link]
+parseLinks = chroots "button" parseFanficButton
+--parseLinks = chroots "a" parseLink
+
+-- hmm... Or I should parse a button ... 
+parseLink :: Scraper String (Maybe Link)
 parseLink = do
   url <- attr "href" Any
   txt <- text Any
-  return $ Link url txt
+  let uri = parseURI url
+  return $ Link <$> uri <*> Just txt
 
+parseFanficButton :: Scraper String (Maybe Link)
+parseFanficButton = do
+  click <- attr "onClick" Any
+  txt <- text Any
+  let url = init $ stripPrefix "self.location='" click
+  let uri = parseURI uri
+  return $ Link <$> uri <*> Just txt
+
+
+-- TODO add actual errors if something goes wrong
 scrapePage :: String -> IO [Link]
 scrapePage url = do
-  print url
   mlinks <- scrapeURL url parseLinks
-  return $ fromMaybe [] mlinks
-
+  return $ catMaybes $ fromMaybe [] $ mlinks
 
 testCrawl :: IO ()
 testCrawl = do
   putStrLn "TEST CRAWL"
   putStrLn "-------------------"
 
+  let uri = fromJust $ parseURI "https://www.fanfiction.net/s/11117811/"
+
+  found <- newMVar (M.fromList [(uriPath uri, Link uri "")])
+
   linksChan <- newChan
-  forkIO $ crawler linksChan
-  writeChan linksChan "https://parahumans.wordpress.com/"
+  forkIO $ crawler linksChan found uri
+  writeChan linksChan uri
   getLine
-  putStrLn "Stopping"
 
-  --q <- newEmptyMVar
-  --forkIO $ crawler q
-  --putStrLn "CRAWL"
-  --us <- scrapePage "https://parahumans.wordpress.com/"
-  --mapM_ print us
-  --putStrLn "done"
+  putStrLn "Stopping... found: "
+  f <- takeMVar found
+  print $ M.keys f
 
-isUnvisited :: Map Url Bool -> Url -> Bool
-isUnvisited visited url = undefined
 
-isValidSubLink :: Url -> Url -> Bool
-isValidSubLink prefix url = prefix `isPrefixOf` url
 
--- hmm... no, that doesn't make too much sense
--- it would have to be ONE at a time, if that's what you want to do
--- or make a full channel and do that
+isUnvisited :: URI -> FoundLinks -> Bool
+isUnvisited uri found = not $ M.member (uriPath uri) found
 
-crawler :: Chan Url -> IO ()
-crawler q = loop
+-- this won't work. needs to be an actual prefix
+-- hmm... 
+isValidSubLink :: URI -> URI -> Bool
+isValidSubLink uri base = uriDomain uri == uriDomain base && uriPath base `isPrefixOf` uriPath uri
+
+uriDomain :: URI -> String
+uriDomain uri = case uriAuthority uri of
+  Nothing   -> ""
+  Just auth -> uriRegName auth
+
+
+validLink :: FoundLinks -> URI -> Link -> Bool
+validLink found base (Link uri title) = isUnvisited uri found && isValidSubLink uri base
+
+crawler :: Chan URI -> MVar FoundLinks -> URI -> IO ()
+crawler chan found base = loop
   where
     loop = do
-      putStrLn "Crawl: waiting"
-      url <- readChan q
-      putStrLn ("Crawl: " <> url)
-      rs <- scrapePage url
-      print rs
+      putStrLn "--------------"
+      url <- readChan chan
+      putStrLn ("Crawl: " <> show url)
+
+      -- doesn't matter if it is VISISTED or not. It matters if it's already been queued
+      -- write the new url into visited
+      -- f <- takeMVar found
+      -- print (M.keys f)
+      -- putMVar f $ M.insert url True vs
+
+      -- scrape it!
+      rs <- scrapePage $ show url
+      putStrLn $ "Found Links: " <> (show $ length rs)
+
+      -- put valid links back on to the queue
+      -- wait, it's not links that are VISITED, it's links that are QUEUED
+
+
+      -- IDENTIFY: links that haven't been found
+      f <- takeMVar found
+      let nextLinks = nub $ filter (validLink f base) rs
+      putStrLn $ "NEW Links: " <> (show $ length nextLinks)
+
+      -- put them all on found
+      -- reduce it baby!
+      let f' = M.fromList $ map (\l -> (linkPath l, l)) nextLinks
+      putMVar found $ M.union f f'
+
+      putStrLn $ "FOUND: " <> ((show . M.keys) f')
+
+      mapM_ (writeChan chan . linkURI) nextLinks
+
       loop
       return ()
 
-      --case cmd of
-        --Message msg -> do
-          --putStrLn msg
-          --loop
-        --Stop s -> do
-          --putStrLn "logger: stop"
-          --putMVar s ()
-
-nextUrl :: MVar Url -> IO (Url)
-nextUrl q = do
-  url <- takeMVar q
-  return url
-  --putMVar q $ tail urls
-  --return $ head urls
-
-{-
-
-DESIGN
-
-Links: [(url, visited)]
-
-- the function that adds a url can check for dups, and screen for matching the prefix
-
-Is that an ... mvar? 
-
-OK! What do I need now?
-
-Need an MVar.. 
-
-visited links: (url: true)
-
-scrape a page, add to visited links
-each link:
-  add to queue if not visited
-
-take link off the queue
-find one that isn't visited? no...
-
--}
+-- this whole method won't work... 
+-- because there aren't links on fanfiction!

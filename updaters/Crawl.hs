@@ -29,8 +29,7 @@ linkPath :: Link -> String
 linkPath = uriPath . linkURI
 
 parseLinks :: Scraper String [Maybe Link]
-parseLinks = chroots "button" parseFanficButton
---parseLinks = chroots "a" parseLink
+parseLinks = chroots "a" parseLink
 
 -- hmm... Or I should parse a button ... 
 parseLink :: Scraper String (Maybe Link)
@@ -39,15 +38,6 @@ parseLink = do
   txt <- text Any
   let uri = parseURI url
   return $ Link <$> uri <*> Just txt
-
-parseFanficButton :: Scraper String (Maybe Link)
-parseFanficButton = do
-  click <- attr "onClick" Any
-  txt <- text Any
-  let url = init $ stripPrefix "self.location='" click
-  let uri = parseURI uri
-  return $ Link <$> uri <*> Just txt
-
 
 -- TODO add actual errors if something goes wrong
 scrapePage :: String -> IO [Link]

@@ -63,3 +63,11 @@ testLogger = do
   logMessage l "hello"
   logMessage l "bye"
   logStop l
+
+
+---------------------------------------------------
+-- New Strategy
+-- functions that return a list of potential lists
+-- just IO functions of any type
+-- different things work for different sites
+--------------------------------------------------

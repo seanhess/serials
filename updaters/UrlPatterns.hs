@@ -7,48 +7,36 @@ import Text.HTML.Scalpel
 import Data.Monoid ((<>))
 import Control.Concurrent.Chan
 import Control.Applicative
+import Data.Maybe (isJust, catMaybes)
+import Data.List (takeWhile)
 
--- for now, just append the number to it
--- just use scrapeURL!
+
+-- find all valid links under a domain that follow the pattern:
+-- http://example.com/pages/(1..N)
+-- as soon as one is missing, return a list of all the ones you found
+
+-- SOLUTIONS
+-- mapConcurrently from async will work fine
 
 findIncrementing :: URL -> IO [Link]
 findIncrementing base = do
+    find <- newChan
+    done <- newChan
+    forkIO $ worker find done
+    queue find done base
 
-    -- how many to put on?
-
-    let num = 1
-
-    -- find channel
-    cfind <- newChan
-    writeChan cfind (base, num)
-
-    -- results channel
-    cdone <- newChan
-
-    forkIO $ worker cfind cdone
-
-    results <- collect [] cdone
-
-    putStrLn "DONE"
-    mapM_ print results
-    return results
-
+queue :: Chan (URL, Int) -> Chan (Maybe Link) -> URL -> IO [Link]
+queue find done base = next [] 1
   where
-    collect links cdone = do
-      ml <- readChan cdone
+    next links n = do
+      putStrLn $ "Next" <> show n
+      writeChan find (base, n)
+      ml <- readChan done
       case ml of
-        Nothing   -> return $ links
-        Just link -> collect (link : links) cdone
+        Nothing -> return links
+        Just l  -> do
+          next (l:links) (n+1)
 
-
-
-findPageTitle :: URL -> IO (Maybe String)
-findPageTitle url = scrapeURL url scrapeTitle
-
-pageUrl :: URL -> Int -> URL
-pageUrl base num = base <> show num
-
--- you don't need channels for this at all :)
 worker :: Chan (URL, Int) -> Chan (Maybe Link) -> IO ()
 worker next done = loop
   where 
@@ -58,10 +46,6 @@ worker next done = loop
       putStrLn $ "FETCHING: " <> url
 
       mt <- findPageTitle url
-      
-      case mt of
-        Nothing -> putStrLn ("Missed " <> show num)
-        Just t  -> writeChan next (base, num+1)
 
       writeChan done $ Link <$> Just url <*> mt
       loop
@@ -69,5 +53,11 @@ worker next done = loop
 scrapeTitle :: Scraper String String
 scrapeTitle = text "title"
 
--- I'm just scraping for the title of the page, or the first <h1> or something
+findPageTitle :: URL -> IO (Maybe String)
+findPageTitle url = scrapeURL url scrapeTitle
 
+pageUrl :: URL -> Int -> URL
+pageUrl base num = base <> show num
+
+
+-- https://hackage.haskell.org/package/async-2.0.2/docs/Control-Concurrent-Async.html

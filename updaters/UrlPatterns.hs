@@ -9,6 +9,7 @@ import Control.Concurrent.Chan
 import Control.Applicative
 import Data.Maybe (isJust, catMaybes)
 import Data.List (takeWhile)
+import Control.Monad.Loops (whileJust)
 
 
 -- find all valid links under a domain that follow the pattern:
@@ -18,24 +19,18 @@ import Data.List (takeWhile)
 -- SOLUTIONS
 -- mapConcurrently from async will work fine
 
+--writeChan find (base, n)
+
 findIncrementing :: URL -> IO [Link]
 findIncrementing base = do
     find <- newChan
     done <- newChan
     forkIO $ worker find done
-    queue find done base
 
-queue :: Chan (URL, Int) -> Chan (Maybe Link) -> URL -> IO [Link]
-queue find done base = next [] 1
-  where
-    next links n = do
-      putStrLn $ "Next" <> show n
-      writeChan find (base, n)
-      ml <- readChan done
-      case ml of
-        Nothing -> return links
-        Just l  -> do
-          next (l:links) (n+1)
+    writeChan find (base, 1)
+  
+    whileJust (readChan done) $ \link -> do
+      return link
 
 worker :: Chan (URL, Int) -> Chan (Maybe Link) -> IO ()
 worker next done = loop
@@ -48,6 +43,11 @@ worker next done = loop
       mt <- findPageTitle url
 
       writeChan done $ Link <$> Just url <*> mt
+
+      case mt of
+        Nothing -> return ()
+        Just t  -> writeChan next (base, num+1)
+
       loop
 
 scrapeTitle :: Scraper String String

@@ -23,11 +23,16 @@ executable serials
   hs-source-dirs:      updaters
   -- other-modules:       
   -- other-extensions:    
-  default-language:    Haskell2010
-  build-depends:       base >=4.7 && <5,
-                       tagsoup,
-                       text,
-                       scalpel,
-                       containers,
-                       network-uri
-                       --shpider >= 0.2
+  default-language:     Haskell2010
+  build-depends:        base >=4.7 && <5,
+                        tagsoup,
+                        text,
+                        scalpel,
+                        containers,
+                        network-uri,
+                        monad-loops,
+                        wreq,
+                        lens,
+                        bytestring,
+                        parsec
+                        --shpider >= 0.2

@@ -34,5 +34,7 @@ executable serials
                         wreq,
                         lens,
                         bytestring,
-                        parsec
+                        parsec,
+                        utf8-string,
+                        tagsoup
                         --shpider >= 0.2

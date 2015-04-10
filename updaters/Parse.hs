@@ -29,81 +29,29 @@ testParse = do
     fanfictionLinks ginnyURL
     putStrLn "Done"
 
-fanfictionLinks :: String -> IO ()
+fanfictionLinks :: String -> IO [Link]
 fanfictionLinks url = do
     r <- get url
     let body = r ^. responseBody :: BL.ByteString
-    print body
-    return ()
+    return $ fanficPageLinks url body
 
 data FanficOption = FanficOption Int String
                   deriving Show
 
-----------------------------------------------------------
+--------------------------------------------------------------
+-- tags to links
 
---data Fragment = Option Int String | Unclassified String deriving (Show)
+fanficPageLinks :: URL -> BL.ByteString -> [Link]
+fanficPageLinks base bs = map (optionToLink base) $ allOptions bs
 
----- catch all...
-----unclassified :: Parser Fragment
-----unclassified = Unclassified <$> many letter_ascii
-
---unclassified :: Parser Fragment
---unclassified = do
-    --stuff <- many1 anyChar
-    --return $ Unclassified stuff
-
-----webpage :: Parser [Fragment]
-----webpage = (fragment `sepBy1` (string "option")) <* endOfInput
-
---fragment :: Parser Fragment
---fragment = optionTag <|> unclassified
-
---optionTag :: Parser Fragment
---optionTag = do
-    --string "<option"
-    --manyTill anyChar (string "value=")
-    --n <- many1 digit
-    --manyTill anyChar (char '>')
-    --chapterPrefix
-    --text <- many1 (noneOf "<>")
-    --return $ Option (read n) text
-  --where
-    --chapterPrefix = many digit >> char '.' >> many space
-
---notOptionTag = do
-    --many anyChar
-    --notFollowedBy (string "<option")
-
---testParserNotWorking :: IO ()
---testParserNotWorking = print $ parseOnly webpage testString
-
---everything :: Parser [Fragment]
---everything = do
-    --string "<select"
-    --x <- many1 anyChar
-    --string "select"
-    --return $ [Option 4 x]
-
---solution :: Parser [Fragment]
---solution = everything <|> (anyChar >> solution)
+optionToLink :: URL -> FanficOption -> Link
+optionToLink base (FanficOption n t) = Link (base <> (show n)) t
 
 
----------------------------------------------------------------
-
-testString :: BL.ByteString
-testString = "<html> blash <select id=something title=\"whatever\"><option value=1 selected>1. First<option value=2>2. Second</select> farlkb <span> henry <li> </html"
-
-testString2 = "asdf <option value=12 selected>1. First<option value=2>2. Second</select>"
-
---run = parse (sepBy optionTag notOptionTag) "test" testString2
---run' = parse (num `sepBy` many (char ' ')) "test" "234 34 234"
-
-num :: Parser Int
-num = read <$> many digit
 
 --------------------------------------------------------------
+-- parse tags
 
--- parse one for fanfiction options!
 allOptions :: BL.ByteString -> [FanficOption]
 allOptions = fanficOptionsFromTags . optionTags . parseTags
 
@@ -159,13 +107,4 @@ tagsToOption (TagOpen _ as : TagText text : []) = do
 tagsToOption _ = Nothing
 
 
---------------------------------------------------------------
-
-optionToLink :: URL -> FanficOption -> Link
-optionToLink base (FanficOption n t) = Link (base <> (show n)) t
-
-fanficPageLinks :: URL -> BL.ByteString -> [Link]
-fanficPageLinks base bs = map (optionToLink base) $ allOptions bs
-
----------------------------------------------------------------
 

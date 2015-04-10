@@ -31,9 +31,14 @@ testParse = do
 
 fanfictionLinks :: String -> IO [Link]
 fanfictionLinks url = do
+    body <- downloadBody url
+    return $ fanficPageLinks url body
+
+downloadBody :: String -> IO BL.ByteString
+downloadBody url = do
     r <- get url
     let body = r ^. responseBody :: BL.ByteString
-    return $ fanficPageLinks url body
+    return body
 
 data FanficOption = FanficOption Int String
                   deriving Show
@@ -49,11 +54,25 @@ optionToLink base (FanficOption n t) = Link (base <> (show n)) t
 
 
 
---------------------------------------------------------------
--- parse tags
+-------------------------------------------------------------
+-- find the select tag
+
+chapterListStart :: BTag
+chapterListStart = TagOpen "" [("id","chap_select")]
+
+chapterListEnd :: BTag
+chapterListEnd = TagClose "select"
+
+chapterList :: [BTag] -> [BTag]
+chapterList = takeWhile (~/= chapterListEnd) . dropWhile (~/= chapterListStart)
+
+
+
+-------------------------------------------------------------
+-- parse the options from the select tag
 
 allOptions :: BL.ByteString -> [FanficOption]
-allOptions = fanficOptionsFromTags . optionTags . parseTags
+allOptions = fanficOptionsFromTags . optionTags . chapterList . parseTags
 
 type BTag = Tag BL.ByteString
 
@@ -77,7 +96,7 @@ isTagChange :: BTag -> Bool
 isTagChange t = t ~== anyOpen || t ~== anyClose
 
 isOptionTag :: BTag -> Bool
-isOptionTag t = t ~== open
+isOptionTag = (~== open)
   where
     open = TagOpen "option" [] :: Tag BL.ByteString
 
@@ -105,6 +124,7 @@ tagsToOption (TagOpen _ as : TagText text : []) = do
     dropPrefix = dropWhile (not . isLetter)
 
 tagsToOption _ = Nothing
+
 
 
 

@@ -36,5 +36,7 @@ executable serials
                         bytestring,
                         parsec,
                         utf8-string,
-                        tagsoup
+                        tagsoup,
+                        xml,
+                        feed
                         --shpider >= 0.2

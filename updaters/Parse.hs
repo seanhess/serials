@@ -3,11 +3,9 @@
 module Parse where
 
 import Prelude
-import Types
-import Network.Wreq hiding (Link)
+import Links
 import Data.Monoid ((<>))
 import Data.Char (isLetter)
-import Control.Lens hiding (noneOf)
 import Data.Maybe (catMaybes)
 import Text.ParserCombinators.Parsec hiding (Parser, (<|>))
 import Text.Parsec.ByteString.Lazy
@@ -22,6 +20,7 @@ import Control.Applicative hiding (many)
 type URL = String
 
 ginnyURL = "http://fanfiction.net/s/11117811/"
+hpmorURL = "https://www.fanfiction.net/s/5782108/"
 
 testParse :: IO ()
 testParse = do
@@ -34,11 +33,6 @@ fanfictionLinks url = do
     body <- downloadBody url
     return $ fanficPageLinks url body
 
-downloadBody :: String -> IO BL.ByteString
-downloadBody url = do
-    r <- get url
-    let body = r ^. responseBody :: BL.ByteString
-    return body
 
 data FanficOption = FanficOption Int String
                   deriving Show
@@ -51,7 +45,6 @@ fanficPageLinks base bs = map (optionToLink base) $ allOptions bs
 
 optionToLink :: URL -> FanficOption -> Link
 optionToLink base (FanficOption n t) = Link (base <> (show n)) t
-
 
 
 -------------------------------------------------------------

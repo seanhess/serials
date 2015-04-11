@@ -7,7 +7,6 @@ Keep it simple:
 * [ ] haskell scripts to parse websites
 
 
-
 USEFUL CONCURRENCY
 
 - https://wiki.haskell.org/Control-Engine#Web_Crawling
@@ -19,6 +18,21 @@ USEFUL CONCURRENCY
 
 
 - [WReq](http://www.serpentine.com/wreq/tutorial.html)
-
-
 - Learn about: STM
+
+
+Approaches
+----------
+
+hpmor: fanfiction
+mother of learning: fanfiction
+fanfiction: fanfiction
+worm: rss
+twig: rss
+pact: rss
+blindsight
+
+
+https://hackage.haskell.org/package/feed-0.3.9.2/docs/Text-Feed-Constructor.html
+ feedFromXML?
+

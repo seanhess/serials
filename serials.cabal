@@ -38,5 +38,6 @@ executable serials
                         utf8-string,
                         tagsoup,
                         xml,
-                        feed
+                        feed,
+                        regex-pcre
                         --shpider >= 0.2

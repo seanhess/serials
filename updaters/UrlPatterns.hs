@@ -2,8 +2,9 @@
 module UrlPatterns where
 
 import Control.Concurrent
-import Types
-import Text.HTML.Scalpel
+import Links
+import Scrape (scrapeTitle)
+import Text.HTML.Scalpel hiding (URL)
 import Data.Monoid ((<>))
 import Control.Concurrent.Chan
 import Control.Applicative
@@ -42,16 +43,13 @@ worker next done = loop
 
       mt <- findPageTitle url
 
-      writeChan done $ Link <$> Just url <*> mt
+      writeChan done $ Link <$> Just url <*> mt <*> Just ""
 
       case mt of
         Nothing -> return ()
         Just t  -> writeChan next (base, num+1)
 
       loop
-
-scrapeTitle :: Scraper String String
-scrapeTitle = text "title"
 
 findPageTitle :: URL -> IO (Maybe String)
 findPageTitle url = scrapeURL url scrapeTitle

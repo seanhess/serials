@@ -21,12 +21,7 @@ import Text.Regex.PCRE
 
 import Network.URI
 
--- how is it going to give you the next link?
--- you have to actually hit the page
-
--- scraping a single page gives you:
--- that page's title
--- the next page's url
+-- TODO scraping the wordpress sites is super slow. Is it CPU bound?
 
 data CrawlSettings = CrawlSettings {
   crawlNextText :: String,
@@ -35,12 +30,7 @@ data CrawlSettings = CrawlSettings {
 
 twigSettings = CrawlSettings "" (selector ".nav-next")
 fanficSettings = CrawlSettings "Next" (selector "#content_wrapper_inner")
-
-nextLink :: URL -> Selector String -> IO [Link]
-nextLink url sel = do
-    body <- downloadBody url
-    -- keep downloading the next url until we can't find the 
-    return []
+pactSettings = CrawlSettings "Next" (selector ".entry-content")
 
 ----------------------------------------------------------
 
@@ -62,6 +52,7 @@ nextLink url sel = do
 
 testTwig = crawlPages twigSettings "https://twigserial.wordpress.com/2014/12/24/taking-root-1-1/"
 testGinny = crawlPages fanficSettings "https://www.fanfiction.net/s/11117811/"
+testPact = crawlPages pactSettings "https://pactwebserial.wordpress.com/2013/12/17/bonds-1-1/"
 
 
 ---------------------------------------------------------
@@ -71,7 +62,11 @@ testGinny = crawlPages fanficSettings "https://www.fanfiction.net/s/11117811/"
 
 scanPage :: CrawlSettings -> URL -> IO (Maybe Link, Maybe URL)
 scanPage (CrawlSettings next sel) url = do
-    tags <- parseTags <$> downloadBody url
+    putStrLn $ "Scanning: " <> show url
+    body <- downloadBody url
+    putStrLn $ " - done"
+    let tags = parseTags body
+    putStrLn $ " - parsed"
     let mt = findTitle tags
         u = findNextLink next sel tags >>= nextURL url
         link = case mt of 
@@ -83,7 +78,6 @@ scanPage (CrawlSettings next sel) url = do
 crawlPages :: CrawlSettings -> URL -> IO [Link]
 crawlPages set url = do
     putStrLn $ "------------------------------"
-    putStrLn $ "Scanning: " <> show url
     (ml, mu) <- scanPage set url
     print ml
     print mu

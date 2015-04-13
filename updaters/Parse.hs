@@ -4,18 +4,18 @@ module Parse where
 
 import Prelude
 import Links
+
 import Data.Monoid ((<>))
 import Data.Char (isLetter)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Text (Text, pack)
+import Data.Text.Read (decimal)
+
 import qualified Data.Text as T
+import Debug.Trace
 
 import Text.ParserCombinators.Parsec hiding (Parser, (<|>))
-import Text.Parsec.ByteString.Lazy
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString.Char8 as BS
 import Text.HTML.TagSoup
-import Data.ByteString.Lazy.UTF8 (toString, fromString)
 
 import Control.Applicative hiding (many)
 
@@ -45,7 +45,6 @@ menuLinks url base start end = do
 data HTMLOption = HTMLOption Int Text
                   deriving Show
 
-
 --------------------------------------------------------------
 -- tags to links
 
@@ -56,7 +55,7 @@ parseMenuLinks :: URL -> TagSelect -> [BTag] -> [Link]
 parseMenuLinks base select ts = map (optionToLink base) $ allOptions $ select ts
 
 optionToLink :: URL -> HTMLOption -> Link
-optionToLink base (HTMLOption n t) = Link (base <> (pack $ show n)) t
+optionToLink base (HTMLOption n t) = link (base <> (pack $ show n)) t
 
 -------------------------------------------------------------
 -- find the select tag
@@ -65,18 +64,18 @@ selectMenu :: TagSelector -> TagSelector -> ([BTag] -> [BTag])
 selectMenu start end = takeWhile (~/= end) . dropWhile (~/= start)
 
 closeSelector :: Text -> TagSelector
-closeSelector t = TagClose (encodeBS t)
+closeSelector t = TagClose t
 
 openSelector :: Text -> TagSelector
 openSelector = sel . parseSelector
   where
-    sel (ID id)     = TagOpen "" [("id", encodeBS id)]
-    sel (Class cls) = TagOpen "" [("class", encodeBS cls)]
-    sel (Tag tag)   = TagOpen (encodeBS tag) []
+    sel (ID id)     = TagOpen "" [("id", id)]
+    sel (Class cls) = TagOpen "" [("class", cls)]
+    sel (Tag tag)   = TagOpen tag []
 
 -------------------------------------------------------------
 
-type BTag = Tag BL.ByteString
+type BTag = Tag Text
 
 anyOpen :: BTag
 anyOpen = TagOpen "" []
@@ -103,11 +102,10 @@ takeOptionTag (t:ts) = (option, rest)
 nextOptionTag :: [BTag] -> ([BTag], [BTag])
 nextOptionTag = takeOptionTag . dropWhile (not . isOptionTag)
 
-
 isOptionTag :: BTag -> Bool
 isOptionTag = (~== open)
   where
-    open = TagOpen "option" [] :: Tag BL.ByteString
+    open = TagOpen "option" [] :: Tag Text
 
 chunks :: ([a] -> ([a], [a])) -> [a] -> [[a]]
 chunks f [] = []
@@ -125,9 +123,10 @@ optionsFromTags = catMaybes . map tagsToOption
 tagsToOption :: [BTag] -> Maybe HTMLOption
 tagsToOption (TagOpen _ as : TagText text : []) = do
     ns <- lookup "value" as
-    let t = decodeBS text
-        n = read $ toString ns
-    return $ HTMLOption n t
+    let t = text
+    case decimal ns of
+      Left err -> Nothing
+      Right (n, _) -> return $ HTMLOption n t
 
   where
     dropPrefix = dropWhile (not . isLetter)

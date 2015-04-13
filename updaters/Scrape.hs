@@ -10,7 +10,6 @@ import Control.Applicative
 
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (fromMaybe, fromJust)
 import Data.Monoid ((<>))
 
@@ -28,7 +27,7 @@ testHPMOR = tocLinks "http://hpmor.com/" (selector ".toclist")
 
 data HTMLAnchor = HTMLAnchor URL Title deriving (Show)
 
-tocLinks :: URL -> Selector ByteString -> IO [Link]
+tocLinks :: URL -> Selector Text -> IO [Link]
 tocLinks url sel = do
     body <- downloadBody url
     let tags = parseTags body
@@ -36,37 +35,37 @@ tocLinks url sel = do
         ls = map (anchorToLink url) $ fromMaybe [] as
     return $ ls
 
-scrapeAnchors :: Selector ByteString -> Scraper ByteString [HTMLAnchor]
+scrapeAnchors :: Selector Text -> Scraper Text [HTMLAnchor]
 scrapeAnchors sel = chroot sel $ chroots a scrapeAnchor
 
-scrapeAnchor :: Scraper ByteString HTMLAnchor
+scrapeAnchor :: Scraper Text HTMLAnchor
 scrapeAnchor = do
   url <- attr "href" Any
   title <- text Any
-  return $ HTMLAnchor (decodeBS url) (decodeBS title)
+  return $ HTMLAnchor url title
 
 anchorToLink :: URL -> HTMLAnchor -> Link
-anchorToLink base (HTMLAnchor url title) = Link (base </> url) title
+anchorToLink base (HTMLAnchor url title) = link (base </> url) title
 
 ---------------------------------------------------------------------------
 
-scrapeTitle :: Scraper ByteString ByteString
-scrapeTitle = text ("title" :: ByteString)
+scrapeTitle :: Scraper Text Text
+scrapeTitle = text ("title" :: Text)
 
-selector :: Text -> Selector ByteString
+selector :: Text -> Selector Text
 selector = sel . parseSelector
   where
-    sel (ID id)     = Any @: [("id" :: ByteString) @= encodeBS id]
-    sel (Class cls) = Any @: [hasClass (encodeBS cls)] 
-    sel (Tag tag)   = (encodeBS tag) @: []
+    sel (ID id)     = Any @: [("id" :: Text) @= id]
+    sel (Class cls) = Any @: [hasClass cls] 
+    sel (Tag tag)   = tag @: []
 
-a :: ByteString
+a :: Text
 a = "a"
 
-p :: ByteString
+p :: Text
 p = "p"
 
-button :: ByteString
+button :: Text
 button = "button"
 
 ---------------------------------------------------------------------------

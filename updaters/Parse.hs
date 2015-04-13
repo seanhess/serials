@@ -6,7 +6,10 @@ import Prelude
 import Links
 import Data.Monoid ((<>))
 import Data.Char (isLetter)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromJust)
+import Data.Text (Text, pack)
+import qualified Data.Text as T
+
 import Text.ParserCombinators.Parsec hiding (Parser, (<|>))
 import Text.Parsec.ByteString.Lazy
 import qualified Data.ByteString.Lazy as BL
@@ -23,13 +26,14 @@ twigURL = "https://twigserial.wordpress.com/"
 -- can I get it to work for link tocs too?
 -- almost definitely :)
 
-hpmorURL = "hpmor.com"
 pactURL = "https://pactwebserial.wordpress.com/table-of-contents/"
 
-fanfictionLinks :: URL -> IO [Link]
-fanfictionLinks url = menuLinks url url (openSelector "#chap_select") (closeSelector "select")
-
 testTwig = menuLinks "https://twigserial.wordpress.com/donate/" "https://twigserial.wordpress.com/?cat=" (openSelector "#cat") (closeSelector "select")
+
+testGinny = menuLinks "http://fanfiction.net/s/11117811/" "http://fanfiction.net/s/11117811/" (openSelector "#chap_select") (closeSelector "select")
+
+--fanfictionLinks :: URL -> IO [Link]
+--fanfictionLinks url = menuLinks url url (openSelector "#chap_select") (closeSelector "select")
 
 menuLinks :: URL -> URL -> TagSelector -> TagSelector -> IO [Link]
 menuLinks url base start end = do
@@ -38,7 +42,7 @@ menuLinks url base start end = do
         select = selectMenu start end
     return $ parseMenuLinks base select tags
 
-data HTMLOption = HTMLOption Int String
+data HTMLOption = HTMLOption Int Text
                   deriving Show
 
 
@@ -52,7 +56,7 @@ parseMenuLinks :: URL -> TagSelect -> [BTag] -> [Link]
 parseMenuLinks base select ts = map (optionToLink base) $ allOptions $ select ts
 
 optionToLink :: URL -> HTMLOption -> Link
-optionToLink base (HTMLOption n t) = Link (base <> (show n)) t
+optionToLink base (HTMLOption n t) = Link (base <> (pack $ show n)) t
 
 -------------------------------------------------------------
 -- find the select tag
@@ -60,13 +64,15 @@ optionToLink base (HTMLOption n t) = Link (base <> (show n)) t
 selectMenu :: TagSelector -> TagSelector -> ([BTag] -> [BTag])
 selectMenu start end = takeWhile (~/= end) . dropWhile (~/= start)
 
-closeSelector :: String -> TagSelector
-closeSelector t = TagClose (fromString t)
+closeSelector :: Text -> TagSelector
+closeSelector t = TagClose (encodeBS t)
 
-openSelector :: String -> TagSelector
-openSelector ('#':id) = TagOpen "" [("id", fromString id)]
-openSelector ('.':cls) = TagOpen "" [("class", fromString cls)]
-openSelector tag = TagOpen (fromString tag) []
+openSelector :: Text -> TagSelector
+openSelector = sel . parseSelector
+  where
+    sel (ID id)     = TagOpen "" [("id", encodeBS id)]
+    sel (Class cls) = TagOpen "" [("class", encodeBS cls)]
+    sel (Tag tag)   = TagOpen (encodeBS tag) []
 
 -------------------------------------------------------------
 
@@ -119,7 +125,7 @@ optionsFromTags = catMaybes . map tagsToOption
 tagsToOption :: [BTag] -> Maybe HTMLOption
 tagsToOption (TagOpen _ as : TagText text : []) = do
     ns <- lookup "value" as
-    let t = toString text
+    let t = decodeBS text
         n = read $ toString ns
     return $ HTMLOption n t
 

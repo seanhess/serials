@@ -70,7 +70,7 @@ scanPage (CrawlSettings next sel) url = do
     let mt = findTitle tags
         u = findNextLink next sel tags >>= nextURL url
         link = case mt of 
-          Just t -> Just $ Link url t ""
+          Just t -> Just $ Link url t
           Nothing -> Nothing
     return (link, u)
 
@@ -123,14 +123,14 @@ findNextLink m sel tags = do
     return $ snd l
 
 findLinks :: Selector ByteString -> [Tag ByteString] -> Maybe [(String, URL)]
-findLinks sel tags = scrape (scrapeLinks sel) tags
+findLinks sel tags = scrape (scrapeNextLinks sel) tags
 
 matchLink :: String -> (String, URL) -> Bool
 matchLink match (text, url) = text =~ match
 
 
-scrapeLinks :: Selector ByteString -> Scraper ByteString [(String, URL)]
-scrapeLinks sel = chroot sel $ do
+scrapeNextLinks :: Selector ByteString -> Scraper ByteString [(String, URL)]
+scrapeNextLinks sel = chroot sel $ do
     links <- scrapeAs
     buttons <- scrapeFanficButton
     return $ links <> buttons

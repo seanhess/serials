@@ -6,6 +6,7 @@ import System.IO
 import Control.Monad
 import Crawl
 import Scrape
+import Parse
 
 main = testCrawl
 

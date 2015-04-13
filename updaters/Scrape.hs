@@ -1,20 +1,52 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Scrape ( 
-  scrapeTitle,
-  selector,
-  a,
-  p,
-  button
-) where
+module Scrape where
+
+import Links
 
 import Prelude hiding (id)
 
-import Text.HTML.Scalpel
 import Control.Applicative
-import Text.StringLike hiding (fromString)
+
 import Data.ByteString.Lazy (ByteString)
 import Data.ByteString.Lazy.UTF8 (toString, fromString)
+import Data.Maybe (fromMaybe)
+
+import Text.HTML.Scalpel hiding (URL)
+import Text.HTML.TagSoup
+import Text.StringLike hiding (fromString, toString)
+
+
+---------------------------------------------------------------------------
+-- toc sites here
+
+testPact = tocLinks "https://pactwebserial.wordpress.com/table-of-contents/" (selector ".entry-content")
+testWorm = tocLinks "https://parahumans.wordpress.com/table-of-contents/" (selector ".entry-content")
+
+tocLinks :: URL -> Selector ByteString -> IO [Link]
+tocLinks url sel = do
+    body <- downloadBody url
+    let tags = parseTags body
+        links = scrape (scrapeLinks sel) tags
+    return $ fromMaybe [] links
+
+scrapeLinks :: Selector ByteString -> Scraper ByteString [Link]
+scrapeLinks sel = chroot sel $ chroots a scrapeLink
+
+scrapeLink :: Scraper ByteString Link
+scrapeLink = do
+  url <- attr "href" Any
+  title <- text Any
+  return $ Link (toString title) (toString url)
+
+scrapeOption :: Scraper ByteString Link
+scrapeOption = do
+  url <- attr "href" Any
+  title <- text Any
+  return $ Link (toString title) (toString url)
+
+-- options: screen certain text, certain urls
+-- woooo
 
 ---------------------------------------------------------------------------
 
@@ -39,14 +71,11 @@ button = "button"
 
 -- many of them have arcs
 
-type Title = String
-type Url = String
-
 type Id = String
 type Class = String
 
-data Entry = Entry Title Url deriving (Show, Eq)
-data Source = Source Url (Selector String)
+data Entry = Entry Title URL deriving (Show, Eq)
+data Source = Source URL (Selector String)
 
 parseEntries :: Selector String -> Scraper String [Entry]
 parseEntries sel = chroots sel parseEntry

@@ -11,8 +11,7 @@ type URL = String
 
 data Link = Link {
   linkURL :: URL,
-  linkTitle :: Title,
-  linkDate :: DateString
+  linkTitle :: Title
 } deriving (Show, Eq)
 
 downloadBody :: String -> IO BL.ByteString

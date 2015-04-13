@@ -36,10 +36,11 @@ menuLinks url base start end = do
     body <- downloadBody url
     let tags = parseTags body
         select = selectMenu start end
-    return $ parseAllLinks base select tags
+    return $ parseMenuLinks base select tags
 
 data HTMLOption = HTMLOption Int String
                   deriving Show
+
 
 --------------------------------------------------------------
 -- tags to links
@@ -47,8 +48,8 @@ data HTMLOption = HTMLOption Int String
 type TagSelect = [BTag] -> [BTag]
 type TagSelector = BTag
 
-parseAllLinks :: URL -> TagSelect -> [BTag] -> [Link]
-parseAllLinks base select ts = map (optionToLink base) $ allOptions $ select ts
+parseMenuLinks :: URL -> TagSelect -> [BTag] -> [Link]
+parseMenuLinks base select ts = map (optionToLink base) $ allOptions $ select ts
 
 optionToLink :: URL -> HTMLOption -> Link
 optionToLink base (HTMLOption n t) = Link (base <> (show n)) t
@@ -68,10 +69,6 @@ openSelector ('.':cls) = TagOpen "" [("class", fromString cls)]
 openSelector tag = TagOpen (fromString tag) []
 
 -------------------------------------------------------------
--- parse the options from the select tag
-
-allOptions :: [BTag] -> [HTMLOption]
-allOptions = optionsFromTags . optionTags
 
 type BTag = Tag BL.ByteString
 
@@ -80,6 +77,15 @@ anyOpen = TagOpen "" []
 
 anyClose :: BTag
 anyClose = TagClose ""
+
+isTagChange :: BTag -> Bool
+isTagChange t = t ~== anyOpen || t ~== anyClose
+
+-------------------------------------------------------------
+-- parsing <select> tags
+
+allOptions :: [BTag] -> [HTMLOption]
+allOptions = optionsFromTags . optionTags
 
 takeOptionTag :: [BTag] -> ([BTag], [BTag])
 takeOptionTag [] = ([], [])
@@ -91,8 +97,6 @@ takeOptionTag (t:ts) = (option, rest)
 nextOptionTag :: [BTag] -> ([BTag], [BTag])
 nextOptionTag = takeOptionTag . dropWhile (not . isOptionTag)
 
-isTagChange :: BTag -> Bool
-isTagChange t = t ~== anyOpen || t ~== anyClose
 
 isOptionTag :: BTag -> Bool
 isOptionTag = (~== open)

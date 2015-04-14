@@ -20,7 +20,7 @@ TODO
 PARSING
 
 - [x] CLOSED. filters valid links
-- [ ] clean title / url of newlines
+- [x] clean title / url of newlines
 
 SERVICE
 
@@ -42,4 +42,10 @@ PROTOTYPE USER INTERFACE
 
 
 
+MILESTONES
+----------
 
+- [ ] List of sources. View, Edit, Remove, Add. 
+- [ ] Button to do a scan per source. Store the results. Page to view the scan results
+- [ ] Store the latest chapter list
+- [ ] Manage chapter lists (hide, add chapter)

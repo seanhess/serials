@@ -2,3 +2,5 @@ node_modules
 dist
 .cabal-sandbox
 twigserial.wordpress.com/
+archive/
+.DS_Store

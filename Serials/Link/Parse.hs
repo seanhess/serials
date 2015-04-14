@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Parse where
+module Serials.Link.Parse where
 
 import Prelude
-import Links
+import Serials.Link.Link
 
 import Data.Monoid ((<>))
 import Data.Char (isLetter)
@@ -19,28 +19,6 @@ import Text.HTML.TagSoup
 
 import Control.Applicative hiding (many)
 
--- this works for: twig, and ginny
-ginnyURL = "http://fanfiction.net/s/11117811/"
-twigURL = "https://twigserial.wordpress.com/"
-
--- can I get it to work for link tocs too?
--- almost definitely :)
-
-pactURL = "https://pactwebserial.wordpress.com/table-of-contents/"
-
-testTwig = menuLinks "https://twigserial.wordpress.com/donate/" "https://twigserial.wordpress.com/?cat=" (openSelector "#cat") (closeSelector "select")
-
-testGinny = menuLinks "http://fanfiction.net/s/11117811/" "http://fanfiction.net/s/11117811/" (openSelector "#chap_select") (closeSelector "select")
-
---fanfictionLinks :: URL -> IO [Link]
---fanfictionLinks url = menuLinks url url (openSelector "#chap_select") (closeSelector "select")
-
-menuLinks :: URL -> URL -> TagSelector -> TagSelector -> IO [Link]
-menuLinks url base start end = do
-    body <- downloadBody url
-    let tags = parseTags body
-        select = selectMenu start end
-    return $ parseMenuLinks base select tags
 
 data HTMLOption = HTMLOption Int Text
                   deriving Show

@@ -32,15 +32,11 @@ PROTOTYPE USER INTERFACE
 
 - [ ] List of sources in the system
 - [ ] List of chapters per source
-
 - [ ] Admin: Add a new source
 - [ ] Admin: Edit course selector, settings, url, etc
-
 - [ ] Admin: scan history
 - [ ] Admin: manually add a chapter (in order)
 - [ ] Admin: manually hide a scanned chapter
-
-
 
 MILESTONES
 ----------

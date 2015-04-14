@@ -4,3 +4,4 @@ dist
 twigserial.wordpress.com/
 archive/
 .DS_Store
+cabal.sandbox.config

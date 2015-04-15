@@ -7,15 +7,27 @@
 
 module Serials.Api where
 
+import Control.Applicative 
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Either
+
 import Data.Aeson
 import Data.Monoid
 import Data.Proxy
 import Data.Text
+import Data.Maybe (fromJust)
+
 import GHC.Generics
+
 import Network.Wai
 import Network.Wai.Handler.Warp
 
+import Serials.Model.Source
+
 import Servant
+
+import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect)
+
 
 -- * Example
 
@@ -26,13 +38,6 @@ newtype Greet = Greet { _msg :: Text }
 instance FromJSON Greet
 instance ToJSON Greet
 
-data Source = Source {
-  sourceUrl :: Text,
-  sourceName :: Text
-} deriving (Show, Generic)
-
-instance FromJSON Source
-instance ToJSON Source
 
 -- API specification
 type TestApi =
@@ -49,9 +54,14 @@ type TestApi =
 
   :<|> "sources" :> Get [Source]
 
-  :<|> "sources" :> ReqBody Source :> Post Source
+  :<|> "sources" :> ReqBody Source :> Post Text
 
-  :<|> "sources" :> Capture "id" Text :> Get Source
+  :<|> "sources" :> Capture "id" Text :> Get (Source)
+
+  :<|> "sources" :> Capture "id" Text :> ReqBody Source :> Put ()
+
+  :<|> "sources" :> Capture "id" Text :> Delete
+
 
 testApi :: Proxy TestApi
 testApi = Proxy
@@ -62,35 +72,52 @@ testApi = Proxy
 -- that represents the API, are glued together using :<|>.
 --
 -- Each handler runs in the 'EitherT (Int, String) IO' monad.
-server :: Server TestApi
-server = helloH :<|> postGreetH :<|> deleteGreetH :<|> 
-         sourcesGetAll :<|> sourcesPost :<|> sourcesGet
+server :: RethinkDBHandle -> Server TestApi
+server h = 
+    helloH :<|> postGreetH :<|> deleteGreetH :<|> 
+    sourcesGetAll :<|> sourcesPost :<|> sourcesGet :<|> sourcesPut :<|> sourcesDelete
 
-  where helloH name Nothing = helloH name (Just False)
-        helloH name (Just False) = return . Greet $ "Hello, " <> name
-        helloH name (Just True) = return . Greet . toUpper $ "Hello, " <> name
+  where 
 
-        postGreetH greet = return greet
+  helloH name Nothing = helloH name (Just False)
+  helloH name (Just False) = return . Greet $ "Hello, " <> name
+  helloH name (Just True) = return . Greet . toUpper $ "Hello, " <> name
 
-        deleteGreetH _ = return ()
+  postGreetH greet = return greet
 
-        sourcesGetAll      = return []
-        sourcesPost source = return source
-        sourcesGet id      = return $ Source "hello" "world"
+  deleteGreetH _ = return ()
 
-        
+  sourcesGetAll :: EitherT (Int, String) IO [Source]
+  sourcesGetAll = liftIO $ sourcesList h
+
+  sourcesPost s = liftIO $ sourcesCreate h s
+
+  sourcesGet :: Text -> EitherT (Int, String) IO (Source)
+  sourcesGet id = EitherT $ notFound <$> sourcesFind h id
+
+  sourcesPut id s  = liftIO $ sourcesSave h id s
+
+  sourcesDelete id = liftIO $ sourcesRemove h id
+
+
+notFound :: Maybe a -> Either (Int, String) a
+notFound Nothing  = Left (404, "Not Found")
+notFound (Just a) = Right a
 
 -- Turn the server into a WAI app. 'serve' is provided by servant,
 -- more precisely by the Servant.Server module.
-test :: Application
-test = serve testApi server
+test :: RethinkDBHandle -> Application
+test conn = serve testApi (server conn)
 
--- Run the server.
---
--- 'run' comes from Network.Wai.Handler.Warp
-runTestServer :: Port -> IO ()
-runTestServer port = run port test
+serialsDb = db serialsDbName
+serialsDbName = "serials"
 
--- Put this all to work!
-runApi :: IO ()
-runApi = runTestServer 8001
+runTestServer :: Port -> RethinkDBHandle -> IO ()
+runTestServer port h = run port (test h)
+
+runApi :: Int -> IO ()
+runApi port = do
+    putStrLn $ "Running on " <> show port
+    h <- use serialsDb <$> connect "localhost" 28015 Nothing
+    runTestServer port h
+    return ()

@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                serials
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            serials
 description:         serials
 license:             MIT
@@ -45,6 +45,11 @@ executable serials
                         wai,
                         warp,
                         servant,
-                        servant-server
+                        servant-server,
+                        rethinkdb,
+                        rethinkdb-model==0.1.0.3,
+                        transformers,
+                        either,
+                        unordered-containers
                         
                         --shpider >= 0.2

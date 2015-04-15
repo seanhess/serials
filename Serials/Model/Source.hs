@@ -9,13 +9,12 @@ import Control.Applicative
 
 import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
-import Data.Maybe (fromMaybe)
-
 
 import GHC.Generics
 import Database.RethinkDB.NoClash
 
-import qualified Data.HashMap.Strict as HM
+import Serials.Model.Crud
+
 
 data Source = Source {
   id :: Maybe Text,
@@ -47,16 +46,3 @@ sourcesSave h id s = run h $ table "sources" # get (expr id) # replace (const (t
 sourcesRemove :: RethinkDBHandle -> Text -> IO ()
 sourcesRemove h id = run h $ table "sources" # get (expr id) # delete
 
--------------------------------------------------
-
-generatedKey :: WriteResponse -> Text
-generatedKey = head . fromMaybe [""] . writeResponseGeneratedKeys
-
-stripId :: Datum -> Datum
-stripId (Object o) = Object $ HM.delete "id" o
-stripId x = x
-
-create :: ToDatum a => a -> Table -> ReQL
-create o = insert (stripId $ toDatum o)
-
--------------------------------------------------

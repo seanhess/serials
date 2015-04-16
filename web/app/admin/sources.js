@@ -3,6 +3,7 @@
 import React from 'react'
 import {SourceModel} from './model.js'
 import {Link} from 'react-router'
+import {sortBy} from 'lodash'
 
 export class Sources extends React.Component {
 
@@ -17,10 +18,13 @@ export class Sources extends React.Component {
   render() {
     var sources = this.props.sources || []
 
+    var sorted = sortBy(sources, s => s.sourceDisabled)
+
     function renderRow(source) {
       return <tr key={source.id}>
         <td><Link to="source" params={{id: source.id}}>{source.sourceName}</Link></td>
         <td><a href={source.sourceUrl}>{source.sourceUrl}</a></td>
+        <td>{!source.sourceDisabled ? 'Active' : 'Disabled'}</td>
       </tr>
     }
 
@@ -30,8 +34,9 @@ export class Sources extends React.Component {
         <tr>
           <th>Name</th>
           <th>URL</th>
+          <th>Active</th>
         </tr>
-        {sources.map(renderRow)}
+        {sorted.map(renderRow)}
       </table>
       <div><a href="#/admin/sources/new">Add Source</a></div>
     </div>

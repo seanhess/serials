@@ -47,14 +47,13 @@ executable serials
     wai-extra,
     wai-cors,
     warp,
-    servant,
-    servant-server,
-    servant-jquery,
+    scotty,
     rethinkdb,
-    rethinkdb-model==0.1.0.3,
     transformers,
     either,
     unordered-containers,
-    mtl
+    mtl,
+    http-types
+
     
     --shpider >= 0.2

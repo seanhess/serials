@@ -46,3 +46,37 @@ sourcesSave h id s = run h $ table "sources" # get (expr id) # replace (const (t
 sourcesRemove :: RethinkDBHandle -> Text -> IO ()
 sourcesRemove h id = run h $ table "sources" # get (expr id) # delete
 
+
+-- how could I preconfigure it with a table?
+
+-- find :: RethinkDBHandle -> Text -> IO (Maybe a)
+-- find h id = run h $ table # get (expr id)
+
+-- give me a table, give me a rethinkdb connection
+-- and I'll give you a bunch of IO functions you can run :)
+-- crud :: Table -> RethinkDBHandle -> IO a
+
+
+-- I want IO actions, in case I need to do other ones
+-- and to fit nicely, right?
+-- hmm.. no... the controller actions should tie things together, right?
+-- these really can be explicitly database operations
+-- this module exports database operations
+-- which means that RethinkIO makes sense
+-- but maybe not having them run it.. I run it?
+
+--sourcesList :: RethinkDB IO [Source]
+--sourcesList = table "sources"
+
+--sourcesFind :: Text -> RethinkDB IO (Maybe Source)
+--sourcesFind id = table "sources" # get (expr id)
+
+--newtype RethinkDB m a = RethinkDB { runRethink :: m a }
+-- I want a monad transformer!
+-- yay!
+-- it's secretly a reader!
+-- what's the point then?
+-- it would be rad if you could still do IO operations, right?
+-- but you can't
+
+

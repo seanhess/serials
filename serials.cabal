@@ -50,6 +50,7 @@ executable serials
                         rethinkdb-model==0.1.0.3,
                         transformers,
                         either,
-                        unordered-containers
+                        unordered-containers,
+                        mtl
                         
                         --shpider >= 0.2

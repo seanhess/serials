@@ -13,6 +13,8 @@ Approaches
 - twig: tocLinks
 - pact: tocLinks
 - blindsight: ????
+- patreon: https://www.patreon.com/dreamscapes?ty=c
+
 
 TODO
 ----

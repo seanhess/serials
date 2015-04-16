@@ -7,8 +7,8 @@ synopsis:            serials
 description:         serials
 license:             MIT
 license-file:        README.md
-author:              Sean Clark Hess
-maintainer:          seanhess@gmail.com
+author:              Sean Hess
+maintainer:          Sean Hess
 -- copyright:           
 category:            Web Scraper
 build-type:          Simple

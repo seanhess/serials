@@ -72,10 +72,9 @@ allOptions = optionsFromTags . optionTags
 
 takeOptionTag :: [BTag] -> ([BTag], [BTag])
 takeOptionTag [] = ([], [])
-takeOptionTag (t:ts) = (option, rest)
+takeOptionTag (t:ts) = (t : taken, rest)
   where
-    option = t : takeWhile (not . isTagChange) ts
-    rest   = dropWhile (not . isTagChange) ts
+  (taken, rest) = span (not . isTagChange) ts
 
 nextOptionTag :: [BTag] -> ([BTag], [BTag])
 nextOptionTag = takeOptionTag . dropWhile (not . isOptionTag)

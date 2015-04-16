@@ -14,17 +14,20 @@ import Control.Monad.Trans.Either
 import Data.Aeson
 import Data.Monoid
 import Data.Proxy
-import Data.Text
+import Data.Text (Text, toUpper)
 import Data.Maybe (fromJust)
 
 import GHC.Generics
 
 import Network.Wai
-import Network.Wai.Handler.Warp
+import Network.Wai.Handler.Warp (run, Port)
+import Network.Wai.Middleware.Cors
+import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source
 
 import Servant
+import Servant.JQuery
 
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect)
 
@@ -40,31 +43,24 @@ instance ToJSON Greet
 
 
 -- API specification
-type TestApi =
-       -- GET /hello/:name?capital={true, false}  returns a Greet as JSON
+type Api =
+
        "hello" :> Capture "name" Text :> QueryParam "capital" Bool :> Get Greet
 
-       -- POST /greet with a Greet as JSON in the request body,
-       --             returns a Greet as JSON
   :<|> "greet" :> ReqBody Greet :> Post Greet
-
-       -- DELETE /greet/:greetid
   :<|> "greet" :> Capture "greetid" Text :> Delete
 
 
   :<|> "sources" :> Get [Source]
-
   :<|> "sources" :> ReqBody Source :> Post Text
 
   :<|> "sources" :> Capture "id" Text :> Get (Source)
-
   :<|> "sources" :> Capture "id" Text :> ReqBody Source :> Put ()
-
   :<|> "sources" :> Capture "id" Text :> Delete
 
 
-testApi :: Proxy TestApi
-testApi = Proxy
+api :: Proxy Api
+api = Proxy
 
 -- Server-side handlers.
 --
@@ -72,7 +68,7 @@ testApi = Proxy
 -- that represents the API, are glued together using :<|>.
 --
 -- Each handler runs in the 'EitherT (Int, String) IO' monad.
-server :: RethinkDBHandle -> Server TestApi
+server :: RethinkDBHandle -> Server Api
 server h = 
     helloH :<|> postGreetH :<|> deleteGreetH :<|> 
     sourcesGetAll :<|> sourcesPost :<|> sourcesGet :<|> sourcesPut :<|> sourcesDelete
@@ -106,18 +102,57 @@ notFound (Just a) = Right a
 
 -- Turn the server into a WAI app. 'serve' is provided by servant,
 -- more precisely by the Servant.Server module.
-test :: RethinkDBHandle -> Application
-test conn = serve testApi (server conn)
+app :: RethinkDBHandle -> Application
+app conn = serve api (server conn)
+
+runTestServer :: Port -> RethinkDBHandle -> IO ()
+runTestServer port h = run port $ heads $ cors' $ app h
+  where
+    heads = addHeaders [("X-Hacker", "Hi there! Consider contributing at http://github.com/seanhess/serials")]
+
+-- Run ---------------------------------------------------------
+
+runApi :: Int -> IO ()
+runApi port = do
+    --writeJS "test.js" [helloH, postGreet, delGreet]
+    print $ toJS [getSource, getSources, postSources]
+    --putStrLn $ "Running on " <> show port
+    --h <- connectDb
+    --runTestServer port h
+    --return ()
+
+-- DB -----------------------------------------------------------
+
+connectDb :: IO RethinkDBHandle
+connectDb = use serialsDb <$> connect "localhost" 28015 Nothing
 
 serialsDb = db serialsDbName
 serialsDbName = "serials"
 
-runTestServer :: Port -> RethinkDBHandle -> IO ()
-runTestServer port h = run port (test h)
+-- Cors ---------------------------------------------------------
 
-runApi :: Int -> IO ()
-runApi port = do
-    putStrLn $ "Running on " <> show port
-    h <- use serialsDb <$> connect "localhost" 28015 Nothing
-    runTestServer port h
-    return ()
+cors' :: Middleware
+cors' = cors (const $ Just corsResourcePolicy)
+
+corsResourcePolicy :: CorsResourcePolicy
+corsResourcePolicy = CorsResourcePolicy
+    { corsOrigins = Nothing
+    , corsMethods = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"]
+    , corsRequestHeaders = simpleResponseHeaders
+    , corsExposedHeaders = Nothing
+    , corsMaxAge = Nothing
+    , corsVaryOrigin = False
+    , corsRequireOrigin = False
+    , corsIgnoreFailures = False
+    }
+
+-- JS API --------------------------------------------------------
+
+writeJS :: FilePath -> [AjaxReq] -> IO ()
+writeJS fp functions = writeFile fp $ toJS functions
+
+toJS :: [AjaxReq] -> String
+toJS = concatMap generateJS
+
+helloH :<|> postGreet :<|> delGreet :<|> getSources :<|> postSources :<|> getSource :<|> _ = jquery api
+

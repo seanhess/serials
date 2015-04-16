@@ -3,6 +3,20 @@ serials
 
 Prototype of web serials app
 
+Development
+-----------
+
+Haskell Server
+
+    cabal sandbox init
+    cabal install --only-dependencies
+    cabal run
+
+Front-end application
+  
+    npm install
+    npm start
+
 Approaches
 ----------
 
@@ -13,8 +27,7 @@ Approaches
 - twig: tocLinks
 - pact: tocLinks
 - blindsight: ????
-- patreon: https://www.patreon.com/dreamscapes?ty=c
-
+- patreon (https://www.patreon.com/dreamscapes?ty=c) ???
 
 TODO
 ----
@@ -27,7 +40,9 @@ PARSING
 SERVICE
 
 - [ ] Store settings per source
-  - front end for crud
+  - [x] basic front end
+  - [ ] list of sources in a table
+  - [ ] source edit page
 
 - [ ] Manually scan a source
 - [ ] CRUD source chapters

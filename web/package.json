@@ -22,6 +22,7 @@
   "dependencies": {
     "ask": "1.5.0",
     "axios": "0.5.4",
+    "bluebird": "2.9.24",
     "lodash": "3.6.0",
     "react": "0.13.1"
   },

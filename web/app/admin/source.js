@@ -1,12 +1,18 @@
 // @flow
 
 var React = require('react')
+var Promise = require('bluebird')
 
 import {SourceModel} from './model'
 
 export class Source extends React.Component {
 
   static load(params) {
+    if (params.id == "new") {
+      console.log("WEE")
+      return Promise.resolve({})
+    }
+
     return SourceModel.find(params.id)
   }
 
@@ -27,10 +33,32 @@ export class Source extends React.Component {
     }
   }
 
+  onSaveClick() {
+    if (this.props.params.id == "new") {
+      this.create()
+    }
+
+    else {
+      this.save()
+    }
+  }
+
   save() {
     var source = this.state.source
     SourceModel.save(this.props.source.id, source)
     .then(() => window.location.hash = "/admin/sources")
+  }
+
+  create() {
+    var source = this.state.source
+    SourceModel.create(source)
+    .then(() => window.location.hash = "/admin/sources")
+  }
+
+  toggleActive() {
+    var source = this.state.source
+    source.sourceDisabled = !source.sourceDisabled
+    this.setState({source: source})
   }
 
   render() {
@@ -39,7 +67,11 @@ export class Source extends React.Component {
     return <div>
       <h3>Source</h3>
 
-      <div><button onClick={this.save.bind(this)}>Save</button></div>
+      <div>
+        <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
+        <span> </span>
+        <a className="secondary button" href="#/admin/sources">Cancel</a>
+      </div>
 
       <label>Name</label>
       <input type="text" 
@@ -53,7 +85,27 @@ export class Source extends React.Component {
         onChange={this.updateSource((s, v) => s.sourceUrl = v)}
       />
 
+      <label>Active</label>
+      <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
     </div>
   }
 }
 
+class DisabledButton {
+  render() {
+
+    if (this.props.disabled) {
+      var text = "Disabled"
+      var className = "secondary"
+    }
+
+    else {
+      var text = "Active"
+      var className = "success"
+    }
+
+    return <div>
+      <button className={className} onClick={this.props.onClick}>{text}</button>
+    </div>
+  }
+}

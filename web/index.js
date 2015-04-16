@@ -40,7 +40,7 @@ Router.run(routes, function (Handler, state) {
 
   loadAll(state.routes, state.params)
   .then(function(data) {
-    React.render(<Handler {...data}/>, document.body)
+    React.render(<Handler {...data} params={state.params}/>, document.body)
   })
 })
 

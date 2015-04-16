@@ -19,7 +19,8 @@ import Serials.Model.Crud
 data Source = Source {
   id :: Maybe Text,
   sourceUrl :: Text,
-  sourceName :: Text
+  sourceName :: Text,
+  sourceDisabled :: Maybe Bool
 } deriving (Show, Generic)
 
 instance FromJSON Source

@@ -1,21 +1,18 @@
 // @flow
 
-var React = require('react')
-
+import React from 'react'
 import {SourceModel} from './model.js'
 import {Link} from 'react-router'
 
 export class Sources extends React.Component {
 
   static load() {
-    console.log("LOAD sources")
     return SourceModel.findAll()
   }
 
   constructor(props) {
     super(props)
   }
-
 
   render() {
     var sources = this.props.sources || []
@@ -36,6 +33,7 @@ export class Sources extends React.Component {
         </tr>
         {sources.map(renderRow)}
       </table>
+      <div><a href="#/admin/sources/new">Add Source</a></div>
     </div>
   }
 }

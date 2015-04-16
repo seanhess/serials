@@ -3,9 +3,6 @@
 
 var React = require('react')
 
-import {Sources} from './sources.js'
-import {Source} from './source.js'
-
 import {RouteHandler} from 'react-router'
 
 export class Admin extends React.Component {
@@ -21,11 +18,8 @@ export class Admin extends React.Component {
       </nav>
 
       <div className="row columns small-12">
-        <RouteHandler />
+        <RouteHandler {...this.props}/>
       </div>
     </div>
   }
 }
-
-export var AdminSources = Sources
-export var AdminSource = Source

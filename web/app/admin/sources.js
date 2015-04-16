@@ -2,40 +2,40 @@
 
 var React = require('react')
 
-import {get} from 'axios'
+import {SourceModel} from './model.js'
 
 export class Sources extends React.Component {
 
   static load() {
-    console.log("LOAD")
+    return SourceModel.findAll()
   }
 
   constructor(props) {
     super(props)
-    this.state = {sources: []}
   }
 
   render() {
+    var sources = this.props.sources || []
+    console.log("SOURCES", sources)
+
     function renderRow(source) {
       return <tr>
-        <td>{source.name}</td>
+        <td>{source.sourceName}</td>
+        <td>{source.sourceUrl}</td>
       </tr>
     }
+
 
     return <div>
       <h3>Sources</h3>
       <table>
         <tr>
           <th>Name</th>
+          <th>URL</th>
         </tr>
-        {this.state.sources.map(renderRow)}
+        {sources.map(renderRow)}
       </table>
     </div>
   }
 }
 
-console.log("LOADING----")
-get("http://localhost:3001/sources")
-.then(function() {
-  console.log("HELLO")
-})

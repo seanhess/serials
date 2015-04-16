@@ -1,22 +1,25 @@
 // @flow
 
 var React = window.React = require('react')
+var ask = require('ask')
+var axios = require('axios')
 
 import Router from 'react-router'
 import {Route, DefaultRoute, RouteHandler, NotFoundRoute} from 'react-router'
 
-import {Admin, AdminSource, AdminSources} from './app/admin/admin.js'
+import {Admin} from './app/admin/admin.js'
+import {Sources} from './app/admin/sources.js'
 
 class App extends React.Component {
   render() {
-    return <RouteHandler />
+    return <RouteHandler {...this.props}/>
   }
 }
 
 var routes = (
   <Route handler={App} path="/">
     <Route name="admin" handler={Admin}>
-      <Route name="sources" handler={AdminSources}/>
+      <Route name="sources" handler={Sources}/>
     </Route>
   </Route>
 )
@@ -30,7 +33,22 @@ var routes = (
     //</Route>
     //<Redirect from="company" to="about" />
 
-Router.run(routes, function (Handler) {
-  React.render(<Handler/>, document.body)
+Router.run(routes, function (Handler, state) {
+  React.render(<Handler />, document.body)
+
+  loadAll(state.routes, state.params)
+  .then(function(data) {
+    console.log("loaded", data)
+    React.render(<Handler {...data}/>, document.body)
+  })
 })
 
+function loadAll(routes, params) {
+  var data = {};
+  return Promise.all(routes
+    .filter(route => route.handler.load)
+    .map(route => {
+      return route.handler.load(params).then(d => data[route.name] = d)
+    })
+  ).then(() => data);
+}

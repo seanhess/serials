@@ -27,6 +27,8 @@ PARSING
 SERVICE
 
 - [ ] Store settings per source
+  - front end for crud
+
 - [ ] Manually scan a source
 - [ ] CRUD source chapters
 

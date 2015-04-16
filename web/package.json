@@ -1,0 +1,35 @@
+{
+  "name": "serials",
+  "version": "1.0.0",
+  "description": "serials",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanhess/serials.git"
+  },
+  "author": "Sean Hess",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seanhess/serials/issues"
+  },
+  "homepage": "https://github.com/seanhess/serials",
+  "dependencies": {
+    "axios": "0.5.4",
+    "lodash": "3.6.0",
+    "react": "0.13.1"
+  },
+  "devDependencies": {
+    "babel-core": "4.5.1",
+    "babel-loader": "4.0.0",
+    "jsx-loader": "0.12.2",
+    "react-hot-loader": "1.2.3",
+    "webpack": "1.7.2",
+    "webpack-dev-server": "1.7.0"
+  }
+}

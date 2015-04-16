@@ -39,11 +39,7 @@ PARSING
 
 SERVICE
 
-- [ ] Store settings per source
-  - [x] basic front end
-  - [ ] list of sources in a table
-  - [ ] source edit page
-
+- [x] Store settings per source
 - [ ] Manually scan a source
 - [ ] CRUD source chapters
 

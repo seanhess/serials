@@ -9,6 +9,7 @@ import {Route, DefaultRoute, RouteHandler, NotFoundRoute} from 'react-router'
 
 import {Admin} from './app/admin/admin.js'
 import {Sources} from './app/admin/sources.js'
+import {Source} from './app/admin/source.js'
 
 class App extends React.Component {
   render() {
@@ -20,6 +21,7 @@ var routes = (
   <Route handler={App} path="/">
     <Route name="admin" handler={Admin}>
       <Route name="sources" handler={Sources}/>
+      <Route name="source"  path="sources/:id" handler={Source}/>
     </Route>
   </Route>
 )
@@ -38,7 +40,6 @@ Router.run(routes, function (Handler, state) {
 
   loadAll(state.routes, state.params)
   .then(function(data) {
-    console.log("loaded", data)
     React.render(<Handler {...data}/>, document.body)
   })
 })

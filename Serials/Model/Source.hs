@@ -14,14 +14,20 @@ import GHC.Generics
 import Database.RethinkDB.NoClash
 
 import Serials.Model.Crud
-
+import Serials.Link.Import (ImportSettings)
 
 data Source = Source {
-  id :: Maybe Text,
+  id :: Text,
   sourceUrl :: Text,
   sourceName :: Text,
-  sourceDisabled :: Maybe Bool
+  sourceDisabled :: Maybe Bool,
+
+  importSettings :: ImportSettings
 } deriving (Show, Generic)
+
+
+instance FromJSON ImportSettings
+instance ToJSON ImportSettings
 
 instance FromJSON Source
 instance ToJSON Source

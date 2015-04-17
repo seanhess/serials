@@ -27,6 +27,7 @@ import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source
 import Serials.Model.Chapter 
+import Serials.Scan
 
 import Web.Scotty
 
@@ -45,9 +46,9 @@ routes h = do
     json ss
   
   post "/sources" $ do
-    source <- jsonData
+    source <- jsonData :: ActionM Source
     result <- liftIO $ sourcesCreate h source
-    json result
+    json source
 
   get "/sources/:id" $ do
     id <- param "id"
@@ -68,6 +69,12 @@ routes h = do
   get "/sources/:id/chapters" $ do
     id <- param "id"
     result <- liftIO $ chaptersBySource h id
+    json result
+
+  -- scan!
+  post "/sources/:id/chapters" $ do
+    id <- param "id"
+    result <- liftIO $ importSource h id
     json result
 
 -- Run ---------------------------------------------------------

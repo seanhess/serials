@@ -3,6 +3,7 @@ module Serials.Link (
   link,
   menuLinks,
   tocLinks,
+  links,
 
   testWorm,
   testGinny,

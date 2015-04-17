@@ -2,7 +2,10 @@
 
 import {get, post, put, del, url} from '../api'
 
-type Source = {}
+type Source = {
+  id: string;
+  importSettings: any
+}
 
 export var SourceModel = {
   findAll() {
@@ -14,6 +17,8 @@ export var SourceModel = {
   },
 
   create(source:Source) {
+    // clear the id
+    source.id = ""
     return post(url('sources'), source)
   },
 
@@ -24,6 +29,7 @@ export var SourceModel = {
   save(id:string, source:Source) {
     return put(url('sources', id), source)
   }
+
 }
 
 export var ScanModel = {
@@ -35,5 +41,22 @@ export var ScanModel = {
 export var ChapterModel = {
   findBySource(id:string) {
     return get(url('sources', id, 'chapters'))
+  },
+
+  importSource(id:string) {
+    return post(url('sources', id, 'chapters'), {})
   }
 }
+
+export var Menu = "MenuSettings"
+export var TOC = "TOCSettings"
+
+export function emptySource():Source {
+  return {
+    id: "",
+    importSettings: {
+      tag: TOC,
+    }
+  }
+}
+

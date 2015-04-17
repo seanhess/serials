@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Serials.Link.Import where
 
@@ -9,6 +10,8 @@ import Data.Text (unpack, Text)
 import Data.Text.Lazy (toStrict, fromStrict)
 import Data.Text.Lazy.Encoding (decodeUtf8, encodeUtf8, decodeLatin1)
 
+import GHC.Generics (Generic)
+
 import Network.Wreq hiding (Link)
 
 import Serials.Link.Scrape
@@ -17,6 +20,17 @@ import Serials.Link.Link
 
 import Text.HTML.Scalpel hiding (URL)
 import Text.HTML.TagSoup
+
+data ImportSettings = 
+  MenuSettings {
+    menuBase :: URL,
+    menuOpen :: Text,
+    menuClose ::  Text
+  } |
+  TOCSettings {
+    tocSelector :: Text
+  }
+  deriving (Show, Eq, Generic)
 
 menuLinks :: URL -> URL -> TagSelector -> TagSelector -> IO [Link]
 menuLinks url base start end = do
@@ -32,6 +46,11 @@ tocLinks url sel = do
         as = scrape (scrapeAnchors sel) tags
         ls = map (anchorToLink url) $ fromMaybe [] as
     return $ ls
+
+-- yeah, because you need to map a source to an IO action
+links :: URL -> ImportSettings -> IO [Link]
+links url (MenuSettings base open close) = menuLinks url base (openSelector open) (closeSelector close)
+links url (TOCSettings cssQuery) = tocLinks url (selector cssQuery)
 
 ----------------------------------------------------------
 

@@ -3,14 +3,15 @@
 var React = require('react')
 var Promise = require('bluebird')
 
-import {SourceModel, ScanModel, ChapterModel} from './model'
+import {SourceModel, ScanModel, ChapterModel, emptySource} from './model'
 import {Chapters} from './chapters.js'
+import {ImportSettings} from './import.js'
 
 export class Source extends React.Component {
 
   static load(params) {
     if (params.id == "new") {
-      return Promise.resolve({})
+      return Promise.resolve({source: emptySource()})
     }
 
     return Promise.join(
@@ -24,11 +25,11 @@ export class Source extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = {source: {}}
+    this.state = {source: emptySource()}
   }
 
   componentWillReceiveProps(props) {
-    this.setState({source: props.source || {}})
+    this.setState({source: props.source || emptySource()})
   }
 
   updateSource(f) {
@@ -67,12 +68,30 @@ export class Source extends React.Component {
     this.setState({source: source})
   }
 
+  runScan() {
+    // do something amazing!
+    console.log("RUN SCAN!")
+    ChapterModel.importSource(this.params.id)
+    .then(function() {
+      console.log("done?")
+    })
+  }
+
+  onUpdateSettings(settings) {
+    var source = this.state.source
+    source.importSettings = settings
+    this.setState({source: source})
+  }
+
   render() {
     var source = this.state.source || {}
     var chapters = this.props.chapters || []
 
     return <div>
       <h3>Source</h3>
+      <div className="right">
+        <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
+      </div>
 
       <div>
         <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
@@ -80,25 +99,61 @@ export class Source extends React.Component {
         <a className="secondary button" href="#/admin/sources">Cancel</a>
       </div>
 
-      <label>Name</label>
-      <input type="text" 
-        value={source.sourceName} 
-        onChange={this.updateSource((s, v) => s.sourceName = v)}
-      />
+      <FormSection title="Basic Settings">
+        <div className="row">
+          <div className="small-5 columns">
+            <label>Name</label>
+            <input type="text" 
+              value={source.sourceName} 
+              onChange={this.updateSource((s, v) => s.sourceName = v)}
+            />
+          </div>
 
-      <label>URL</label>
-      <input type="text" 
-        value={source.sourceUrl}
-        onChange={this.updateSource((s, v) => s.sourceUrl = v)}
-      />
+          <div className="small-7 columns">
+            <label>URL</label>
+            <input type="text" 
+              value={source.sourceUrl}
+              onChange={this.updateSource((s, v) => s.sourceUrl = v)}
+            />
+          </div>
+        </div>
+      </FormSection>
 
-      <label>Active</label>
-      <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
+      <FormSection title="Import Settings">
+        <ImportSettings settings={source.importSettings} onUpdate={this.onUpdateSettings.bind(this)} />
+      </FormSection>
 
       <h4>{chapters.length} Chapters</h4>
+      <div><button onClick={this.runScan}>Scan Now</button></div>
       <Chapters chapters={chapters}/>
     </div>
 
+  }
+}
+
+class FormSection {
+  render() {
+
+    var contentStyle = {
+      padding: 15,
+    }
+
+    var headerStyle = {
+      backgroundColor: '#F2F2F2',
+      padding: 15,
+    }
+
+    var mainStyle = {
+      border: 'solid 1px #D8D8D8',
+      marginBottom: 20
+    }
+
+    return <div>
+      <div style={mainStyle}>
+        <div style={headerStyle}>{this.props.title}</div>
+        <div style={contentStyle}>{this.props.children}</div>
+      </div>
+    </div>
   }
 }
 

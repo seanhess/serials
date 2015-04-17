@@ -9,6 +9,9 @@ export class Sources extends React.Component {
 
   static load() {
     return SourceModel.findAll()
+    .then(function(sources) {
+      return {sources: sources}
+    })
   }
 
   constructor(props) {

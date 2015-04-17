@@ -31,3 +31,9 @@ export var ScanModel = {
     return get(url('sources', id, 'scans'))
   }
 }
+
+export var ChapterModel = {
+  findBySource(id:string) {
+    return get(url('sources', id, 'chapters'))
+  }
+}

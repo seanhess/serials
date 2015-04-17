@@ -3,8 +3,8 @@
 var React = require('react')
 var Promise = require('bluebird')
 
-import {SourceModel, ScanModel} from './model'
-import {Scans} from './scans.js'
+import {SourceModel, ScanModel, ChapterModel} from './model'
+import {Chapters} from './chapters.js'
 
 export class Source extends React.Component {
 
@@ -13,12 +13,12 @@ export class Source extends React.Component {
       return Promise.resolve({})
     }
 
-    // if you convert the data into 
-    // you'll be getting .source because that's your name...
-    // that's weird
-    return Promise.all(
-      SourceModel.find(params.id),
-      ScanModel.findBySource(params.id)
+    return Promise.join(
+      SourceModel.find(params.id), 
+      ChapterModel.findBySource(params.id),
+      function(source, chapters) {
+        return {source, chapters}
+      }
     )
   }
 
@@ -68,7 +68,8 @@ export class Source extends React.Component {
   }
 
   render() {
-    var {source} = this.state
+    var source = this.state.source || {}
+    var chapters = this.props.chapters || []
 
     return <div>
       <h3>Source</h3>
@@ -94,9 +95,10 @@ export class Source extends React.Component {
       <label>Active</label>
       <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
 
-      <h4>Scans</h4>
-      <Scans scans={this.props.scans}/>
+      <h4>{chapters.length} Chapters</h4>
+      <Chapters chapters={chapters}/>
     </div>
+
   }
 }
 

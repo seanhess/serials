@@ -11,6 +11,8 @@ import {Admin} from './app/admin/admin.js'
 import {Sources} from './app/admin/sources.js'
 import {Source} from './app/admin/source.js'
 
+import {assign} from 'lodash'
+
 class App extends React.Component {
   render() {
     return <RouteHandler {...this.props}/>
@@ -40,7 +42,7 @@ Router.run(routes, function (Handler, state) {
 
   loadAll(state.routes, state.params)
   .then(function(data) {
-    React.render(<Handler data={data} params={state.params}/>, document.body)
+    React.render(<Handler {...data} params={state.params}/>, document.body)
   })
 })
 
@@ -48,8 +50,11 @@ function loadAll(routes, params) {
   var data = {};
   return Promise.all(routes
     .filter(route => route.handler.load)
-    .map(route => {
-      return route.handler.load(params).then(d => data[route.name] = d)
+    .map(function(route) {
+      return route.handler.load(params)
+      .then(function(d) {
+        data = assign(data, d)
+      })
     })
   ).then(() => data);
 }

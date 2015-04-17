@@ -65,10 +65,10 @@ routes h = do
     liftIO $ sourcesSave h id s
     text "OK"
 
-  --get "/sources/:id/scans" $ do
-    --id <- param "id"
-    --result <- liftIO $ scansBySource h id
-    --json result
+  get "/sources/:id/chapters" $ do
+    id <- param "id"
+    result <- liftIO $ chaptersBySource h id
+    json result
 
 -- Run ---------------------------------------------------------
 

@@ -16,7 +16,6 @@ import Database.RethinkDB.NoClash
 import Serials.Model.Crud
 
 
-
 data Chapter = Chapter {
   id :: Maybe Text,
 
@@ -38,7 +37,11 @@ chaptersTable= table "chapters"
 sourceIndex = Index "sourceId"
 
 chaptersBySource :: RethinkDBHandle -> Text -> IO [Chapter]
-chaptersBySource h sid = run h $ chaptersTable # getAll sourceIndex sid
+chaptersBySource h sid = run h $ chaptersTable # getAll sourceIndex [expr sid]
+
+chapterSave :: RethinkDBHandle -> Chapter -> IO ()
+chapterSave h c = run h $ chaptersTable # get (expr $ chapterURL c) # replace (const $ toDatum c)
+chaptersSave h cs = mapM_ (chapterSave h) cs
 
 chaptersInit :: RethinkDBHandle -> IO ()
 chaptersInit h = do

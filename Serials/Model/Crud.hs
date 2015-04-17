@@ -6,6 +6,7 @@ import Database.RethinkDB.NoClash
 import Data.Text (Text)
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromMaybe)
+import Data.Monoid ((<>))
 
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans (liftIO)
@@ -30,3 +31,14 @@ runDb e = do
     liftIO $ run h e
 
 type RethinkIO = ReaderT RethinkDBHandle IO
+
+-------------------------------------------------------
+
+initDb :: IO (Either RethinkDBError Datum) -> IO ()
+initDb action = do
+    r <- action
+    putStrLn $ "[INIT] " <> case r of
+      Left err -> errorMessage err
+      Right d  -> show d
+
+

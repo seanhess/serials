@@ -1,14 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Serials.Link.Link where
 
 import Prelude hiding (dropWhile)
 
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Text
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe, fromJust)
 
 import Control.Lens ((^.))
+
+import GHC.Generics
 
 type Title = Text
 type DateString = Text
@@ -17,7 +21,10 @@ type URL = Text
 data Link = Link {
   linkURL :: URL,
   linkTitle :: Title
-} deriving (Show, Eq)
+} deriving (Show, Eq, Generic)
+
+instance FromJSON Link
+instance ToJSON Link
 
 link :: URL -> Title -> Link
 link u t = Link (clean u) (clean t)

@@ -1,7 +1,8 @@
+// @flow
 import axios from 'axios'
-import path from 'path'
+var path:any = require('path')
 
-export var api = function(method, url, data) {
+export var api = function(method:string, url:string, data?:Object) {
   return axios({
     method: method,
     url: url,
@@ -10,10 +11,22 @@ export var api = function(method, url, data) {
   .then(toData, error)
 }
 
-export var get  = (url) => api("get", url)
-export var del  = (url) => api("delete", url)
-export var post = (url, body) => api("post", url, body)
-export var put  = (url, body) => api("put", url, body)
+
+export function get(url:string) {
+  return api("get", url)
+}
+
+export function del(url:string) {
+  return api("delete", url)
+}
+
+export function post(url:string, body:Object) {
+  return api("post", url, body)
+}
+
+export function put(url:string, body:Object) {
+  return api("put", url, body)
+}
 
 function toData(res) {
   return res.data
@@ -27,6 +40,7 @@ function error(err) {
 
 var API = "http://localhost:3001"
 
-export function url(...paths) {
-  return API+path.join(...paths)
+export function url(...paths:Array<string>):string {
+  // I need to join the API with the path
+  return API+'/'+path.join(...paths)
 }

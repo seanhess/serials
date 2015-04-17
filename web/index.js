@@ -36,11 +36,11 @@ var routes = (
     //<Redirect from="company" to="about" />
 
 Router.run(routes, function (Handler, state) {
-  React.render(<Handler />, document.body)
+  React.render(<Handler data={{}}/>, document.body)
 
   loadAll(state.routes, state.params)
   .then(function(data) {
-    React.render(<Handler {...data} params={state.params}/>, document.body)
+    React.render(<Handler data={data} params={state.params}/>, document.body)
   })
 })
 

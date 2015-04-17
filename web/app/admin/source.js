@@ -3,17 +3,23 @@
 var React = require('react')
 var Promise = require('bluebird')
 
-import {SourceModel} from './model'
+import {SourceModel, ScanModel} from './model'
+import {Scans} from './scans.js'
 
 export class Source extends React.Component {
 
   static load(params) {
     if (params.id == "new") {
-      console.log("WEE")
       return Promise.resolve({})
     }
 
-    return SourceModel.find(params.id)
+    // if you convert the data into 
+    // you'll be getting .source because that's your name...
+    // that's weird
+    return Promise.all(
+      SourceModel.find(params.id),
+      ScanModel.findBySource(params.id)
+    )
   }
 
   constructor(props) {
@@ -87,6 +93,9 @@ export class Source extends React.Component {
 
       <label>Active</label>
       <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
+
+      <h4>Scans</h4>
+      <Scans scans={this.props.scans}/>
     </div>
   }
 }

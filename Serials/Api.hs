@@ -26,6 +26,7 @@ import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source
+import Serials.Model.Chapter 
 
 import Web.Scotty
 
@@ -64,12 +65,19 @@ routes h = do
     liftIO $ sourcesSave h id s
     text "OK"
 
+  --get "/sources/:id/scans" $ do
+    --id <- param "id"
+    --result <- liftIO $ scansBySource h id
+    --json result
+
 -- Run ---------------------------------------------------------
 
 runApi :: Int -> IO ()
 runApi port = do
     putStrLn $ "Running on " <> show port
     h <- connectDb
+    sourcesInit h
+    chaptersInit h
     scotty port (routes h)
     return ()
 

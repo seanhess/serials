@@ -75,7 +75,8 @@ routes h = do
   post "/sources/:id/chapters" $ do
     id <- param "id"
     result <- liftIO $ importSource h id
-    json result
+    liftIO $ print result
+    text "OK"
 
 -- Run ---------------------------------------------------------
 

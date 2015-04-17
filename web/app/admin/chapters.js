@@ -8,13 +8,17 @@ export class Chapters extends React.Component {
     var chapters = this.props.chapters || []
 
     function row(chapter) {
-      return <a href={chapter.chapterURL}>
-        {chapter.chapterName}
-      </a>
+      return <li>
+        <a href={chapter.chapterURL}>
+          {chapter.chapterName}
+        </a>
+      </li>
     }
 
     return <div>
-      {chapters.map(row)}
+      <ul>
+        {chapters.map(row)}
+      </ul>
     </div>
   }
 }

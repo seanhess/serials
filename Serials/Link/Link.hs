@@ -13,6 +13,7 @@ import Data.Maybe (fromMaybe, fromJust)
 import Control.Lens ((^.))
 
 import GHC.Generics
+import Network.URI
 
 type Title = Text
 type DateString = Text
@@ -34,8 +35,14 @@ clean = strip
 
 ---------------------------------------------------------------------
 
+-- use relative URI parsing instead!
+-- if you can't parse it, just use the path they provided
 (</>) :: URL -> URL -> URL
-(</>) base path = (dropWhileEnd (=='/') base) <> "/" <> dropWhile (=='/') path
+(</>) base path = fromMaybe path $ do
+    b <- parseURIReference $ unpack base
+    p <- parseURIReference $ unpack path
+    return $ pack $ show $ p `relativeTo` b
+
 infixr 6 </>
 
 ----------------------------------------------------------------------

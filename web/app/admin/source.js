@@ -70,8 +70,8 @@ export class Source extends React.Component {
 
   runScan() {
     // do something amazing!
-    console.log("RUN SCAN!")
-    ChapterModel.importSource(this.params.id)
+    console.log("RUN SCAN!", this.props.params.id)
+    ChapterModel.importSource(this.props.params.id)
     .then(function() {
       console.log("done?")
     })
@@ -124,7 +124,7 @@ export class Source extends React.Component {
       </FormSection>
 
       <h4>{chapters.length} Chapters</h4>
-      <div><button onClick={this.runScan}>Scan Now</button></div>
+      <div><button onClick={this.runScan.bind(this)}>Scan Now</button></div>
       <Chapters chapters={chapters}/>
     </div>
 

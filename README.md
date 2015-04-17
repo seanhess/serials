@@ -40,13 +40,10 @@ PARSING
 SERVICE
 
 - [x] Store settings per source
-- [ ] Manually scan a source
-  - button to kick it off
-  - store the chapters
-  - scan -> chapters -> store
-  - display chapters
-  - store the scan results itself
-  - switch to a separate scan worker
+- [x] Manually scan a source
+    - [ ] Cleanup: don't allow scanning on new
+    - [ ] Cleanup: refresh chapters after scanning
+    - [ ] Cleanup: chapters are out of order!
 - [ ] CRUD source chapters
 
 PROTOTYPE USER INTERFACE

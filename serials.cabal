@@ -48,6 +48,7 @@ executable serials
     wai-cors,
     warp,
     scotty,
+    servant-server,
     rethinkdb,
     transformers,
     either,

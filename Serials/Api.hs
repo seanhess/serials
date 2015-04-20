@@ -11,7 +11,7 @@ import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
 
-import Data.Aeson (ToJSON)
+import Data.Aeson
 import Data.Monoid
 import Data.Proxy
 import Data.Text (Text, toUpper)
@@ -27,56 +27,59 @@ import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source
 import Serials.Model.Chapter 
+import Serials.Model.App
 import Serials.Scan
 
-import Web.Scotty
+--import Web.Scotty
+import Servant
 
-import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect)
+import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError)
+
+type API =
+
+  Get AppInfo
+
+  :<|> "sources" :> Get [Source]
+  :<|> "sources" :> ReqBody Source :> Post Text
+
+  :<|> "sources" :> Capture "id" Text :> Get Source
+  :<|> "sources" :> Capture "id" Text :> ReqBody Source :> Put ()
+  :<|> "sources" :> Capture "id" Text :> Delete
+
+  :<|> "sources" :> Capture "id" Text :> "chapters" :> Get [Chapter]
+  :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
+
+api :: Proxy API
+api = Proxy
+
+server :: RethinkDBHandle -> Server API
+server h = 
+    appInfo 
+    :<|> sourcesGetAll :<|> sourcesPost 
+    :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
+    :<|> chaptersGet :<|> sourceScan
+
+  where 
+
+  appInfo = return $ AppInfo "Serials" "0.1.0"
+
+  sourcesGetAll = liftIO $ sourcesList h
+  sourcesPost s = liftIO $ sourcesCreate h s
+
+  sourcesGet id   = liftE  $ sourcesFind h id
+  sourcesPut id s = liftIO $ sourcesSave h id s
+  sourcesDel id   = liftIO $ sourcesRemove h id
+
+  chaptersGet id = liftIO $ chaptersBySource h id
+  sourceScan  id = liftE  $ importSource h id
 
 
-routes :: RethinkDBHandle -> ScottyM ()
-routes h = do
-  
-  middleware $ cors (const $ Just corsResourcePolicy)
+stack :: Application -> Application
+stack = heads . cors'
+  where
+    heads = addHeaders [("X-Source", "Contribute at http://github.com/seanhess/serials")]
+    cors' = cors (const $ Just corsResourcePolicy)
 
-  get "/" $ text "Serials"
-
-  get "/sources" $ do
-    ss <- liftIO $ sourcesList h
-    json ss
-  
-  post "/sources" $ do
-    source <- jsonData :: ActionM Source
-    result <- liftIO $ sourcesCreate h source
-    json source
-
-  get "/sources/:id" $ do
-    id <- param "id"
-    ms <- liftIO $ sourcesFind h id
-    maybeJson ms
-
-  delete "/sources/:id" $ do
-    id <- param "id"
-    liftIO $ sourcesRemove h id    
-    text "OK"
-
-  put "/sources/:id" $ do
-    id <- param "id"
-    s <- jsonData
-    liftIO $ sourcesSave h id s
-    text "OK"
-
-  get "/sources/:id/chapters" $ do
-    id <- param "id"
-    result <- liftIO $ chaptersBySource h id
-    json result
-
-  -- scan!
-  post "/sources/:id/chapters" $ do
-    id <- param "id"
-    result <- liftIO $ importSource h id
-    liftIO $ print result
-    text "OK"
 
 -- Run ---------------------------------------------------------
 
@@ -86,7 +89,8 @@ runApi port = do
     h <- connectDb
     sourcesInit h
     chaptersInit h
-    scotty port (routes h)
+    --scotty port (routes h)
+    run port $ stack $ serve api (server h)
     return ()
 
 -- DB -----------------------------------------------------------
@@ -111,11 +115,18 @@ corsResourcePolicy = CorsResourcePolicy
     , corsIgnoreFailures = False
     }
 
---------------------------------------------------------------------
+-- ToStatus ------------------------------------------------------
 
---  move to library 
-maybeJson :: (ToJSON a) => Maybe a -> ActionM ()
-maybeJson (Just a) = json a
-maybeJson Nothing = do
-    status status404
-    text "Not Found"
+class ToStatus a where
+    toStatus :: a val -> Either (Int, String) val
+
+instance ToStatus Maybe where
+    toStatus Nothing  = Left (404, "Not Found")
+    toStatus (Just v) = Right v
+
+instance Show a => ToStatus (Either a) where
+    toStatus (Left e) = Left (500, "Server Error: " <> show e)
+    toStatus (Right v) = Right v
+
+liftE :: ToStatus a => IO (a v) -> EitherT (Int, String) IO v
+liftE action = EitherT $ toStatus <$> action

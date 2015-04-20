@@ -5,10 +5,13 @@ module Serials.Model.Chapter where
 
 import Prelude hiding (id, lookup)
 
-import Control.Applicative
 
+import Data.Function (on)
+import Data.List (sortBy)
 import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
+
+import Control.Applicative
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
@@ -16,18 +19,25 @@ import Database.RethinkDB.NoClash hiding (table)
 
 import Serials.Model.Crud
 
-
+-- these are the things you can change
 data Chapter = Chapter {
-  id :: Text,
-
-  sourceId :: Text,
-
   number :: Int,
   name :: Text,
-  url :: Text,
-  hidden :: Bool
-
+  url :: Text
 } deriving (Show, Generic)
+
+data ChapterSettings = ChapterSettings {
+  id :: Text,
+  sourceId :: Text,
+  edits :: Maybe Chapter,
+  hidden :: Bool,
+  current :: Chapter
+} deriving (Show, Generic)
+
+instance FromJSON ChapterSettings
+instance ToJSON ChapterSettings
+instance FromDatum ChapterSettings
+instance ToDatum ChapterSettings
 
 instance FromJSON Chapter
 instance ToJSON Chapter
@@ -35,44 +45,36 @@ instance FromDatum Chapter
 instance ToDatum Chapter
 
 table = R.table "chapters"
-editTable = R.table "chapters_edit"
 
 sourceIndex = Index "sourceId"
 
-bySource :: RethinkDBHandle -> Text -> IO [Chapter]
-bySource = findBySource table
+bySource :: RethinkDBHandle -> Text -> IO [ChapterSettings]
+bySource h id = sortByNum <$> (run h $ table # getAll sourceIndex [expr id])
 
-editsBySource :: RethinkDBHandle -> Text -> IO [Chapter]
-editsBySource = findBySource editTable
+sortByNum :: [ChapterSettings] -> [ChapterSettings]
+sortByNum cs = sortBy (compare `on` (number . current)) cs
 
-findBySource t h sid = run h $ t # getAll sourceIndex [expr sid] # orderBy [asc "number"]
+toChapter :: Functor f => IO (f ChapterSettings) -> IO (f Chapter)
+toChapter action = do
+    cs <- action
+    return $ fmap current cs
 
-find :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
+find :: RethinkDBHandle -> Text -> IO (Maybe ChapterSettings)
 find h id = run h $ table # get (expr id)
 
-saveTo :: Table -> RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
-saveTo t h c = run h $ t # get (expr $ id c) # replace (const $ toDatum c)
+save :: RethinkDBHandle -> ChapterSettings -> IO (Either RethinkDBError ())
+save h c = run h $ table # get (expr $ id c) # replace (const $ toDatum c)
 
-saveEdit :: RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
-saveEdit = saveTo editTable
+saveEdits :: RethinkDBHandle -> Text -> Chapter -> IO (Either RethinkDBError ())
+saveEdits h id c = run h $ table # get (expr $ id) # update (\row -> merge row ["edits" := toDatum c])
 
-saveScanned :: RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
-saveScanned = saveTo table
-
-saveAllScanned :: RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
-saveAllScanned h cs = mapM (saveScanned h) cs
+saveAll :: RethinkDBHandle -> [ChapterSettings] -> IO [Either RethinkDBError ()]
+saveAll h cs = mapM (save h) cs
 
 init :: RethinkDBHandle -> IO ()
 init h = do
     initDb $ run h $ tableCreate table
     initDb $ run h $ table # indexCreate "sourceId" (!"sourceId")
 
-    initDb $ run h $ tableCreate editTable
-    initDb $ run h $ editTable # indexCreate "sourceId" (!"sourceId")
-
-
---chapterId :: Chapter -> Maybe Text
---chapterId c = do
-  --uri <- parseURIReference $ unpack $ chapterURL c
-  --return $ pack (uriPath uri <> uriQuery uri)
-
+chapterId :: Chapter -> Text
+chapterId c = url c

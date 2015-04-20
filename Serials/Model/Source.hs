@@ -11,16 +11,17 @@ import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
 
 import GHC.Generics
-import Database.RethinkDB.NoClash
+import qualified Database.RethinkDB.NoClash as R
+import Database.RethinkDB.NoClash hiding (table)
 
 import Serials.Model.Crud
 import Serials.Link.Import (ImportSettings)
 
 data Source = Source {
   id :: Text,
-  sourceUrl :: Text,
-  sourceName :: Text,
-  sourceDisabled :: Maybe Bool,
+  url :: Text,
+  name :: Text,
+  disabled :: Maybe Bool,
 
   importSettings :: ImportSettings
 } deriving (Show, Generic)
@@ -34,25 +35,25 @@ instance ToJSON Source
 instance FromDatum Source
 instance ToDatum Source
 
-sourcesTable= table "sources"
+table = R.table "sources"
 
-sourcesList :: RethinkDBHandle -> IO [Source]
-sourcesList h = run h $ sourcesTable
+list :: RethinkDBHandle -> IO [Source]
+list h = run h $ table
 
-sourcesFind :: RethinkDBHandle -> Text -> IO (Maybe Source)
-sourcesFind h id = run h $ sourcesTable # get (expr id)
+find :: RethinkDBHandle -> Text -> IO (Maybe Source)
+find h id = run h $ table # get (expr id)
 
-sourcesCreate :: RethinkDBHandle -> Source -> IO Text
-sourcesCreate h s = do
-    r <- run h $ sourcesTable # create s
+insert :: RethinkDBHandle -> Source -> IO Text
+insert h s = do
+    r <- run h $ table # create s
     return $ generatedKey r
 
-sourcesSave :: RethinkDBHandle -> Text -> Source -> IO ()
-sourcesSave h id s = run h $ sourcesTable # get (expr id) # replace (const (toDatum s))
+save :: RethinkDBHandle -> Text -> Source -> IO ()
+save h id s = run h $ table # get (expr id) # replace (const (toDatum s))
 
-sourcesRemove :: RethinkDBHandle -> Text -> IO ()
-sourcesRemove h id = run h $ sourcesTable # get (expr id) # delete
+remove :: RethinkDBHandle -> Text -> IO ()
+remove h id = run h $ table # get (expr id) # delete
 
-sourcesInit :: RethinkDBHandle -> IO ()
-sourcesInit h = do
-    initDb $ run h $ tableCreate sourcesTable
+init :: RethinkDBHandle -> IO ()
+init h = do
+    initDb $ run h $ tableCreate table

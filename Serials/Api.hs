@@ -76,11 +76,11 @@ server h =
   sourcesPut id s = liftIO $ Source.save h id s
   sourcesDel id   = liftIO $ Source.remove h id
 
-  chaptersGet id = liftIO $ Chapter.bySource h id
+  chaptersGet id = liftIO $ Chapter.toChapter $ Chapter.bySource h id
   sourceScan  id = liftE  $ importSource h id
 
-  chapterGet id   = liftE  $ Chapter.find h id
-  chapterPut id c = liftE  $ Chapter.saveEdit h c
+  chapterGet id   = liftE $ Chapter.toChapter $ Chapter.find h id
+  chapterPut id c = liftE  $ Chapter.saveEdits h id c
 
 
 stack :: Application -> Application

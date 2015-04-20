@@ -14,8 +14,13 @@ Haskell Server
 
 Front-end application
   
+    cd web/
     npm install
     npm start
+
+Visit the front-end server
+  
+    http://localhost:3000/
 
 Approaches
 ----------

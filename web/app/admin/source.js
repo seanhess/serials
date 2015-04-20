@@ -125,7 +125,7 @@ export class Source extends React.Component {
 
       <h4>{chapters.length} Chapters</h4>
       <div><button onClick={this.runScan.bind(this)}>Scan Now</button></div>
-      <Chapters chapters={chapters}/>
+      <Chapters chapters={chapters} source={source}/>
     </div>
 
   }

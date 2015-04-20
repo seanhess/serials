@@ -41,20 +41,20 @@ SERVICE
 
 - [x] Store settings per source
 - [x] Manually scan a source
-    - [ ] Cleanup: don't allow scanning on new
-    - [ ] Cleanup: refresh chapters after scanning
-    - [ ] Cleanup: chapters are out of order!
-- [ ] CRUD source chapters
 
 PROTOTYPE USER INTERFACE
 
-- [ ] List of sources in the system
-- [ ] List of chapters per source
-- [ ] Admin: Add a new source
-- [ ] Admin: Edit course selector, settings, url, etc
-- [ ] Admin: scan history
-- [ ] Admin: manually add a chapter (in order)
+- [x] List of sources in the system
+- [x] List of chapters per source
+- [x] Admin: Add a new source
+- [x] Admin: Edit course selector, settings, url, etc
+- [ ] Admin: override the name, and don't wipe it out when you re-scan
 - [ ] Admin: manually hide a scanned chapter
+- [ ] Admin: manually add a chapter (in order)
+
+LATER
+
+- [ ] Admin: scan history
 
 MILESTONES
 ----------

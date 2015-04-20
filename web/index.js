@@ -19,14 +19,25 @@ class App extends React.Component {
   }
 }
 
+class Home extends React.Component {
+  render() {
+    return <ul>
+      <li><a href="#/admin/sources">Sources</a></li>
+    </ul>
+  }
+}
+
 var routes = (
   <Route handler={App} path="/">
+    <DefaultRoute handler={Home} />
     <Route name="admin" handler={Admin}>
       <Route name="sources" handler={Sources}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
     </Route>
   </Route>
 )
+
+//class Home extends React.Comp
 
     //<NotFoundRoute handler={NotFound}/>
     //<Route name="about" handler={About} />

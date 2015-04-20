@@ -11,7 +11,7 @@ export class Chapters extends React.Component {
     var onUpdate = this.props.onUpdate
     //var source = this.props.source
 
-    var row = c => <ChapterRow chapter={c} />
+    var row = c => <ChapterRow chapter={c} onSaveChapter={this.props.onSaveChapter}/>
 
     return <div>
       <table>
@@ -53,14 +53,6 @@ export class ChapterRow extends React.Component {
     }
   }
 
-  //updateSource(f) {
-    //return (e) => {
-      //var source = this.state.source
-      //f(source, e.target.value)
-      //this.setState({source: source})
-    //}
-  //}
-
   renderEdit() {
 
     var chapter = this.state.editing
@@ -75,18 +67,18 @@ export class ChapterRow extends React.Component {
         <div className="row">
           <div className="columns small-2">
             <label>Number</label>
-            <input type="number" value={chapter.chapterNumber}
-              onChange={update((c, v) => c.chapterNumber = v)}
+            <input type="number" value={chapter.number}
+              onChange={update((c, v) => c.number = v)}
             />
           </div>
           <div className="columns small-10">
             <label>Name</label>
-            <input type="text" value={chapter.chapterName} 
-              onChange={update((c, v) => c.chapterName = v)}/>
+            <input type="text" value={chapter.name} 
+              onChange={update((c, v) => c.name = v)}/>
           </div>
         </div>
         <label>URL</label>
-        <input type="text" value={chapter.chapterURL}
+        <input type="text" value={chapter.url}
           onChange={update((c, v) => c.chapterURL = v)}
         />
         <button onClick={this.save.bind(this)}>Save</button>
@@ -98,9 +90,9 @@ export class ChapterRow extends React.Component {
     var chapter = this.props.chapter
     return <tr key={chapter.id}>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
-      <td>{chapter.chapterNumber}</td>
-      <td>{chapter.chapterName}</td>
-      <td><a href={chapter.chapterURL}>{urlPath(chapter.chapterURL)}</a></td>
+      <td>{chapter.number}</td>
+      <td>{chapter.name}</td>
+      <td><a href={chapter.url}>{urlPath(chapter.url)}</a></td>
     </tr>
   }
 
@@ -110,16 +102,14 @@ export class ChapterRow extends React.Component {
 
   save() {
     var chapter = this.state.editing
-    console.log("SAVE!", chapter)
     this.setState({editing: null})
+    this.props.onSaveChapter(chapter)
   }
 }
 
 function urlPath(u) {
   var uri = url.parse(u)
   var out = uri.path
-  if (uri.query)
-    out += uri.query
   return out
 }
 
@@ -127,6 +117,7 @@ function urlPath(u) {
 // it'll look like this
 // > update((c, v) => c.something = v)
 // 
+
 function mkUpdate(save) {
   return function(setter) {
     return function(e) {

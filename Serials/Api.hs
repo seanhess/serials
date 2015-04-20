@@ -25,8 +25,10 @@ import Network.Wai.Handler.Warp (run, Port)
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.AddHeaders
 
-import Serials.Model.Source
-import Serials.Model.Chapter 
+import Serials.Model.Source (Source(..))
+import qualified Serials.Model.Source as Source
+import qualified Serials.Model.Chapter as Chapter
+import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
 import Serials.Scan
 
@@ -49,6 +51,9 @@ type API =
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Get [Chapter]
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
 
+  :<|> "chapters" :> Capture "id" Text :> Get Chapter
+  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
+
 api :: Proxy API
 api = Proxy
 
@@ -57,25 +62,29 @@ server h =
     appInfo 
     :<|> sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
-    :<|> chaptersGet :<|> sourceScan
+    :<|> chaptersGet :<|> sourceScan 
+    :<|> chapterGet :<|> chapterPut
 
   where 
 
   appInfo = return $ AppInfo "Serials" "0.1.0"
 
-  sourcesGetAll = liftIO $ sourcesList h
-  sourcesPost s = liftIO $ sourcesCreate h s
+  sourcesGetAll = liftIO $ Source.list h
+  sourcesPost s = liftIO $ Source.insert h s
 
-  sourcesGet id   = liftE  $ sourcesFind h id
-  sourcesPut id s = liftIO $ sourcesSave h id s
-  sourcesDel id   = liftIO $ sourcesRemove h id
+  sourcesGet id   = liftE  $ Source.find h id
+  sourcesPut id s = liftIO $ Source.save h id s
+  sourcesDel id   = liftIO $ Source.remove h id
 
-  chaptersGet id = liftIO $ chaptersBySource h id
+  chaptersGet id = liftIO $ Chapter.bySource h id
   sourceScan  id = liftE  $ importSource h id
+
+  chapterGet id   = liftE  $ Chapter.find h id
+  chapterPut id c = liftE  $ Chapter.saveEdit h c
 
 
 stack :: Application -> Application
-stack = heads . cors'
+stack app = heads $ cors' $ app
   where
     heads = addHeaders [("X-Source", "Contribute at http://github.com/seanhess/serials")]
     cors' = cors (const $ Just corsResourcePolicy)
@@ -87,8 +96,8 @@ runApi :: Int -> IO ()
 runApi port = do
     putStrLn $ "Running on " <> show port
     h <- connectDb
-    sourcesInit h
-    chaptersInit h
+    Source.init h
+    Chapter.init h
     --scotty port (routes h)
     run port $ stack $ serve api (server h)
     return ()

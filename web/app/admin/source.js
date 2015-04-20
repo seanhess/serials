@@ -50,6 +50,10 @@ export class Source extends React.Component {
     }
   }
 
+  onSaveChapter(chapter) {
+    console.log("SAVE CHAPTER", chapter)    
+  }
+
   save() {
     var source = this.state.source
     SourceModel.save(this.props.source.id, source)
@@ -64,7 +68,7 @@ export class Source extends React.Component {
 
   toggleActive() {
     var source = this.state.source
-    source.sourceDisabled = !source.sourceDisabled
+    source.disabled = !source.disabled
     this.setState({source: source})
   }
 
@@ -90,7 +94,7 @@ export class Source extends React.Component {
     return <div>
       <h3>Source</h3>
       <div className="right">
-        <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.sourceDisabled} />
+        <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.disabled} />
       </div>
 
       <div>
@@ -104,16 +108,16 @@ export class Source extends React.Component {
           <div className="small-5 columns">
             <label>Name</label>
             <input type="text" 
-              value={source.sourceName} 
-              onChange={this.updateSource((s, v) => s.sourceName = v)}
+              value={source.name} 
+              onChange={this.updateSource((s, v) => s.name = v)}
             />
           </div>
 
           <div className="small-7 columns">
             <label>URL</label>
             <input type="text" 
-              value={source.sourceUrl}
-              onChange={this.updateSource((s, v) => s.sourceUrl = v)}
+              value={source.url}
+              onChange={this.updateSource((s, v) => s.url = v)}
             />
           </div>
         </div>
@@ -125,7 +129,7 @@ export class Source extends React.Component {
 
       <h4>{chapters.length} Chapters</h4>
       <div><button onClick={this.runScan.bind(this)}>Scan Now</button></div>
-      <Chapters chapters={chapters} source={source}/>
+      <Chapters chapters={chapters} source={source} onSaveChapter={this.onSaveChapter.bind(this)}/>
     </div>
 
   }

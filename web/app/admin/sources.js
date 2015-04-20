@@ -25,9 +25,9 @@ export class Sources extends React.Component {
 
     function renderRow(source) {
       return <tr key={source.id}>
-        <td><Link to="source" params={{id: source.id}}>{source.sourceName}</Link></td>
-        <td><a href={source.sourceUrl}>{source.sourceUrl}</a></td>
-        <td>{!source.sourceDisabled ? 'Active' : 'Disabled'}</td>
+        <td><Link to="source" params={{id: source.id}}>{source.name}</Link></td>
+        <td><a href={source.url}>{source.url}</a></td>
+        <td>{!source.disabled ? 'Active' : 'Disabled'}</td>
       </tr>
     }
 

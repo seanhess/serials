@@ -2,7 +2,7 @@
 
 var React = require('react')
 var url = require('url')
-import {cloneDeep} from 'lodash'
+var {cloneDeep} = require('lodash')
 
 export class Chapters extends React.Component {
   render() {

@@ -10,8 +10,8 @@
   //}
   //deriving (Show, Eq, Generic)
 
-import React from 'react'
-import {Menu, TOC} from './model.js'
+var React = require('react')
+var {Menu, TOC} = require('./model')
 
 export class MenuSettings extends React.Component {
 

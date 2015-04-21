@@ -1,5 +1,6 @@
 // @flow
-import axios from 'axios'
+
+var axios = require('axios')
 var path:any = require('path')
 
 export var api = function(method:string, url:string, data?:Object) {
@@ -12,19 +13,19 @@ export var api = function(method:string, url:string, data?:Object) {
 }
 
 
-export function get(url:string) {
+export function Get(url:string) {
   return api("get", url)
 }
 
-export function del(url:string) {
+export function Del(url:string) {
   return api("delete", url)
 }
 
-export function post(url:string, body:Object) {
+export function Post(url:string, body:Object) {
   return api("post", url, body)
 }
 
-export function put(url:string, body:Object) {
+export function Put(url:string, body:Object) {
   return api("put", url, body)
 }
 

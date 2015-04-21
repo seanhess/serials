@@ -3,7 +3,7 @@
 
 var React = require('react')
 
-import {RouteHandler} from 'react-router'
+var {RouteHandler} = require('react-router')
 
 export class Admin extends React.Component {
   render() {

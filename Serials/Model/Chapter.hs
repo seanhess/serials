@@ -19,30 +19,24 @@ import Database.RethinkDB.NoClash hiding (table)
 
 import Safe (headMay)
 import Serials.Model.Crud
+import Serials.Link.Link
 
 import Numeric
 
 -- these are the things you can change
 -- they need an id if you're going to send them down :(
 data Chapter = Chapter {
-  chapterId :: Maybe Text,
-  number :: Int,
-  name :: Text,
-  url :: Text
-} deriving (Show, Generic)
-
-data ChapterSettings = ChapterSettings {
   id :: Text,
   sourceId :: Text,
-  edits :: Maybe Chapter,
-  hidden :: Bool,
-  current :: Chapter
-} deriving (Show, Generic)
 
-instance FromJSON ChapterSettings
-instance ToJSON ChapterSettings
-instance FromDatum ChapterSettings
-instance ToDatum ChapterSettings
+  number :: Int,
+  name :: Text,
+  url :: Text,
+
+  hidden :: Bool,
+  edited :: Bool,
+  link :: Link
+} deriving (Show, Generic)
 
 instance FromJSON Chapter
 instance ToJSON Chapter
@@ -54,53 +48,43 @@ table = R.table "chapters"
 sourceIndexName = "sourceId"
 sourceIndex = Index sourceIndexName
 
-urlIndexName = "current.url"
-urlIndex = Index urlIndexName
+--urlIndexName = "url"
+--urlIndex = Index urlIndexName
 
-bySource :: RethinkDBHandle -> Text -> IO [ChapterSettings]
+bySource :: RethinkDBHandle -> Text -> IO [Chapter]
 bySource h id = sortByNum <$> (run h $ table # getAll sourceIndex [expr id])
 
-findByURL :: RethinkDBHandle -> Text -> IO (Maybe ChapterSettings)
-findByURL h url = headMay <$> (run h $ byURL url :: IO [ChapterSettings])
+--findByURL :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
+--findByURL h url = headMay <$> (run h $ byURL url :: IO [Chapter])
 
-byURL :: Text -> ReQL
-byURL url = table # getAll urlIndex [expr url] 
+--byURL :: Text -> ReQL
+--byURL url = table # getAll urlIndex [expr url] 
 
-sortByNum :: [ChapterSettings] -> [ChapterSettings]
-sortByNum cs = sortBy (compare `on` (number . current)) cs
+sortByNum :: [Chapter] -> [Chapter]
+sortByNum cs = sortBy (compare `on` number) cs
 
-toChapter :: Functor f => IO (f ChapterSettings) -> IO (f Chapter)
-toChapter action = do
-    cs <- action
-    return $ fmap (withId . current) cs
-
-find :: RethinkDBHandle -> Text -> IO (Maybe ChapterSettings)
+find :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
 find h id = run h $ table # get (expr id)
 
-save :: RethinkDBHandle -> ChapterSettings -> IO (Either RethinkDBError Datum)
-save h c = run h $ table # get (expr (id c)) # replace (const $ toDatum c)
+save :: RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
+save h c = do
+  res <- run h $ table # get (expr (id c)) # replace (const $ toDatum c) :: IO (Either RethinkDBError Datum)
+  case res of 
+    Left err -> return $ Left err
+    Right d  -> return $ Right ()
 
-saveEdits :: RethinkDBHandle -> Text -> Chapter -> IO (Either RethinkDBError Datum)
-saveEdits h id c = run h $ table # get (expr $ id) # update (const ["edits" := toDatum c, "current" := toDatum c])
-
-clearEdits :: RethinkDBHandle -> Text -> IO (Either RethinkDBError ())
-clearEdits h id = run h $ table # get (expr $ id) # update (const ["edits" := Null])
-
-saveAll :: RethinkDBHandle -> [ChapterSettings] -> IO [Either RethinkDBError Datum]
+saveAll :: RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
 saveAll h cs = mapM (save h) cs
 
 init :: RethinkDBHandle -> IO ()
 init h = do
     initDb $ run h $ tableCreate table
     initDb $ run h $ table # indexCreate (unpack sourceIndexName) (!expr sourceIndexName)
-    initDb $ run h $ table # indexCreate (unpack urlIndexName) (\row -> expr (row ! "current" ! "url"))
+    --initDb $ run h $ table # indexCreate (unpack urlIndexName) (\row -> expr (row ! "url"))
 
-urlId :: Chapter -> Text
-urlId c = filter isAlphaNum $ drop 5 $ (url c)
+urlId :: Text -> Text
+urlId u = filter isAlphaNum $ drop 5 $ u
 
-currentURL :: ChapterSettings -> Text
-currentURL = url . current
-
-withId :: Chapter -> Chapter
-withId c = c { chapterId = Just $ urlId c }
+--withId :: Chapter -> Chapter
+--withId c = c { chapterId = Just $ urlId c }
 

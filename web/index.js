@@ -1,15 +1,14 @@
 // @flow
 
 var React = window.React = require('react')
-var ask = require('ask')
-var axios = require('axios')
 
-import Router from 'react-router'
-import {Route, DefaultRoute, RouteHandler, NotFoundRoute} from 'react-router'
+var Router = require('react-router')
+var {Route, DefaultRoute, RouteHandler, NotFoundRoute} = require('react-router')
 
-import {Admin} from './app/admin/admin.js'
-import {Sources} from './app/admin/sources.js'
-import {Source} from './app/admin/source.js'
+var {Admin} = require('./app/admin/admin')
+var {Sources} = require('./app/admin/sources')
+var AdminSource = require('./app/admin/source')
+var Source = AdminSource.Source
 
 import {assign} from 'lodash'
 
@@ -48,7 +47,11 @@ var routes = (
     //</Route>
     //<Redirect from="company" to="about" />
 
+//var lastHandler:?any
+//var lastState:?any
+
 Router.run(routes, function (Handler, state) {
+  console.log("RUN")
   React.render(<Handler data={{}}/>, document.body)
 
   loadAll(state.routes, state.params)
@@ -56,6 +59,14 @@ Router.run(routes, function (Handler, state) {
     React.render(<Handler {...data} params={state.params}/>, document.body)
   })
 })
+
+//function run(Handler, state) {
+//}
+
+//window.refresh = function() {
+  //run(lastHandler, lastState)
+//}
+
 
 function loadAll(routes, params) {
   var data = {};

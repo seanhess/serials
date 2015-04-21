@@ -1,9 +1,9 @@
 // @flow
 
 var React = require('react')
-import {SourceModel} from './model.js'
-import {Link} from 'react-router'
-import {sortBy} from 'lodash'
+var {SourceModel} = require('./model')
+var {Link} = require('react-router')
+var {sortBy} = require('lodash')
 
 export class Sources extends React.Component {
 

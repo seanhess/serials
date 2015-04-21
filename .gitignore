@@ -6,3 +6,4 @@ archive/
 .DS_Store
 cabal.sandbox.config
 web/build
+npm-debug.log

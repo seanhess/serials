@@ -52,8 +52,7 @@ type API =
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
-  :<|> "chapters" :> Capture "id" Text :> Delete
-  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put Datum
+  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
 -- if you delete it, what happens?
 -- it should clear the edits, but not the chapter :)
@@ -69,7 +68,7 @@ server h =
     :<|> sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan 
-    :<|> chapterGet :<|> chapterDel :<|> chapterPut
+    :<|> chapterGet  :<|> chapterPut
 
   where 
 
@@ -82,12 +81,11 @@ server h =
   sourcesPut id s = liftIO $ Source.save h id s
   sourcesDel id   = liftIO $ Source.remove h id
 
-  chaptersGet id = liftIO $ Chapter.toChapter $ Chapter.bySource h id
+  chaptersGet id = liftIO $ Chapter.bySource h id
   sourceScan  id = liftE  $ importSource h id
 
-  chapterGet id   = liftE $ Chapter.toChapter $ Chapter.find h id
-  chapterPut id c = liftE  $ Chapter.saveEdits h id c
-  chapterDel id   = liftE  $ Chapter.clearEdits h id
+  chapterGet id   = liftE $ Chapter.find h id
+  chapterPut id c = liftE  $ Chapter.save h c
 
 
 stack :: Application -> Application

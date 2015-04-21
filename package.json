@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node web/server.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,8 @@
     "axios": "0.5.4",
     "bluebird": "2.9.24",
     "lodash": "3.6.0",
-    "react": "0.13.1"
+    "react": "0.13.2",
+    "react-router": "0.13.2"
   },
   "devDependencies": {
     "babel-core": "4.5.1",

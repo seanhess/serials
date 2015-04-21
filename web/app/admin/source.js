@@ -2,10 +2,12 @@
 
 var React = require('react')
 var Promise = require('bluebird')
+var Router = require('react-router')
 
-import {SourceModel, ScanModel, ChapterModel, emptySource} from './model'
-import {Chapters} from './chapters.js'
-import {ImportSettings} from './import.js'
+var {SourceModel, ScanModel, ChapterModel, emptySource} = require('./model')
+var {Chapters} = require('./chapters.js')
+var {ImportSettings} = require('./import.js')
+var {DisabledButton, FormSection} = require('../comp')
 
 export class Source extends React.Component {
 
@@ -25,7 +27,7 @@ export class Source extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = {source: emptySource()}
+    this.state = {source: emptySource(), scanning: false}
   }
 
   componentWillReceiveProps(props) {
@@ -78,10 +80,16 @@ export class Source extends React.Component {
 
   runScan() {
     // do something amazing!
-    console.log("RUN SCAN!", this.props.params.id)
+    this.setState({scanning: true})
     ChapterModel.importSource(this.props.params.id)
-    .then(function() {
-      console.log("done?")
+    .then(() => {
+      console.log("- done")
+      this.setState({scanning: false})
+      console.log("HELLO", Router)
+      console.log("- done2")
+      console.log("CHECK", Router.refresh)
+      ////Router.refresh()
+      //window.refresh()
     })
   }
 
@@ -94,6 +102,9 @@ export class Source extends React.Component {
   render() {
     var source:Source = this.state.source || {}
     var chapters = this.props.chapters || []
+
+    var scanningDisabled = (this.state.scanning) ? "disabled" : ""
+    var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"
 
     return <div>
       <h3>Source</h3>
@@ -132,62 +143,13 @@ export class Source extends React.Component {
       </FormSection>
 
       <h4>{chapters.length} Chapters</h4>
-      <div><button onClick={this.runScan.bind(this)}>Scan Now</button></div>
+
+      <div>
+        <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
+      </div>
+
       <Chapters chapters={chapters} source={source} onSaveChapter={this.onSaveChapter.bind(this)}/>
     </div>
 
   }
 }
-
-class FormSection extends React.Component {
-  render() {
-
-    var contentStyle = {
-      padding: 15,
-    }
-
-    var headerStyle = {
-      backgroundColor: '#F2F2F2',
-      padding: 15,
-    }
-
-    var mainStyle = {
-      border: 'solid 1px #D8D8D8',
-      marginBottom: 20
-    }
-
-    return <div>
-      <div style={mainStyle}>
-        <div style={headerStyle}>{this.props.title}</div>
-        <div style={contentStyle}>{this.props.children}</div>
-      </div>
-    </div>
-  }
-}
-
-class DisabledButton extends React.Component {
-  render() {
-
-    if (this.props.disabled) {
-      var text = "Disabled"
-      var className = "secondary"
-    }
-
-    else {
-      var text = "Active"
-      var className = "success"
-    }
-
-    return <div>
-      <button className={className} onClick={this.props.onClick}>{text}</button>
-    </div>
-  }
-}
-
-//function updateSource(f) {
-  //return (e) => {
-    //var source = this.state.source
-    //f(source, e.target.value)
-    //this.setState({source: source})
-  //}
-//}

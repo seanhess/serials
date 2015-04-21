@@ -1,6 +1,7 @@
 // @flow
 
-import {get, post, put, del, url} from '../api'
+//import {get, Post, put, del, url} from '../api'
+var {Post, Put, Del, url, Get} = require('../api')
 
 type Source = {
   id: string;
@@ -17,46 +18,46 @@ type Chapter = {
 
 export var SourceModel = {
   findAll() {
-    return get(url('sources'))
+    return Get(url('sources'))
   },
 
   find(id:string) {
-    return get(url('sources', id))
+    return Get(url('sources', id))
   },
 
   create(source:Source) {
     // clear the id
     source.id = ""
-    return post(url('sources'), source)
+    return Post(url('sources'), source)
   },
 
   del(id:string) {
-    return del(url('sources', id))
+    return Del(url('sources', id))
   },
 
   save(id:string, source:Source) {
-    return put(url('sources', id), source)
+    return Put(url('sources', id), source)
   }
 }
 
 export var ScanModel = {
   findBySource(id:string) {
-    return get(url('sources', id, 'scans'))
+    return Get(url('sources', id, 'scans'))
   }
 }
 
 export var ChapterModel = {
   findBySource(id:string) {
-    return get(url('sources', id, 'chapters'))
+    return Get(url('sources', id, 'chapters'))
   },
 
   importSource(id:string) {
-    return post(url('sources', id, 'chapters'), {})
+    return Post(url('sources', id, 'chapters'), {})
   },
 
   save(chapter:Chapter) {
-    console.log("PUTTTTER THERE", chapter)
-    return put(url('chapters', chapter.chapterId), chapter)
+    console.log("Put THERE", chapter)
+    return Put(url('chapters', chapter.chapterId), chapter)
   }
 }
 

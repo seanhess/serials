@@ -26,6 +26,7 @@ scanSource s = links (Source.url s) (importSettings s)
 
 linkToChapter :: (Int, Link) -> Chapter
 linkToChapter (n, (Link url text)) = Chapter {
+  Chapter.chapterId = Nothing,
   Chapter.number = n,
   Chapter.name = text,
   Chapter.url = url
@@ -33,7 +34,7 @@ linkToChapter (n, (Link url text)) = Chapter {
 
 chapterSettings :: Text -> Chapter -> ChapterSettings
 chapterSettings sid c = ChapterSettings {
-  Chapter.id       = (Chapter.chapterId c),
+  Chapter.id       = Chapter.urlId c,
   Chapter.sourceId = sid,
   Chapter.edits    = Nothing,
   Chapter.hidden   = False,
@@ -51,6 +52,8 @@ importSource h sourceId = do
   edits <- chapterMap <$> Chapter.bySource h sourceId
 
   let mergedChapters = mergeAll (Source.id source) edits scannedChapters
+
+  print $ take 1 mergedChapters
 
   -- now I need to save all of them :)
   res <- Chapter.saveAll h mergedChapters
@@ -70,7 +73,7 @@ mergeChapter sourceId (Just old) c =
 mergeAll :: Text -> HashMap Text ChapterSettings -> [Chapter] -> [ChapterSettings]
 mergeAll sourceId cm cs = map merge cs
   where 
-    merge c = mergeChapter sourceId (lookup (Chapter.chapterId c) cm) c
+    merge c = mergeChapter sourceId (lookup (Chapter.urlId c) cm) c
 
 chapterMap :: [ChapterSettings] -> HashMap Text ChapterSettings
 chapterMap = fromList . map (\c -> (Chapter.id c, c))

@@ -52,6 +52,10 @@ export class Source extends React.Component {
 
   onSaveChapter(chapter) {
     console.log("SAVE CHAPTER", chapter)    
+    ChapterModel.save(chapter)
+    .then(function() {
+      console.log("saved")
+    })
   }
 
   save() {

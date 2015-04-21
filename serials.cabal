@@ -50,11 +50,14 @@ executable serials
     scotty,
     servant-server,
     rethinkdb,
+    rethinkdb-model,
     transformers,
     either,
     unordered-containers,
     mtl,
-    http-types
+    http-types,
+    safe,
+    hashable
 
     
     --shpider >= 0.2

@@ -7,6 +7,11 @@ type Source = {
   importSettings: any
 }
 
+type Chapter = {
+  chapterId: string;
+  url: string;
+}
+
 export var SourceModel = {
   findAll() {
     return get(url('sources'))
@@ -29,7 +34,6 @@ export var SourceModel = {
   save(id:string, source:Source) {
     return put(url('sources', id), source)
   }
-
 }
 
 export var ScanModel = {
@@ -45,6 +49,11 @@ export var ChapterModel = {
 
   importSource(id:string) {
     return post(url('sources', id, 'chapters'), {})
+  },
+
+  save(chapter:Chapter) {
+    console.log("PUTTTTER THERE", chapter)
+    return put(url('chapters', chapter.chapterId), chapter)
   }
 }
 

@@ -35,7 +35,7 @@ import Serials.Scan
 --import Web.Scotty
 import Servant
 
-import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError)
+import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
 
 type API =
 
@@ -52,7 +52,7 @@ type API =
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
-  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
+  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put Datum
 
 api :: Proxy API
 api = Proxy

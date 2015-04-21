@@ -23,6 +23,9 @@ stripId x = x
 create :: ToDatum a => a -> Table -> ReQL
 create o = insert (stripId $ toDatum o)
 
+toDatumNoId :: ToDatum a => a -> Datum
+toDatumNoId = stripId . toDatum
+
 -------------------------------------------------
 
 runDb :: (Expr a, Result r) => a -> RethinkIO r

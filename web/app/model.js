@@ -1,6 +1,6 @@
 // @flow
 
-var {Get, Post, Put, Del, url} = require('../api')
+var {Get, Post, Put, Del, url} = require('./api')
 
 type Source = {
   id: string;
@@ -8,6 +8,7 @@ type Source = {
   disabled: bool;
   name: string;
   url: string;
+  imageUrl: string;
 }
 
 type Chapter = {
@@ -96,9 +97,13 @@ export function emptySource():Source {
     disabled: false,
     name: "",
     url: "",
+    imageUrl: "",
     importSettings: {
       tag: TOC,
     }
   }
 }
 
+export function showChapter(chapter:Chapter):bool {
+  return !chapter.hidden
+}

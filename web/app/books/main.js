@@ -5,7 +5,7 @@ var React = require('react')
 
 var {RouteHandler} = require('react-router')
 
-export class Admin extends React.Component {
+export class Main extends React.Component {
   render() {
     return <div>
       <nav className="top-bar" data-topbar role="navigation">
@@ -22,3 +22,4 @@ export class Admin extends React.Component {
     </div>
   }
 }
+

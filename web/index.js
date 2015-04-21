@@ -3,12 +3,14 @@
 var React = window.React = require('react')
 
 var Router = require('react-router')
-var {Route, DefaultRoute, RouteHandler, NotFoundRoute} = require('react-router')
+var {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect} = require('react-router')
 
 var {Admin} = require('./app/admin/admin')
 var {Sources} = require('./app/admin/sources')
-var AdminSource = require('./app/admin/source')
-var Source = AdminSource.Source
+var {Source} = require('./app/admin/source')
+var {Main} = require('./app/books/main')
+var {Gallery} = require('./app/books/gallery')
+var {Book} = require('./app/books/book')
 
 import {assign} from 'lodash'
 
@@ -28,7 +30,11 @@ class Home extends React.Component {
 
 var routes = (
   <Route handler={App} path="/">
-    <DefaultRoute handler={Home} />
+    <Redirect from="/" to="books" />
+    <Route name="books" handler={Main}>
+      <DefaultRoute handler={Gallery}/>
+      <Route name="book" path=":id" handler={Book} />
+    </Route>
     <Route name="admin" handler={Admin}>
       <Route name="sources" handler={Sources}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
@@ -36,19 +42,8 @@ var routes = (
   </Route>
 )
 
-//class Home extends React.Comp
-
-    //<NotFoundRoute handler={NotFound}/>
-    //<Route name="about" handler={About} />
-    //<Route name="users" handler={Users}>
-      //<Route name="recent-users" path="recent" handler={RecentUsers} />
-      //<Route name="user" path="/user/:userId" handler={User} />
-      //<NotFoundRoute handler={UserRouteNotFound}/>
-    //</Route>
-    //<Redirect from="company" to="about" />
-
 Router.run(routes, function (Handler, state) {
-  React.render(<Handler data={{}}/>, document.body)
+  React.render(<Handler />, document.body)
 
   loadAll(state.routes, state.params)
   .then(function(data) {
@@ -64,7 +59,11 @@ function loadAll(routes, params) {
       return route.handler.load(params)
       .then(function(d) {
         data = assign(data, d)
-      })
+      }, onError)
     })
-  ).then(() => data);
+  ).then(() => data, onError);
+}
+
+function onError(err) {
+  throw err
 }

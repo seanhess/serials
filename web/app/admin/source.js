@@ -4,7 +4,7 @@ var React = require('react')
 var Promise = require('bluebird')
 var Router = require('react-router')
 
-var {SourceModel, ScanModel, ChapterModel, emptySource} = require('./model')
+var {SourceModel, ScanModel, ChapterModel, emptySource} = require('../model')
 var {Chapters} = require('./chapters.js')
 var {ImportSettings} = require('./import.js')
 var {DisabledButton, FormSection} = require('../comp')

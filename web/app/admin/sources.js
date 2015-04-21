@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react'
+var React = require('react')
 import {SourceModel} from './model.js'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'

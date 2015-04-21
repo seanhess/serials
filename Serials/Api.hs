@@ -52,7 +52,13 @@ type API =
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
+  :<|> "chapters" :> Capture "id" Text :> Delete
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put Datum
+
+-- if you delete it, what happens?
+-- it should clear the edits, but not the chapter :)
+-- how do you hide it? 
+-- fuuu
 
 api :: Proxy API
 api = Proxy
@@ -63,7 +69,7 @@ server h =
     :<|> sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan 
-    :<|> chapterGet :<|> chapterPut
+    :<|> chapterGet :<|> chapterDel :<|> chapterPut
 
   where 
 
@@ -81,6 +87,7 @@ server h =
 
   chapterGet id   = liftE $ Chapter.toChapter $ Chapter.find h id
   chapterPut id c = liftE  $ Chapter.saveEdits h id c
+  chapterDel id   = liftE  $ Chapter.clearEdits h id
 
 
 stack :: Application -> Application

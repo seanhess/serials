@@ -83,6 +83,9 @@ save h c = run h $ table # get (expr (id c)) # replace (const $ toDatum c)
 saveEdits :: RethinkDBHandle -> Text -> Chapter -> IO (Either RethinkDBError Datum)
 saveEdits h id c = run h $ table # get (expr $ id) # update (const ["edits" := toDatum c, "current" := toDatum c])
 
+clearEdits :: RethinkDBHandle -> Text -> IO (Either RethinkDBError ())
+clearEdits h id = run h $ table # get (expr $ id) # update (const ["edits" := Null])
+
 saveAll :: RethinkDBHandle -> [ChapterSettings] -> IO [Either RethinkDBError Datum]
 saveAll h cs = mapM (save h) cs
 

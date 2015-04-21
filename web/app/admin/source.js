@@ -92,7 +92,7 @@ export class Source extends React.Component {
   }
 
   render() {
-    var source = this.state.source || {}
+    var source:Source = this.state.source || {}
     var chapters = this.props.chapters || []
 
     return <div>
@@ -139,7 +139,7 @@ export class Source extends React.Component {
   }
 }
 
-class FormSection {
+class FormSection extends React.Component {
   render() {
 
     var contentStyle = {
@@ -165,7 +165,7 @@ class FormSection {
   }
 }
 
-class DisabledButton {
+class DisabledButton extends React.Component {
   render() {
 
     if (this.props.disabled) {

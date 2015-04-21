@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react'
+var React = require('react')
 
 export class Scans extends React.Component {
   render() {

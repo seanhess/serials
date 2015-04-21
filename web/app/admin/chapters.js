@@ -1,8 +1,7 @@
-
 // @flow
 
-import React from 'react'
-import url from 'url'
+var React = require('react')
+var url = require('url')
 import {cloneDeep} from 'lodash'
 
 export class Chapters extends React.Component {
@@ -53,15 +52,18 @@ export class ChapterRow extends React.Component {
     }
   }
 
+  clear() {
+
+  }
+
   renderEdit() {
 
-    var chapter = this.state.editing
+    var chapter = this.state.editing || {}
 
     var update = mkUpdate((setter) => {
       this.setState({editing: setter(chapter)})
     })
 
-    var chapter = this.state.editing
     return <tr key={chapter.id}>
       <td colSpan="4">
         <div className="row">
@@ -81,7 +83,11 @@ export class ChapterRow extends React.Component {
         <input type="text" value={chapter.url}
           onChange={update((c, v) => c.chapterURL = v)}
         />
-        <button onClick={this.save.bind(this)}>Save</button>
+        <div>
+          <button onClick={this.save.bind(this)}>Save</button>
+          <span> </span>
+          <button className="secondary" onClick={this.clear.bind(this)}>Clear Edits</button>
+        </div>
       </td>
     </tr>
   }
@@ -108,7 +114,7 @@ export class ChapterRow extends React.Component {
 }
 
 function urlPath(u) {
-  var uri = url.parse(u)
+  var uri = url.parse(u, false, false)
   var out = uri.path
   return out
 }

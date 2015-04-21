@@ -4,7 +4,10 @@ import {get, post, put, del, url} from '../api'
 
 type Source = {
   id: string;
-  importSettings: any
+  importSettings: any;
+  disabled: bool;
+  name: string;
+  url: string;
 }
 
 type Chapter = {
@@ -63,6 +66,9 @@ export var TOC = "TOCSettings"
 export function emptySource():Source {
   return {
     id: "",
+    disabled: false,
+    name: "",
+    url: "",
     importSettings: {
       tag: TOC,
     }

@@ -47,11 +47,7 @@ var routes = (
     //</Route>
     //<Redirect from="company" to="about" />
 
-//var lastHandler:?any
-//var lastState:?any
-
 Router.run(routes, function (Handler, state) {
-  console.log("RUN")
   React.render(<Handler data={{}}/>, document.body)
 
   loadAll(state.routes, state.params)
@@ -59,14 +55,6 @@ Router.run(routes, function (Handler, state) {
     React.render(<Handler {...data} params={state.params}/>, document.body)
   })
 })
-
-//function run(Handler, state) {
-//}
-
-//window.refresh = function() {
-  //run(lastHandler, lastState)
-//}
-
 
 function loadAll(routes, params) {
   var data = {};

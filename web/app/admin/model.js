@@ -12,8 +12,17 @@ type Source = {
 }
 
 type Chapter = {
-  chapterId: string;
+  id: string;
   url: string;
+  edited: bool;
+  name: string;
+  link: Link;
+  hidden: bool;
+}
+
+type Link = {
+  linkURL: string;
+  linkTitle: string;
 }
 
 export var SourceModel = {
@@ -56,8 +65,20 @@ export var ChapterModel = {
   },
 
   save(chapter:Chapter) {
-    console.log("Put THERE", chapter)
-    return Put(url('chapters', chapter.chapterId), chapter)
+    chapter.edited = true
+    return Put(url('chapters', chapter.id), chapter)
+  },
+
+  clear(chapter:Chapter) {
+    chapter.edited = false
+    chapter.url = chapter.link.linkURL
+    chapter.name = chapter.link.linkTitle
+    return Put(url('chapters', chapter.id), chapter)
+  },
+
+  hidden(chapter:Chapter, hidden:bool) {
+    chapter.hidden = hidden
+    return Put(url('chapters', chapter.id), chapter)
   }
 }
 

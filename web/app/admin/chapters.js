@@ -10,11 +10,17 @@ export class Chapters extends React.Component {
     var onUpdate = this.props.onUpdate
     //var source = this.props.source
 
-    var row = c => <ChapterRow chapter={c} onSaveChapter={this.props.onSaveChapter}/>
+    var row = c => (
+      <ChapterRow chapter={c} 
+        onSaveChapter={this.props.onSaveChapter}
+        onClearChapter={this.props.onClearChapter}
+      />
+    )
 
     return <div>
       <table>
         <tr>
+          <th></th>
           <th></th>
           <th>Number</th>
           <th>Name</th>
@@ -53,7 +59,25 @@ export class ChapterRow extends React.Component {
   }
 
   clear() {
+    var chapter = this.props.chapter
+    this.setState({editing: null})
+    this.props.onClearChapter(chapter)
+  }
 
+  edit() {
+    this.setState({editing: cloneDeep(this.props.chapter)})
+  }
+
+  toggleHidden() {
+    var chapter = this.props.chapter
+    chapter.hidden = !chapter.hidden
+    this.props.onSaveChapter(chapter)
+  }
+
+  save() {
+    var chapter = this.state.editing
+    this.setState({editing: null})
+    this.props.onSaveChapter(chapter)
   }
 
   renderEdit() {
@@ -65,7 +89,7 @@ export class ChapterRow extends React.Component {
     })
 
     return <tr key={chapter.id}>
-      <td colSpan="4">
+      <td colSpan="5">
         <div className="row">
           <div className="columns small-2">
             <label>Number</label>
@@ -86,7 +110,7 @@ export class ChapterRow extends React.Component {
         <div>
           <button onClick={this.save.bind(this)}>Save</button>
           <span> </span>
-          <button className="secondary" onClick={this.clear.bind(this)}>Clear Edits</button>
+          <button className="secondary" onClick={this.clear.bind(this)}>Revert to Scan</button>
         </div>
       </td>
     </tr>
@@ -94,23 +118,26 @@ export class ChapterRow extends React.Component {
 
   renderView() {
     var chapter = this.props.chapter
+
+
+    var hiddenStyle = {}
+    if (chapter.hidden) {
+      var hiddenStyle = {
+        color: '#AAA',
+      }
+    }
+
     return <tr key={chapter.id}>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
-      <td>{chapter.number}</td>
-      <td>{chapter.name}</td>
-      <td><a href={chapter.url}>{urlPath(chapter.url)}</a></td>
+      <td><a onClick={this.toggleHidden.bind(this)} style={hiddenStyle}>
+        <span className="fa fa-eye"></span></a>
+      </td>
+      <td style={hiddenStyle}>{chapter.number}</td>
+      <td style={hiddenStyle}>{chapter.name}</td>
+      <td><a href={chapter.url} style={hiddenStyle}>{urlPath(chapter.url)}</a></td>
     </tr>
   }
 
-  edit() {
-    this.setState({editing: cloneDeep(this.props.chapter)})
-  }
-
-  save() {
-    var chapter = this.state.editing
-    this.setState({editing: null})
-    this.props.onSaveChapter(chapter)
-  }
 }
 
 function urlPath(u) {

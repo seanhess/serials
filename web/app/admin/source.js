@@ -53,10 +53,16 @@ export class Source extends React.Component {
   }
 
   onSaveChapter(chapter) {
-    console.log("SAVE CHAPTER", chapter)    
     ChapterModel.save(chapter)
     .then(function() {
-      console.log("saved")
+      window.location.reload()
+    })
+  }
+
+  onClearChapter(chapter) {
+    ChapterModel.clear(chapter)
+    .then(function() {
+      window.location.reload()
     })
   }
 
@@ -79,17 +85,11 @@ export class Source extends React.Component {
   }
 
   runScan() {
-    // do something amazing!
     this.setState({scanning: true})
     ChapterModel.importSource(this.props.params.id)
     .then(() => {
-      console.log("- done")
       this.setState({scanning: false})
-      console.log("HELLO", Router)
-      console.log("- done2")
-      console.log("CHECK", Router.refresh)
-      ////Router.refresh()
-      //window.refresh()
+      window.location.reload()
     })
   }
 
@@ -148,7 +148,10 @@ export class Source extends React.Component {
         <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
       </div>
 
-      <Chapters chapters={chapters} source={source} onSaveChapter={this.onSaveChapter.bind(this)}/>
+      <Chapters chapters={chapters} source={source} 
+        onSaveChapter={this.onSaveChapter.bind(this)}
+        onClearChapter={this.onClearChapter.bind(this)}
+      />
     </div>
 
   }

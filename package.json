@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "start": "node web/server.js"
+    "start": "cd web && node server.js"
   },
   "repository": {
     "type": "git",

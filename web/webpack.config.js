@@ -5,13 +5,13 @@ module.exports = {
     app:  [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      './web/index.js',
+      './index.js',
     ]
   },
 
   output: {
-    publicPath: "/web/build/",
-    path: __dirname + "/web/build/",
+    publicPath: "/build/",
+    path: __dirname + "/build/",
     filename: "bundle.js"
   },
 

@@ -55,10 +55,15 @@ PROTOTYPE USER INTERFACE
 - [x] Admin: Edit course selector, settings, url, etc
 - [x] Admin: override the name, and don't wipe it out when you re-scan
 - [x] Admin: manually hide a scanned chapter
-- [ ] User: see sources
-- [ ] User: see chapters for source
-- [ ] Source image
-- [ ] Deploy and get feedback!
+- [x] User: see sources
+- [x] User: see chapters for source
+- [x] Source image
+- [ ] Deploy!
+- [ ] Fix: friendship is optimal has a bunch of extra links
+- [ ] Fix: HPMOR relative links
+- [ ] Fix: Worm missing
+- [ ] Fix: Wildbow arc titles
+
 
 LATER
 

@@ -68,3 +68,5 @@ testGinny = menuLinks "http://fanfiction.net/s/11117811/" "http://fanfiction.net
 testPact = tocLinks "https://pactwebserial.wordpress.com/table-of-contents/" (selector ".entry-content")
 testWorm = tocLinks "https://parahumans.wordpress.com/table-of-contents/" (selector ".entry-content")
 testHPMOR = tocLinks "http://hpmor.com/" (selector ".toclist")
+
+testFriendship = tocLinks "http://www.fimfiction.net/story/62074/friendship-is-optimal" (selector ".chapters")

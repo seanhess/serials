@@ -5,7 +5,7 @@ var Promise = require('bluebird')
 
 var {RouteHandler} = require('react-router')
 var {SourceModel, ChapterModel, showChapter} = require('../model')
-var {coverStyle} = require('../cover')
+var {Cover} = require('../cover')
 
 export class Book extends React.Component {
 
@@ -27,8 +27,8 @@ export class Book extends React.Component {
     var row = (c) => <Chapter chapter={c} key={c.id} />
 
     return <div className="row small-12 columns">
-      <h2>{source.name}</h2>
-      <div style={coverStyle(source.imageUrl)} />
+      <h3> </h3>
+      <Cover source={source} />
 
       <h3>Chapters</h3>
       <div>{shown.map(row)}</div>

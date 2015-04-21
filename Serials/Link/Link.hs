@@ -39,8 +39,8 @@ clean = strip
 -- if you can't parse it, just use the path they provided
 (</>) :: URL -> URL -> URL
 (</>) base path = fromMaybe path $ do
-    b <- parseURIReference $ unpack base
-    p <- parseURIReference $ unpack path
+    b <- parseURIReference $ unpack $ strip base
+    p <- parseURIReference $ unpack $ strip path
     return $ pack $ show $ p `relativeTo` b
 
 infixr 6 </>

@@ -54,6 +54,8 @@ export var ScanModel = {
   }
 }
 
+// ChapterModel /////////////////////////////////////
+
 export var ChapterModel = {
   findBySource(id:string) {
     return Get(url('sources', id, 'chapters'))
@@ -78,7 +80,11 @@ export var ChapterModel = {
   hidden(chapter:Chapter, hidden:bool) {
     chapter.hidden = hidden
     return Put(url('chapters', chapter.id), chapter)
-  }
+  },
+
+  deleteBySource(id:string) {
+    return Del(url('sources', id, 'chapters'))
+  },
 }
 
 export var Menu = "MenuSettings"

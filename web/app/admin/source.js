@@ -8,6 +8,7 @@ var {SourceModel, ScanModel, ChapterModel, emptySource} = require('./model')
 var {Chapters} = require('./chapters.js')
 var {ImportSettings} = require('./import.js')
 var {DisabledButton, FormSection} = require('../comp')
+var {coverStyle} = require('../cover')
 
 export class Source extends React.Component {
 
@@ -100,6 +101,11 @@ export class Source extends React.Component {
     .then(this.reloadChapters.bind(this))
   }
 
+  deleteAllChapters() {
+    ChapterModel.deleteBySource(this.props.params.id)
+    .then(this.reloadChapters.bind(this))
+  }
+
   onUpdateSettings(settings) {
     var source = this.state.source
     source.importSettings = settings
@@ -126,23 +132,31 @@ export class Source extends React.Component {
       </div>
 
       <FormSection title="Basic Settings">
-        <div className="row">
-          <div className="small-5 columns">
+        <div>
+          <div style={{float: 'left', width: 220}}>
+            <div style={coverStyle(source.imageUrl)}>
+            </div>
+          </div>
+
+          <div style={{marginLeft: 220, minHeight: 305}}>
             <label>Name</label>
             <input type="text" 
               value={source.name} 
               onChange={this.updateSource((s, v) => s.name = v)}
             />
-          </div>
-
-          <div className="small-7 columns">
             <label>URL</label>
             <input type="text" 
               value={source.url}
               onChange={this.updateSource((s, v) => s.url = v)}
             />
+            <label>Image URL</label>
+            <input type="text" 
+              value={source.imageUrl}
+              onChange={this.updateSource((s, v) => s.imageUrl = v)}
+            />
           </div>
         </div>
+
       </FormSection>
 
       <FormSection title="Import Settings">
@@ -153,6 +167,8 @@ export class Source extends React.Component {
 
       <div>
         <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
+        <span> </span>
+        <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
       </div>
 
       <Chapters chapters={chapters} source={source} 

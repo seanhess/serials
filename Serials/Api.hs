@@ -50,6 +50,7 @@ type API =
 
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Get [Chapter]
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
+  :<|> "sources" :> Capture "id" Text :> "chapters" :> Delete
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
@@ -67,7 +68,7 @@ server h =
     appInfo 
     :<|> sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
-    :<|> chaptersGet :<|> sourceScan 
+    :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
     :<|> chapterGet  :<|> chapterPut
 
   where 
@@ -82,6 +83,7 @@ server h =
   sourcesDel id   = liftIO $ Source.remove h id
 
   chaptersGet id = liftIO $ Chapter.bySource h id
+  chaptersDel id = liftIO $ Chapter.deleteBySource h id
   sourceScan  id = liftE  $ importSource h id
 
   chapterGet id   = liftE $ Chapter.find h id

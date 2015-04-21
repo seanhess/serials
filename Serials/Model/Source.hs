@@ -23,6 +23,8 @@ data Source = Source {
   name :: Text,
   disabled :: Maybe Bool,
 
+  imageUrl :: Text,
+
   importSettings :: ImportSettings
 } deriving (Show, Generic)
 

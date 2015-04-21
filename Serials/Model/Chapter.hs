@@ -54,6 +54,9 @@ sourceIndex = Index sourceIndexName
 bySource :: RethinkDBHandle -> Text -> IO [Chapter]
 bySource h id = sortByNum <$> (run h $ table # getAll sourceIndex [expr id])
 
+deleteBySource :: RethinkDBHandle -> Text -> IO ()
+deleteBySource h id = run h $ table # getAll sourceIndex [expr id] # delete
+
 --findByURL :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
 --findByURL h url = headMay <$> (run h $ byURL url :: IO [Chapter])
 

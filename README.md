@@ -57,6 +57,7 @@ PROTOTYPE USER INTERFACE
 - [x] Admin: manually hide a scanned chapter
 - [ ] User: see sources
 - [ ] User: see chapters for source
+- [ ] Source image
 - [ ] Deploy and get feedback!
 
 LATER

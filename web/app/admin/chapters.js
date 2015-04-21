@@ -120,21 +120,29 @@ export class ChapterRow extends React.Component {
     var chapter = this.props.chapter
 
 
-    var hiddenStyle = {}
+    var color;
     if (chapter.hidden) {
-      var hiddenStyle = {
-        color: '#AAA',
-      }
+      color = '#AAA'
+    }
+
+    var weight;
+    if (chapter.edited) {
+      weight = 'bold'
+    }
+
+    var style = {
+      color: color,
+      fontWeight: weight
     }
 
     return <tr key={chapter.id}>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
-      <td><a onClick={this.toggleHidden.bind(this)} style={hiddenStyle}>
+      <td><a onClick={this.toggleHidden.bind(this)} style={style}>
         <span className="fa fa-eye"></span></a>
       </td>
-      <td style={hiddenStyle}>{chapter.number}</td>
-      <td style={hiddenStyle}>{chapter.name}</td>
-      <td><a href={chapter.url} style={hiddenStyle}>{urlPath(chapter.url)}</a></td>
+      <td style={style}>{chapter.number}</td>
+      <td style={style}>{chapter.name}</td>
+      <td><a href={chapter.url} style={style}>{urlPath(chapter.url)}</a></td>
     </tr>
   }
 

@@ -1,4 +1,3 @@
-// @flow
 
 var axios = require('axios')
 var path:any = require('path')

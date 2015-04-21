@@ -27,7 +27,7 @@ export class Source extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = {source: emptySource(), scanning: false}
+    this.state = {source: emptySource(), scanning: false, chapters: []}
   }
 
   componentWillReceiveProps(props) {

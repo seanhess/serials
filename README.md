@@ -53,16 +53,15 @@ PROTOTYPE USER INTERFACE
 - [x] List of chapters per source
 - [x] Admin: Add a new source
 - [x] Admin: Edit course selector, settings, url, etc
-- [ ] Admin: override the name, and don't wipe it out when you re-scan
-- [ ] Admin: manually hide a scanned chapter
-- [ ] Admin: manually add a chapter (in order)
-
-UMM HOW DO I?
-- [ ] hide one? That's not currently in edits
-- [ ] change my mind and clear them? Gah! I can't really hide everything from them!
+- [x] Admin: override the name, and don't wipe it out when you re-scan
+- [x] Admin: manually hide a scanned chapter
+- [ ] User: see sources
+- [ ] User: see chapters for source
+- [ ] Deploy and get feedback!
 
 LATER
 
+- [ ] Admin: manually add a chapter (in order)
 - [ ] Admin: scan history
 
 MILESTONES

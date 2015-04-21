@@ -1,7 +1,6 @@
 // @flow
 
-//import {get, Post, put, del, url} from '../api'
-var {Post, Put, Del, url, Get} = require('../api')
+var {Get, Post, Put, Del, url} = require('../api')
 
 type Source = {
   id: string;

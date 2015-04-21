@@ -74,6 +74,11 @@ export class Source extends React.Component {
     .then(this.reloadChapters.bind(this))
   }
 
+  onHiddenChapter(chapter, hidden) {
+    ChapterModel.hidden(chapter, hidden)
+    .then(this.reloadChapters.bind(this))
+  }
+
   save() {
     var source = this.state.source
     SourceModel.save(this.props.source.id, source)
@@ -174,6 +179,7 @@ export class Source extends React.Component {
       <Chapters chapters={chapters} source={source} 
         onSaveChapter={this.onSaveChapter.bind(this)}
         onClearChapter={this.onClearChapter.bind(this)}
+        onHiddenChange={this.onHiddenChapter.bind(this)}
       />
     </div>
 

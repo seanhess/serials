@@ -14,6 +14,7 @@ export class Chapters extends React.Component {
       <ChapterRow chapter={c} 
         onSaveChapter={this.props.onSaveChapter}
         onClearChapter={this.props.onClearChapter}
+        onHiddenChange={this.props.onHiddenChange}
       />
     )
 
@@ -70,8 +71,7 @@ export class ChapterRow extends React.Component {
 
   toggleHidden() {
     var chapter = this.props.chapter
-    chapter.hidden = !chapter.hidden
-    this.props.onSaveChapter(chapter)
+    this.props.onHiddenChange(chapter, !chapter.hidden)
   }
 
   save() {

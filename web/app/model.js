@@ -2,6 +2,9 @@
 
 var {Get, Post, Put, Del, url} = require('./api')
 
+
+// SourceModel //////////////////////////////////////
+
 type Source = {
   id: string;
   importSettings: any;
@@ -11,19 +14,6 @@ type Source = {
   imageUrl: string;
 }
 
-type Chapter = {
-  id: string;
-  url: string;
-  edited: bool;
-  name: string;
-  link: Link;
-  hidden: bool;
-}
-
-type Link = {
-  linkURL: string;
-  linkTitle: string;
-}
 
 export var SourceModel = {
   findAll() {
@@ -49,13 +39,26 @@ export var SourceModel = {
   }
 }
 
-export var ScanModel = {
-  findBySource(id:string) {
-    return Get(url('sources', id, 'scans'))
-  }
-}
+
+
+
 
 // ChapterModel /////////////////////////////////////
+
+
+type Chapter = {
+  id: string;
+  url: string;
+  edited: bool;
+  name: string;
+  link: Link;
+  hidden: bool;
+}
+
+type Link = {
+  linkURL: string;
+  linkTitle: string;
+}
 
 export var ChapterModel = {
   findBySource(id:string) {

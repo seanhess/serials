@@ -108,5 +108,5 @@ export function emptySource():Source {
 }
 
 export function showChapter(chapter:Chapter):bool {
-  return !chapter.hidden
+  return !chapter.hidden && chapter.name
 }

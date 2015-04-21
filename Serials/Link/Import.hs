@@ -43,9 +43,7 @@ tocLinks :: URL -> Selector Text -> IO [Link]
 tocLinks url sel = do
     body <- downloadBody url
     let tags = parseTags body
-        as = scrape (scrapeAnchors sel) tags
-        ls = map (anchorToLink url) $ fromMaybe [] as
-    return $ ls
+    return $ parseToc url sel tags
 
 -- yeah, because you need to map a source to an IO action
 links :: URL -> ImportSettings -> IO [Link]

@@ -4,11 +4,11 @@ module Serials.Link.Scrape where
 
 import Serials.Link.Link
 
-import Prelude hiding (id)
+import Prelude hiding (id, length)
 
 import Control.Applicative
 
-import Data.Text (Text)
+import Data.Text (Text, length)
 import qualified Data.Text as T
 import Data.Maybe (fromMaybe, fromJust)
 import Data.Monoid ((<>))
@@ -20,10 +20,17 @@ import Text.StringLike hiding (fromString, toString)
 
 ---------------------------------------------------------------------------
 -- toc sites here
-
+-- should I drop empty title links? Sure, let's try it. It'll fix friendship too
 
 data HTMLAnchor = HTMLAnchor URL Title deriving (Show)
 
+
+parseToc :: URL -> Selector Text -> [Tag Text] -> [Link]
+parseToc base sel tags = clean
+  where
+    anchors = scrape (scrapeAnchors sel) tags
+    links   = map (anchorToLink base) $ fromMaybe [] anchors
+    clean   = filter ((>0) . length . linkTitle) links
 
 scrapeAnchors :: Selector Text -> Scraper Text [HTMLAnchor]
 scrapeAnchors sel = chroot sel $ chroots a scrapeAnchor

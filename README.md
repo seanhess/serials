@@ -59,9 +59,9 @@ PROTOTYPE USER INTERFACE
 - [x] User: see chapters for source
 - [x] Source image
 - [ ] Deploy!
-- [ ] Fix: friendship is optimal has a bunch of extra links
-- [ ] Fix: HPMOR relative links
-- [ ] Fix: Worm missing
+- [x] Fix: friendship is optimal has a bunch of extra links
+- [x] Fix: HPMOR relative links
+- [ ] Fix: Worm missing titles
 - [ ] Fix: Wildbow arc titles
 
 

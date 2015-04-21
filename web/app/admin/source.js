@@ -31,7 +31,11 @@ export class Source extends React.Component {
   }
 
   componentWillReceiveProps(props) {
-    this.setState({source: props.source || emptySource()})
+    this.setState({
+      // store them locally so you can refresh them!
+      source: props.source || emptySource(),
+      chapters: props.chapters || []
+    })
   }
 
   updateSource(f) {
@@ -54,16 +58,19 @@ export class Source extends React.Component {
 
   onSaveChapter(chapter) {
     ChapterModel.save(chapter)
-    .then(function() {
-      window.location.reload()
+    .then(this.reloadChapters.bind(this))
+  }
+
+  reloadChapters() {
+    return ChapterModel.findBySource(this.props.params.id)
+    .then((chapters) => {
+      this.setState({chapters: chapters})
     })
   }
 
   onClearChapter(chapter) {
     ChapterModel.clear(chapter)
-    .then(function() {
-      window.location.reload()
-    })
+    .then(this.reloadChapters.bind(this))
   }
 
   save() {
@@ -89,8 +96,8 @@ export class Source extends React.Component {
     ChapterModel.importSource(this.props.params.id)
     .then(() => {
       this.setState({scanning: false})
-      window.location.reload()
     })
+    .then(this.reloadChapters.bind(this))
   }
 
   onUpdateSettings(settings) {
@@ -101,7 +108,7 @@ export class Source extends React.Component {
 
   render() {
     var source:Source = this.state.source || {}
-    var chapters = this.props.chapters || []
+    var chapters = this.state.chapters || []
 
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
     var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"

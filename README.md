@@ -58,17 +58,23 @@ PROTOTYPE USER INTERFACE
 - [x] User: see sources
 - [x] User: see chapters for source
 - [x] Source image
-- [ ] Deploy!
 - [x] Fix: friendship is optimal has a bunch of extra links
 - [x] Fix: HPMOR relative links
-- [ ] Fix: Worm missing titles
+- [x] Fix: Worm missing titles
+- [ ] CSS: why are covers zoomed in on the book page?
+- [ ] Deploy!
 - [ ] Fix: Wildbow arc titles
-
 
 LATER
 
 - [ ] Admin: manually add a chapter (in order)
 - [ ] Admin: scan history
+- [ ] Big: automatic scanning
+- [ ] Big: Track where you are
+- [ ] Big: notifications
+- [ ] Big: better UI
+
+
 
 MILESTONES
 ----------

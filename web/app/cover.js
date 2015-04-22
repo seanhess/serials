@@ -6,18 +6,26 @@ var {assign} = require('lodash')
 // but get the images at 2x resolution so they can be retina yo
 // or just get the photos at that ratio
 export var CoverSize = {
-  Width: 320,
-  Height: 200,
+  Width: 200,
+  Height: 320,
   Ratio: 1.6
 }
 
 
 export function coverStyle(url:string):Object {
+
+  // otherwise it forgets about the cover. Wait until the image is ready
+  if (!url) {
+    return {
+
+    }
+  }
+
   return {
     background: 'url('+url+') no-repeat center center',
     backgroundSize: 'cover',
-    width: '200px',
-    height: '320px',
+    width: CoverSize.Width,
+    height: CoverSize.Height
   }
 }
 

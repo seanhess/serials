@@ -1,0 +1,34 @@
+#!/bin/bash
+
+### SETTINGS #########################################################
+
+name="serials"
+server="root@XXXXX"
+image="seanhess/$name"
+port="3001"
+rethinkdb="xxxxxx"
+
+######################################################################
+
+./build
+
+echo "docker push $image"
+echo "-----------------------"
+docker push $image
+
+ssh -t -t $server << END
+echo "REMOTE"
+docker pull $image
+docker stop $name
+docker rm $name
+docker run -it --rm -e "PORT=$port" -e "DB_HOST=$rethinkdb" -p $port:$port --name=$name $image
+END
+
+
+# RUN RETHINKDB
+# docker run -it --rm -d --name rethinkdb --restart=always rethinkdb
+
+# RUN THIS AND LINK
+# docker run -it --rm --restart=always --name serials --link rethinkdb:rethinkdb seanhess/serials /bin/bash
+# echo $RETHINKDB_PORT_28015_TCP => tcp://128.5.2.3:28015
+# then you can do it!

@@ -14,7 +14,7 @@ import Control.Monad.Trans.Either
 import Data.Aeson
 import Data.Monoid
 import Data.Proxy
-import Data.Text (Text, toUpper)
+import Data.Text (Text, toUpper, unpack)
 import Data.Maybe (fromJust)
 
 import GHC.Generics
@@ -30,18 +30,18 @@ import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
+import Serials.Model.Crud (initDb)
 import Serials.Scan
 
 --import Web.Scotty
 import Servant
 
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
+import qualified Database.RethinkDB as R
 
 type API =
 
-  Get AppInfo
-
-  :<|> "sources" :> Get [Source]
+       "sources" :> Get [Source]
   :<|> "sources" :> ReqBody Source :> Post Text
 
   :<|> "sources" :> Capture "id" Text :> Get Source
@@ -55,25 +55,22 @@ type API =
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
--- if you delete it, what happens?
--- it should clear the edits, but not the chapter :)
--- how do you hide it? 
--- fuuu
+  :<|> Raw
 
 api :: Proxy API
 api = Proxy
 
 server :: RethinkDBHandle -> Server API
 server h = 
-    appInfo 
-    :<|> sourcesGetAll :<|> sourcesPost 
+         sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
     :<|> chapterGet  :<|> chapterPut
+    :<|> serveDirectory "web" 
 
   where 
 
-  appInfo = return $ AppInfo "Serials" "0.1.0"
+  --appInfo = return $ AppInfo "Serials" "0.1.0"
 
   sourcesGetAll = liftIO $ Source.list h
   sourcesPost s = liftIO $ Source.insert h s
@@ -99,20 +96,24 @@ stack app = heads $ cors' $ app
 
 -- Run ---------------------------------------------------------
 
-runApi :: Int -> IO ()
-runApi port = do
-    putStrLn $ "Running on " <> show port
-    h <- connectDb
+runApi :: Int -> (String, Integer) -> IO ()
+runApi port dbHost = do
+    h <- connectDb dbHost
+    createDb h
     Source.init h
     Chapter.init h
-    --scotty port (routes h)
+    putStrLn $ "Starting..."
     run port $ stack $ serve api (server h)
     return ()
 
 -- DB -----------------------------------------------------------
 
-connectDb :: IO RethinkDBHandle
-connectDb = use serialsDb <$> connect "localhost" 28015 Nothing
+-- I could just read it here.. it's easy
+connectDb :: (String,Integer) -> IO RethinkDBHandle
+connectDb (host,port) = use serialsDb <$> connect host port Nothing
+
+createDb :: RethinkDBHandle -> IO ()
+createDb h = initDb $ R.run h $ R.dbCreate $ unpack serialsDbName
 
 serialsDb = db serialsDbName
 serialsDbName = "serials"

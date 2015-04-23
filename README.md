@@ -61,8 +61,10 @@ PROTOTYPE USER INTERFACE
 - [x] Fix: friendship is optimal has a bunch of extra links
 - [x] Fix: HPMOR relative links
 - [x] Fix: Worm missing titles
-- [ ] CSS: why are covers zoomed in on the book page?
+- [x] CSS: why are covers zoomed in on the book page?
 - [ ] Deploy!
+- [ ] Sign up to be notified of progress
+- [ ] Suggest a book
 - [ ] Fix: Wildbow arc titles
 
 LATER

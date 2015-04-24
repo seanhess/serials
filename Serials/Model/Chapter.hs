@@ -79,12 +79,6 @@ save h c = do
 saveAll :: RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
 saveAll h cs = mapM (save h) cs
 
-init :: RethinkDBHandle -> IO ()
-init h = do
-    initDb $ run h $ tableCreate table
-    initDb $ run h $ table # indexCreate (unpack sourceIndexName) (!expr sourceIndexName)
-    --initDb $ run h $ table # indexCreate (unpack urlIndexName) (\row -> expr (row ! "url"))
-
 urlId :: Text -> Text
 urlId u = filter isAlphaNum $ drop 5 $ u
 

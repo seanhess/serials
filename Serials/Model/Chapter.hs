@@ -52,7 +52,7 @@ sourceIndex = Index sourceIndexName
 --urlIndex = Index urlIndexName
 
 bySource :: RethinkDBHandle -> Text -> IO [Chapter]
-bySource h id = sortByNum <$> (run h $ table # getAll sourceIndex [expr id])
+bySource h id = run h $ table # getAll sourceIndex [expr id] # orderBy [asc "number"]
 
 deleteBySource :: RethinkDBHandle -> Text -> IO ()
 deleteBySource h id = run h $ table # getAll sourceIndex [expr id] # delete
@@ -62,9 +62,6 @@ deleteBySource h id = run h $ table # getAll sourceIndex [expr id] # delete
 
 --byURL :: Text -> ReQL
 --byURL url = table # getAll urlIndex [expr url] 
-
-sortByNum :: [Chapter] -> [Chapter]
-sortByNum cs = sortBy (compare `on` number) cs
 
 find :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
 find h id = run h $ table # get (expr id)

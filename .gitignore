@@ -7,3 +7,5 @@ archive/
 cabal.sandbox.config
 web/build
 npm-debug.log
+.vagrant/
+.vagrant

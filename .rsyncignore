@@ -1,0 +1,9 @@
+.git
+.DS_Store
+log/*
+*.tmproj
+dist
+.vagrant
+.cabal-sandbox
+node_modules
+

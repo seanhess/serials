@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# you don't need a data container, just mount the local volume
+# docker run -v /data --name rethinkdb-data ubuntu true
+
+# LOCAL
+docker build -t seanhess/serials .
+docker push seanhess/serials
+
+# REMOTE
+# run rethinkdb connected to the data container
+docker run -it -d \
+  --name rethinkdb \
+  --restart=always \
+  -v /data:/data \
+  rethinkdb:1.16
+
+# clean up and pull latest
+docker pull seanhess/serials
+docker stop serials
+docker rm serials
+
+# run the application with the database linked
+docker run -it -d \
+  --name serials \
+  --restart=always \
+  --link rethinkdb:rethinkdb \
+  seanhess/serials
+

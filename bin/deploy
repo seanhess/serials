@@ -24,6 +24,7 @@ docker rm $name
 docker run -it --rm -e "PORT=$port" -e "DB_HOST=$rethinkdb" -p $port:$port --name=$name $image
 END
 
+# HOSTIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
 
 # RUN RETHINKDB
 # docker run -it --rm -d --name rethinkdb --restart=always rethinkdb
@@ -32,3 +33,18 @@ END
 # docker run -it --rm --restart=always --name serials --link rethinkdb:rethinkdb seanhess/serials /bin/bash
 # echo $RETHINKDB_PORT_28015_TCP => tcp://128.5.2.3:28015
 # then you can do it!
+# Ok, this is cool, but I bet it would be safer to run the database separately
+# yeah...
+
+# If I use the docker container though, I can target a SPECIFIC version of rethinkdb
+# which is pretty rad
+# It also has all the stuff I need to operatez, and I know how to actually do it :)
+
+# What's the downside? 
+# ... If I need to do anything administratory
+# data only container!
+# this makes me sad...
+# use --add-host and just look it up :)
+
+# OK, 
+

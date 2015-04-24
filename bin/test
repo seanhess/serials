@@ -9,9 +9,10 @@ docker push seanhess/serials
 
 # REMOTE
 # run rethinkdb connected to the data container
-docker run -it -d \
+docker run -it -d  \
   --name rethinkdb \
   --restart=always \
+  -p 8080:8080   \
   -v /data:/data \
   rethinkdb:1.16
 
@@ -21,9 +22,10 @@ docker stop serials
 docker rm serials
 
 # run the application with the database linked
-docker run -it -d \
-  --name serials \
+docker run -it -d  \
+  --name serials   \
   --restart=always \
   --link rethinkdb:rethinkdb \
+  -p 3001:3001 \
   seanhess/serials
 

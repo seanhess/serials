@@ -38,7 +38,7 @@ function error(err) {
 
 // ------------------------------------------------
 
-var API = "http://localhost:3001"
+var API = ""
 
 export function url(...paths:Array<string>):string {
   // I need to join the API with the path

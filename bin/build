@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo "docker build -t seanhess/serials ."
+echo "BUILD"
 echo "-----------------------"
 
-cd web && webpack
-cd .. && docker build -t seanhess/serials .
+cd web && webpack && cd ..
+docker build -t seanhess/serials .
+docker push seanhess/serials

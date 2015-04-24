@@ -56,6 +56,3 @@ save h id s = run h $ table # get (expr id) # replace (const (toDatum s))
 remove :: RethinkDBHandle -> Text -> IO ()
 remove h id = run h $ table # get (expr id) # delete
 
-init :: RethinkDBHandle -> IO ()
-init h = do
-    initDb $ run h $ tableCreate table

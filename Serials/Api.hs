@@ -7,7 +7,7 @@
 
 module Serials.Api where
 
-import Control.Applicative 
+import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
 
@@ -30,7 +30,7 @@ import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
-import Serials.Model.Crud (initDb)
+import Serials.Model.Crud (initDb, connectDb)
 import Serials.Scan
 
 --import Web.Scotty
@@ -61,14 +61,14 @@ api :: Proxy API
 api = Proxy
 
 server :: RethinkDBHandle -> Server API
-server h = 
-         sourcesGetAll :<|> sourcesPost 
+server h =
+         sourcesGetAll :<|> sourcesPost
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
     :<|> chapterGet  :<|> chapterPut
-    :<|> serveDirectory "web" 
+    :<|> serveDirectory "web"
 
-  where 
+  where
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 
@@ -99,24 +99,10 @@ stack app = heads $ cors' $ app
 runApi :: Int -> (String, Integer) -> IO ()
 runApi port dbHost = do
     h <- connectDb dbHost
-    createDb h
-    Source.init h
-    Chapter.init h
+    initDb h
     putStrLn $ "Starting..."
     run port $ stack $ serve api (server h)
     return ()
-
--- DB -----------------------------------------------------------
-
--- I could just read it here.. it's easy
-connectDb :: (String,Integer) -> IO RethinkDBHandle
-connectDb (host,port) = use serialsDb <$> connect host port Nothing
-
-createDb :: RethinkDBHandle -> IO ()
-createDb h = initDb $ R.run h $ R.dbCreate $ unpack serialsDbName
-
-serialsDb = db serialsDbName
-serialsDbName = "serials"
 
 -- Cors ---------------------------------------------------------
 

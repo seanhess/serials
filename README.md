@@ -7,6 +7,11 @@ There are many great books and webcomics are being published openly on the web t
 
 The system will scan sources to create a table of contents for each book. It will notify subscribers, and keep track of their reading progress.
 
+Pre-alpha Site
+--------------
+
+http://serials.orbit.al
+
 Development
 -----------
 

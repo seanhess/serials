@@ -12,24 +12,6 @@ Pre-alpha Site
 
 http://serials.orbit.al
 
-Development
------------
-
-Haskell Server
-
-    cabal sandbox init
-    cabal install --only-dependencies
-    cabal run
-
-Front-end application
-  
-    cd web/
-    webpack -w
-
-Visit the server
-  
-    http://localhost:3001/
-
 Contributing
 ------------
 
@@ -49,3 +31,22 @@ MILESTONES
 - [ ] Responsive front-end reading experience
 - [ ] Notifications
 - [ ] Keep track of where you are / queue
+
+Development
+-----------
+
+Haskell Server
+
+    cabal sandbox init
+    cabal install --only-dependencies
+    cabal run
+
+Front-end application
+  
+    cd web/
+    webpack -w
+
+Visit the server
+  
+    http://localhost:3001/
+

@@ -1,47 +1,4 @@
 #!/bin/bash
 
-####################################################
-
-name="serials"
-server="root@dev.orbit.al"
-image="seanhess/$name"
-port="3001"
-
-###################################################
-
-echo "DEPLOY"
-echo "-----------------------"
-
-# NOTE: the rethinkdb container must be started by hand?
-
-# download it
-ssh -t -t root@dev.orbit.al << END
-echo "REMOTE"
-
-# clean up and pull latest
-docker pull $image
-docker stop $name
-docker rm $name
-
-# run the application with the database linked
-docker run -it -d  \
-  --name $name     \
-  --restart=always \
-  --link rethinkdb:rethinkdb \
-  -p $port:$port \
-  $image
-
-END
-
-# TODO private docker registry. Actually get it to work!
-# https://docs.docker.com/registry/deploying/
-
-# TODO automatic rethinkdb running?
-
-# Must be run once on the server
-#docker run -it -d  \
-  #--name rethinkdb \
-  #--restart=always \
-  #-p 8080:8080   \
-  #-v /data:/data \
-  #rethinkdb:1.16
+bin/build
+bin/run

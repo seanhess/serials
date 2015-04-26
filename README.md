@@ -1,7 +1,11 @@
 serials
 =========
 
-Prototype of web serials app
+We aim to create a podcast-like experience for reading serial publications on the web. 
+
+There are many great books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress. 
+
+The system will scan sources to create a table of contents for each book. It will notify subscribers, and keep track of their reading progress.
 
 Development
 -----------
@@ -15,73 +19,28 @@ Haskell Server
 Front-end application
   
     cd web/
-    npm install
-    npm start
+    webpack -w
 
-Visit the front-end server
+Visit the server
   
-    http://localhost:3000/
+    http://localhost:3001/
 
-Approaches
-----------
+Contributing
+------------
 
-- hpmor: fanfiction menuLinks, hpmor.com tocLinks
-- mother of learning: menuLinks
-- fanfiction: menuLinks
-- worm: tocLinks
-- twig: tocLinks
-- pact: tocLinks
-- blindsight: ????
-- patreon (https://www.patreon.com/dreamscapes?ty=c) ???
+Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged. 
 
-TODO
-----
-
-PARSING
-
-- [x] CLOSED. filters valid links
-- [x] clean title / url of newlines
-
-SERVICE
-
-- [x] Store settings per source
-- [x] Manually scan a source
-
-PROTOTYPE USER INTERFACE
-
-- [x] List of sources in the system
-- [x] List of chapters per source
-- [x] Admin: Add a new source
-- [x] Admin: Edit course selector, settings, url, etc
-- [x] Admin: override the name, and don't wipe it out when you re-scan
-- [x] Admin: manually hide a scanned chapter
-- [x] User: see sources
-- [x] User: see chapters for source
-- [x] Source image
-- [x] Fix: friendship is optimal has a bunch of extra links
-- [x] Fix: HPMOR relative links
-- [x] Fix: Worm missing titles
-- [x] CSS: why are covers zoomed in on the book page?
-- [ ] Deploy!
-- [ ] Sign up to be notified of progress
-- [ ] Suggest a book
-- [ ] Fix: Wildbow arc titles
-
-LATER
-
-- [ ] Admin: manually add a chapter (in order)
-- [ ] Admin: scan history
-- [ ] Big: automatic scanning
-- [ ] Big: Track where you are
-- [ ] Big: notifications
-- [ ] Big: better UI
-
-
+* [Issues and Features that need work](https://github.com/seanhess/serials/issues)
 
 MILESTONES
 ----------
 
-- [ ] List of sources. View, Edit, Remove, Add. 
-- [ ] Button to do a scan per source. Store the results. Page to view the scan results
-- [ ] Store the latest chapter list
-- [ ] Manage chapter lists (hide, add chapter)
+- [x] List of sources. View, Edit, Remove, Add. 
+- [x] Button to do a scan per source. Store the results. Page to view the scan results
+- [x] Store the latest chapter list
+- [x] Manage chapter lists (hide, add chapter)
+- [ ] Automatic scanning
+- [ ] User accounts
+- [ ] Responsive front-end reading experience
+- [ ] Notifications
+- [ ] Keep track of where you are / queue

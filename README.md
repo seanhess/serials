@@ -12,13 +12,6 @@ Pre-alpha Site
 
 http://serials.orbit.al
 
-Contributing
-------------
-
-Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged. 
-
-* [Issues and Features that need work](https://github.com/seanhess/serials/issues)
-
 MILESTONES
 ----------
 
@@ -31,6 +24,14 @@ MILESTONES
 - [ ] Responsive front-end reading experience
 - [ ] Notifications
 - [ ] Keep track of where you are / queue
+
+Contributing
+------------
+
+Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged. 
+
+* [Issues and Features that need work](https://github.com/seanhess/serials/issues)
+
 
 Development
 -----------

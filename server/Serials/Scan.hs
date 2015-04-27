@@ -15,6 +15,7 @@ import Control.Applicative
 import Control.Concurrent.PooledIO.Independent
 import Control.Concurrent
 import Control.Monad
+import Control.Exception
 
 import Serials.Model.Crud
 import Serials.Link
@@ -54,7 +55,8 @@ importSourceId h sourceId = do
 
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
-  putStrLn $ "START " <> show sid <> " " <> name
+  putStrLn $ "SCAN " <> show sid <> " " <> name
+
   links <- scanSource source
   time <- getCurrentTime
   let scannedChapters = map (linkToChapter sid time) links
@@ -70,19 +72,13 @@ importSource h source = do
   putStrLn $ "  new     " <> show new
   putStrLn $ "  updated " <> show ups
 
-  Chapter.saveAll h new
-  Chapter.saveAll h ups
+  checkErr $ Chapter.saveAll h new
+  checkErr $ Chapter.saveAll h ups
 
   -- this means it actually completed, so go last?
-  Source.updateLastScan h sid scan
+  checkErr $ Source.updateLastScan h sid scan
 
-  -- TODO throw on errs 
-  --let errs = lefts resNew <> lefts resUps
-  --return $ case errs of
-    --[] -> Right ()
-    --errs -> Left errs
-
-  putStrLn $ "DONE  " <> name
+  putStrLn $ "DONE " <> name
 
   where 
     sid = Source.id source
@@ -115,5 +111,15 @@ chapterMap = fromList . map (\c -> (Chapter.id c, c))
 
 isMergeType :: MergeResult -> (MergeResult, Chapter) -> Bool
 isMergeType r = (== r) . fst
+
+---------------------------------------------------------------
+
+checkErr :: Show a => IO (Either a b) -> IO ()
+checkErr action = do
+    res <- action
+    case res of
+      Left err -> throwIO $ (userError $ show err)
+      Right _  -> return ()
+    return ()
 
 

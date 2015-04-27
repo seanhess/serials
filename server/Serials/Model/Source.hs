@@ -61,7 +61,7 @@ save h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
 remove :: Pool RethinkDBHandle -> Text -> IO ()
 remove h id = runPool h $ table # get (expr id) # delete
 
-updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO ()
+updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO (Either RethinkDBError WriteResponse)
 updateLastScan h id s = runPool h $ table # get (expr id) # update (const ["lastScan" := (toDatum s)])
 
 init :: Pool RethinkDBHandle -> IO ()

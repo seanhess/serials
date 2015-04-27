@@ -12,6 +12,7 @@ import Data.Text (Text, unpack, dropWhile, filter, drop)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Pool
 import Data.Time
+import Data.Either
 
 import Control.Applicative
 
@@ -77,8 +78,12 @@ save h c = do
     Left err -> return $ Left err
     Right d  -> return $ Right ()
 
-saveAll :: Pool RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
-saveAll h cs = mapM (save h) cs
+saveAll :: Pool RethinkDBHandle -> [Chapter] -> IO (Either [RethinkDBError] ())
+saveAll h cs = do
+    res <- mapM (save h) cs
+    return $ case lefts res of
+      []   -> Right ()
+      errs -> Left errs
 
 init :: Pool RethinkDBHandle -> IO ()
 init h = do

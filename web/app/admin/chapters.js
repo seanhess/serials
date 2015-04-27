@@ -26,6 +26,7 @@ export class Chapters extends React.Component {
           <th>Number</th>
           <th>Name</th>
           <th>URL</th>
+          <th>Scanned</th>
         </tr>
         {chapters.map(row)}
       </table>
@@ -89,7 +90,7 @@ export class ChapterRow extends React.Component {
     })
 
     return <tr key={chapter.id}>
-      <td colSpan="5">
+      <td colSpan="6">
         <div className="row">
           <div className="columns small-2">
             <label>Number</label>
@@ -135,6 +136,7 @@ export class ChapterRow extends React.Component {
       fontWeight: weight
     }
 
+
     return <tr key={chapter.id}>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
       <td><a onClick={this.toggleHidden.bind(this)} style={style}>
@@ -143,9 +145,15 @@ export class ChapterRow extends React.Component {
       <td style={style}>{chapter.number}</td>
       <td style={style}>{chapter.name}</td>
       <td><a href={chapter.url} style={style}>{urlPath(chapter.url)}</a></td>
+      <td>{toDateString(chapter.scanned)}</td>
     </tr>
   }
 
+}
+
+function toDateString(str) {
+  var date = new Date(str)
+  return date.getUTCMonth() + "-" + date.getUTCDate() + "-" + date.getUTCFullYear()
 }
 
 function urlPath(u) {

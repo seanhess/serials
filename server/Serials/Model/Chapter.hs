@@ -11,6 +11,7 @@ import Data.List (sortBy)
 import Data.Text (Text, unpack, dropWhile, filter, drop)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Pool
+import Data.Time
 
 import Control.Applicative
 
@@ -29,6 +30,8 @@ import Numeric
 data Chapter = Chapter {
   id :: Text,
   sourceId :: Text,
+
+  scanned :: UTCTime,
 
   number :: Int,
   name :: Text,

@@ -9,6 +9,7 @@ import Database.RethinkDB.NoClash
 import Data.Either (lefts)
 import Data.Pool
 import Data.Monoid ((<>))
+import Data.Time
 
 import Control.Applicative
 
@@ -26,10 +27,11 @@ data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
 scanSource :: Source -> IO [Link]
 scanSource s = links (Source.url s) (importSettings s)
 
-linkToChapter :: Text -> Link -> Chapter
-linkToChapter sid (Link n url text) = Chapter {
+linkToChapter :: Text -> UTCTime -> Link -> Chapter
+linkToChapter sid time (Link n url text) = Chapter {
   Chapter.id       = Chapter.urlId url,
   Chapter.sourceId = sid,
+  Chapter.scanned = time,
   Chapter.number = n,
   Chapter.name = text,
   Chapter.url = url,
@@ -43,7 +45,8 @@ importSource h sourceId = do
   putStrLn $ "Scanning: " <> show sourceId
   Just source <- Source.find h sourceId
   links <- scanSource source
-  let scannedChapters = map (linkToChapter (Source.id source)) links
+  time <- getCurrentTime
+  let scannedChapters = map (linkToChapter (Source.id source) time) links
 
   -- ok I've got a bunch of chapters
   -- now I need to merge them with the current ones

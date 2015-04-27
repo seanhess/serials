@@ -57,6 +57,7 @@ executable serials
     http-types,
     safe,
     hashable,
-    resource-pool
+    resource-pool,
+    time
     
     

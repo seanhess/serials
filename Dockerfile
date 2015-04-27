@@ -24,4 +24,4 @@ ADD ./web    /opt/serials/web
 #RUN cd web && webpack
 
 #Default Command for Container
-CMD ["./dist/build/serials/serials"]
+CMD ["./dist/build/serials/serials api"]

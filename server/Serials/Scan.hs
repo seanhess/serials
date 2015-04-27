@@ -7,7 +7,7 @@ import Prelude hiding (id, lookup)
 import Data.Text (Text)
 import Database.RethinkDB.NoClash
 import Data.Either (lefts)
-
+import Data.Pool
 import Data.Monoid ((<>))
 
 import Control.Applicative
@@ -36,7 +36,7 @@ linkToChapter sid (n, (Link url text)) = Chapter {
   Chapter.link = Link url text
 }
 
-importSource :: RethinkDBHandle -> Text -> IO (Either [RethinkDBError] ())
+importSource :: Pool RethinkDBHandle -> Text -> IO (Either [RethinkDBError] ())
 importSource h sourceId = do
   putStrLn $ "Scanning: " <> show sourceId
   Just source <- Source.find h sourceId

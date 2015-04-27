@@ -10,6 +10,7 @@ import Data.Function (on)
 import Data.List (sortBy)
 import Data.Text (Text, unpack, dropWhile, filter, drop)
 import Data.Aeson (ToJSON, FromJSON)
+import Data.Pool
 
 import Control.Applicative
 
@@ -51,36 +52,36 @@ sourceIndex = Index sourceIndexName
 --urlIndexName = "url"
 --urlIndex = Index urlIndexName
 
-bySource :: RethinkDBHandle -> Text -> IO [Chapter]
-bySource h id = run h $ table # getAll sourceIndex [expr id] # orderBy [asc "number"]
+bySource :: Pool RethinkDBHandle -> Text -> IO [Chapter]
+bySource h id = runPool h $ table # getAll sourceIndex [expr id] # orderBy [asc "number"]
 
-deleteBySource :: RethinkDBHandle -> Text -> IO ()
-deleteBySource h id = run h $ table # getAll sourceIndex [expr id] # delete
+deleteBySource :: Pool RethinkDBHandle -> Text -> IO ()
+deleteBySource h id = runPool h $ table # getAll sourceIndex [expr id] # delete
 
---findByURL :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
---findByURL h url = headMay <$> (run h $ byURL url :: IO [Chapter])
+--findByURL :: Pool RethinkDBHandle -> Text -> IO (Maybe Chapter)
+--findByURL h url = headMay <$> (runPool h $ byURL url :: IO [Chapter])
 
 --byURL :: Text -> ReQL
 --byURL url = table # getAll urlIndex [expr url] 
 
-find :: RethinkDBHandle -> Text -> IO (Maybe Chapter)
-find h id = run h $ table # get (expr id)
+find :: Pool RethinkDBHandle -> Text -> IO (Maybe Chapter)
+find h id = runPool h $ table # get (expr id)
 
-save :: RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
+save :: Pool RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
 save h c = do
-  res <- run h $ table # get (expr (id c)) # replace (const $ toDatum c) :: IO (Either RethinkDBError Datum)
+  res <- runPool h $ table # get (expr (id c)) # replace (const $ toDatum c) :: IO (Either RethinkDBError Datum)
   case res of 
     Left err -> return $ Left err
     Right d  -> return $ Right ()
 
-saveAll :: RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
+saveAll :: Pool RethinkDBHandle -> [Chapter] -> IO [Either RethinkDBError ()]
 saveAll h cs = mapM (save h) cs
 
-init :: RethinkDBHandle -> IO ()
+init :: Pool RethinkDBHandle -> IO ()
 init h = do
-    initDb $ run h $ tableCreate table
-    initDb $ run h $ table # indexCreate (unpack sourceIndexName) (!expr sourceIndexName)
-    --initDb $ run h $ table # indexCreate (unpack urlIndexName) (\row -> expr (row ! "url"))
+    initDb $ runPool h $ tableCreate table
+    initDb $ runPool h $ table # indexCreate (unpack sourceIndexName) (!expr sourceIndexName)
+    --initDb $ runPool h $ table # indexCreate (unpack urlIndexName) (\row -> expr (row ! "url"))
 
 urlId :: Text -> Text
 urlId u = filter isAlphaNum $ drop 5 $ u

@@ -9,6 +9,7 @@ import Control.Applicative
 
 import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
+import Data.Pool
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
@@ -39,23 +40,23 @@ instance ToDatum Source
 
 table = R.table "sources"
 
-list :: RethinkDBHandle -> IO [Source]
-list h = run h $ table
+list :: Pool RethinkDBHandle -> IO [Source]
+list h = runPool h $ table
 
-find :: RethinkDBHandle -> Text -> IO (Maybe Source)
-find h id = run h $ table # get (expr id)
+find :: Pool RethinkDBHandle -> Text -> IO (Maybe Source)
+find h id = runPool h $ table # get (expr id)
 
-insert :: RethinkDBHandle -> Source -> IO Text
+insert :: Pool RethinkDBHandle -> Source -> IO Text
 insert h s = do
-    r <- run h $ table # create s
+    r <- runPool h $ table # create s
     return $ generatedKey r
 
-save :: RethinkDBHandle -> Text -> Source -> IO ()
-save h id s = run h $ table # get (expr id) # replace (const (toDatum s))
+save :: Pool RethinkDBHandle -> Text -> Source -> IO ()
+save h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
 
-remove :: RethinkDBHandle -> Text -> IO ()
-remove h id = run h $ table # get (expr id) # delete
+remove :: Pool RethinkDBHandle -> Text -> IO ()
+remove h id = runPool h $ table # get (expr id) # delete
 
-init :: RethinkDBHandle -> IO ()
+init :: Pool RethinkDBHandle -> IO ()
 init h = do
-    initDb $ run h $ tableCreate table
+    initDb $ runPool h $ tableCreate table

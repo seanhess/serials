@@ -16,6 +16,7 @@ import Data.Monoid
 import Data.Proxy
 import Data.Text (Text, toUpper, unpack)
 import Data.Maybe (fromJust)
+import Data.Pool
 
 import GHC.Generics
 
@@ -30,7 +31,7 @@ import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
-import Serials.Model.Crud (initDb)
+import Serials.Model.Crud (initDb, runPool)
 import Serials.Scan
 
 --import Web.Scotty
@@ -60,7 +61,7 @@ type API =
 api :: Proxy API
 api = Proxy
 
-server :: RethinkDBHandle -> Server API
+server :: Pool RethinkDBHandle -> Server API
 server h = 
          sourcesGetAll :<|> sourcesPost 
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
@@ -98,12 +99,12 @@ stack app = heads $ cors' $ app
 
 runApi :: Int -> (String, Integer) -> IO ()
 runApi port dbHost = do
-    h <- connectDb dbHost
-    createDb h
-    Source.init h
-    Chapter.init h
+    p <- connectDbPool dbHost
+    createDb p
+    Source.init p
+    Chapter.init p
     putStrLn $ "Starting..."
-    run port $ stack $ serve api (server h)
+    run port $ stack $ serve api (server p)
     return ()
 
 -- DB -----------------------------------------------------------
@@ -112,8 +113,14 @@ runApi port dbHost = do
 connectDb :: (String,Integer) -> IO RethinkDBHandle
 connectDb (host,port) = use serialsDb <$> connect host port Nothing
 
-createDb :: RethinkDBHandle -> IO ()
-createDb h = initDb $ R.run h $ R.dbCreate $ unpack serialsDbName
+disconnectDb :: RethinkDBHandle -> IO ()
+disconnectDb h = R.close h
+
+connectDbPool :: (String, Integer) -> IO (Pool RethinkDBHandle)
+connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
+
+createDb :: Pool RethinkDBHandle -> IO ()
+createDb p = initDb $ runPool p $ R.dbCreate $ unpack serialsDbName
 
 serialsDb = db serialsDbName
 serialsDbName = "serials"

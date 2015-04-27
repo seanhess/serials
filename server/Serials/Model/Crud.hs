@@ -7,6 +7,7 @@ import Data.Text (Text)
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
+import Data.Pool
 
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans (liftIO)
@@ -45,3 +46,7 @@ initDb action = do
       Right d  -> show d
 
 
+-------------------------------------------------------
+
+runPool :: (Expr query, Result r) => Pool RethinkDBHandle -> query -> IO r
+runPool p q = withResource p $ \h -> run h q

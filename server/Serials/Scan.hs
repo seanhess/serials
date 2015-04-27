@@ -12,6 +12,9 @@ import Data.Monoid ((<>))
 import Data.Time
 
 import Control.Applicative
+import Control.Concurrent.PooledIO.Independent
+import Control.Concurrent
+import Control.Monad
 
 import Serials.Model.Crud
 import Serials.Link
@@ -21,6 +24,8 @@ import qualified Serials.Model.Scan as Scan
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.Source (Source(..))
 import Serials.Model.Scan (Scan(..))
+
+import System.IO
 
 import Data.HashMap.Strict (HashMap, fromList, lookup)
 
@@ -42,35 +47,54 @@ linkToChapter sid time (Link n url text) = Chapter {
   Chapter.link = Link n url text
 }
 
-importSource :: Pool RethinkDBHandle -> Text -> IO (Either [RethinkDBError] ())
-importSource h sourceId = do
-  putStrLn $ "Scanning: " <> show sourceId
-  Just source <- Source.find h sourceId
+importSourceId :: Pool RethinkDBHandle -> Text -> IO ()
+importSourceId h sourceId = do
+    Just source <- Source.find h sourceId
+    importSource h source
+
+importSource :: Pool RethinkDBHandle -> Source -> IO ()
+importSource h source = do
+  putStrLn $ "START " <> show sid <> " " <> name
   links <- scanSource source
   time <- getCurrentTime
-  let scannedChapters = map (linkToChapter (Source.id source) time) links
+  let scannedChapters = map (linkToChapter sid time) links
 
-  edits <- chapterMap <$> Chapter.bySource h sourceId
+  edits <- chapterMap <$> Chapter.bySource h sid
 
   let merged = mergeAll edits scannedChapters
       new = map snd $ filter (isMergeType New) merged
       ups = map snd $ filter (isMergeType Updated) merged
       scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
 
-  putStrLn $ " - NEW " <> show new
-  putStrLn $ " - UPDATED " <> show ups
+  putStrLn $ name
+  putStrLn $ "  new     " <> show new
+  putStrLn $ "  updated " <> show ups
 
-  resNew <- Chapter.saveAll h new
-  resUps <- Chapter.saveAll h ups
-
-  let errs = lefts resNew <> lefts resUps
+  Chapter.saveAll h new
+  Chapter.saveAll h ups
 
   -- this means it actually completed, so go last?
-  Source.updateLastScan h sourceId scan
+  Source.updateLastScan h sid scan
 
-  return $ case errs of
-    [] -> Right ()
-    errs -> Left errs
+  -- TODO throw on errs 
+  --let errs = lefts resNew <> lefts resUps
+  --return $ case errs of
+    --[] -> Right ()
+    --errs -> Left errs
+
+  putStrLn $ "DONE  " <> name
+
+  where 
+    sid = Source.id source
+    name = show $ Source.name source
+
+
+importAllSources :: Pool RethinkDBHandle -> IO ()
+importAllSources h = do
+    hSetBuffering stdout LineBuffering
+    sources <- Source.list h
+    putStrLn $ " sources: " <> (show $ length sources)
+    runException (Just 5) $ map (importSource h) sources
 
 -- Merging ---------------------------------------------------
 

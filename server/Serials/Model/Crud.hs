@@ -3,11 +3,12 @@
 module Serials.Model.Crud where
 
 import Database.RethinkDB.NoClash
-import Data.Text (Text)
+import Data.Text (Text, unpack)
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 import Data.Pool
+import Control.Applicative
 
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans (liftIO)
@@ -50,3 +51,22 @@ initDb action = do
 
 runPool :: (Expr query, Result r) => Pool RethinkDBHandle -> query -> IO r
 runPool p q = withResource p $ \h -> run h q
+
+connectDb :: (String,Integer) -> IO RethinkDBHandle
+connectDb (host,port) = use serialsDb <$> connect host port Nothing
+
+disconnectDb :: RethinkDBHandle -> IO ()
+disconnectDb h = close h
+
+connectDbPool :: (String, Integer) -> IO (Pool RethinkDBHandle)
+connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
+
+
+-- DB -----------------------------------------------------------
+
+createDb :: Pool RethinkDBHandle -> IO ()
+createDb p = initDb $ runPool p $ dbCreate $ unpack serialsDbName
+
+serialsDb = db serialsDbName
+serialsDbName = "serials"
+

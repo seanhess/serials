@@ -31,7 +31,7 @@ import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
-import Serials.Model.Crud (initDb, runPool)
+import Serials.Model.Crud
 import Serials.Scan
 
 --import Web.Scotty
@@ -82,7 +82,7 @@ server h =
 
   chaptersGet id = liftIO $ Chapter.bySource h id
   chaptersDel id = liftIO $ Chapter.deleteBySource h id
-  sourceScan  id = liftE  $ importSource h id
+  sourceScan  id = liftIO $ importSourceId h id
 
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE  $ Chapter.save h c
@@ -97,33 +97,14 @@ stack app = heads $ cors' $ app
 
 -- Run ---------------------------------------------------------
 
-runApi :: Int -> (String, Integer) -> IO ()
-runApi port dbHost = do
-    p <- connectDbPool dbHost
+runApi :: Int -> Pool RethinkDBHandle -> IO ()
+runApi port p = do
     createDb p
     Source.init p
     Chapter.init p
     putStrLn $ "Starting..."
     run port $ stack $ serve api (server p)
     return ()
-
--- DB -----------------------------------------------------------
-
--- I could just read it here.. it's easy
-connectDb :: (String,Integer) -> IO RethinkDBHandle
-connectDb (host,port) = use serialsDb <$> connect host port Nothing
-
-disconnectDb :: RethinkDBHandle -> IO ()
-disconnectDb h = R.close h
-
-connectDbPool :: (String, Integer) -> IO (Pool RethinkDBHandle)
-connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
-
-createDb :: Pool RethinkDBHandle -> IO ()
-createDb p = initDb $ runPool p $ R.dbCreate $ unpack serialsDbName
-
-serialsDb = db serialsDbName
-serialsDbName = "serials"
 
 -- Cors ---------------------------------------------------------
 

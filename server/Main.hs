@@ -8,6 +8,8 @@ import Control.Applicative
 
 import Serials.Link
 import Serials.Api
+import Serials.Scan
+import Serials.Model.Crud
 
 import System.Environment
 import Network.URI
@@ -38,15 +40,20 @@ mainApi = do
     putStrLn $ "PORT: " <> show port
     db <- lookupDb
     putStrLn $ "DB: " <> show db
-    runApi port db
+    p <- connectDbPool db
+    runApi port p
 
 mainScan :: IO ()
 mainScan = do
     putStrLn "-- SERIALS SCAN --------------"
     db <- lookupDb
     putStrLn $ "DB: " <> show db
+    p <- connectDbPool db
     putStrLn "SCAN NOW"
+    importAllSources p
+    return ()
 
+--------------------------------------------------------
 
 lookupDb :: IO (String, Integer)
 lookupDb = do
@@ -67,4 +74,7 @@ readEndpoint u = do
     return $ (uriRegName auth, readPort $ uriPort auth)
   where
     readPort = read . drop 1
+
+
+-------------------------------------------------------------
 

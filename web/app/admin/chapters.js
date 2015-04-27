@@ -3,6 +3,7 @@
 var React = require('react')
 var url = require('url')
 var {cloneDeep} = require('lodash')
+var {toDateString} = require('../model')
 
 export class Chapters extends React.Component {
   render() {
@@ -26,7 +27,7 @@ export class Chapters extends React.Component {
           <th>Number</th>
           <th>Name</th>
           <th>URL</th>
-          <th>Scanned</th>
+          <th>Added</th>
         </tr>
         {chapters.map(row)}
       </table>
@@ -145,15 +146,10 @@ export class ChapterRow extends React.Component {
       <td style={style}>{chapter.number}</td>
       <td style={style}>{chapter.name}</td>
       <td><a href={chapter.url} style={style}>{urlPath(chapter.url)}</a></td>
-      <td>{toDateString(chapter.scanned)}</td>
+      <td>{toDateString(chapter.added)}</td>
     </tr>
   }
 
-}
-
-function toDateString(str) {
-  var date = new Date(str)
-  return date.getUTCMonth() + "-" + date.getUTCDate() + "-" + date.getUTCFullYear()
 }
 
 function urlPath(u) {

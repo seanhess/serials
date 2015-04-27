@@ -17,8 +17,10 @@ import Serials.Model.Crud
 import Serials.Link
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
+import qualified Serials.Model.Scan as Scan
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.Source (Source(..))
+import Serials.Model.Scan (Scan(..))
 
 import Data.HashMap.Strict (HashMap, fromList, lookup)
 
@@ -31,7 +33,7 @@ linkToChapter :: Text -> UTCTime -> Link -> Chapter
 linkToChapter sid time (Link n url text) = Chapter {
   Chapter.id       = Chapter.urlId url,
   Chapter.sourceId = sid,
-  Chapter.scanned = time,
+  Chapter.added = time,
   Chapter.number = n,
   Chapter.name = text,
   Chapter.url = url,
@@ -48,22 +50,23 @@ importSource h sourceId = do
   time <- getCurrentTime
   let scannedChapters = map (linkToChapter (Source.id source) time) links
 
-  -- ok I've got a bunch of chapters
-  -- now I need to merge them with the current ones
   edits <- chapterMap <$> Chapter.bySource h sourceId
 
   let merged = mergeAll edits scannedChapters
       new = map snd $ filter (isMergeType New) merged
       ups = map snd $ filter (isMergeType Updated) merged
+      scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
 
   putStrLn $ " - NEW " <> show new
   putStrLn $ " - UPDATED " <> show ups
 
-  -- I need to save all the new ones and all the updated ones
   resNew <- Chapter.saveAll h new
   resUps <- Chapter.saveAll h ups
 
   let errs = lefts resNew <> lefts resUps
+
+  -- this means it actually completed, so go last?
+  Source.updateLastScan h sourceId scan
 
   return $ case errs of
     [] -> Right ()

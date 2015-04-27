@@ -4,7 +4,7 @@ var React = require('react')
 var Promise = require('bluebird')
 var Router = require('react-router')
 
-var {SourceModel, ChapterModel, emptySource} = require('../model')
+var {SourceModel, ChapterModel, emptySource, toDateString} = require('../model')
 var {Chapters} = require('./chapters.js')
 var {ImportSettings} = require('./import.js')
 var {DisabledButton, FormSection} = require('../comp')
@@ -120,6 +120,9 @@ export class Source extends React.Component {
   render() {
     var source:Source = this.state.source || {}
     var chapters = this.state.chapters || []
+    var lastScan = source.lastScan || {new: [], updated: []}
+
+    console.log("HI", lastScan)
 
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
     var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"
@@ -169,6 +172,16 @@ export class Source extends React.Component {
       </FormSection>
 
       <h4>{chapters.length} Chapters</h4>
+
+      <div>
+        Last Scan
+        <ul>
+          <li>Date: {toDateString(lastScan.date)}</li>
+          <li>Total: {lastScan.total}</li>
+          <li>New: {lastScan.new.length}</li>
+          <li>Updated: {lastScan.updated.length}</li>
+        </ul>
+      </div>
 
       <div>
         <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>

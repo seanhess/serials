@@ -12,6 +12,7 @@ type Source = {
   name: string;
   url: string;
   imageUrl: string;
+  lastScan: ?any;
 }
 
 
@@ -109,4 +110,10 @@ export function emptySource():Source {
 
 export function showChapter(chapter:Chapter):bool {
   return !chapter.hidden && chapter.name
+}
+
+
+export function toDateString(str:string):string {
+  var date = new Date(str)
+  return date.getUTCMonth() + "-" + date.getUTCDate() + "-" + date.getUTCFullYear()
 }

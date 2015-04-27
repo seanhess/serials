@@ -10,12 +10,14 @@ import Control.Applicative
 import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Pool
+import Data.Time
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table)
 
 import Serials.Model.Crud
+import Serials.Model.Scan
 import Serials.Link.Import (ImportSettings)
 
 data Source = Source {
@@ -26,9 +28,11 @@ data Source = Source {
 
   imageUrl :: Text,
 
-  importSettings :: ImportSettings
-} deriving (Show, Generic)
+  importSettings :: ImportSettings,
 
+  lastScan :: Maybe Scan
+
+} deriving (Show, Generic)
 
 instance FromJSON ImportSettings
 instance ToJSON ImportSettings
@@ -56,6 +60,9 @@ save h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
 
 remove :: Pool RethinkDBHandle -> Text -> IO ()
 remove h id = runPool h $ table # get (expr id) # delete
+
+updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO ()
+updateLastScan h id s = runPool h $ table # get (expr id) # update (const ["lastScan" := (toDatum s)])
 
 init :: Pool RethinkDBHandle -> IO ()
 init h = do

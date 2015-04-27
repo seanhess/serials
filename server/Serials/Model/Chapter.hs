@@ -31,7 +31,7 @@ data Chapter = Chapter {
   id :: Text,
   sourceId :: Text,
 
-  scanned :: UTCTime,
+  added :: UTCTime,
 
   number :: Int,
   name :: Text,

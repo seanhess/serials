@@ -37,7 +37,7 @@ data Chapter = Chapter {
   hidden :: Bool,
   edited :: Bool,
   link :: Link
-} deriving (Show, Generic)
+} deriving (Show, Generic, Eq)
 
 instance FromJSON Chapter
 instance ToJSON Chapter

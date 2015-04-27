@@ -21,6 +21,8 @@ import Serials.Model.Source (Source(..))
 
 import Data.HashMap.Strict (HashMap, fromList, lookup)
 
+data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
+
 scanSource :: Source -> IO [Link]
 scanSource s = links (Source.url s) (importSettings s)
 
@@ -47,30 +49,47 @@ importSource h sourceId = do
   -- now I need to merge them with the current ones
   edits <- chapterMap <$> Chapter.bySource h sourceId
 
-  let mergedChapters = mergeAll (Source.id source) edits scannedChapters
+  let merged = mergeAll edits scannedChapters
+      new = map snd $ filter (isMergeType New) merged
+      ups = map snd $ filter (isMergeType Updated) merged
 
-  --print $ take 1 mergedChapters
+  putStrLn $ " - NEW " <> show new
+  putStrLn $ " - UPDATED " <> show ups
 
-  -- now I need to save all of them :)
-  res <- Chapter.saveAll h mergedChapters
-  return $ case lefts res of
+  -- I need to save all the new ones and all the updated ones
+  resNew <- Chapter.saveAll h new
+  resUps <- Chapter.saveAll h ups
+
+  let errs = lefts resNew <> lefts resUps
+
+  return $ case errs of
     [] -> Right ()
     errs -> Left errs
 
 -- Merging ---------------------------------------------------
 
-mergeChapter :: Text -> Maybe Chapter -> Chapter -> Chapter
-mergeChapter sourceId Nothing c = c
-mergeChapter sourceId (Just old) c
-  | Chapter.edited old = old
-  | otherwise          = c
+mergeChapter :: Maybe Chapter -> Chapter -> (MergeResult, Chapter)
+mergeChapter Nothing c = (New, c)
+mergeChapter (Just old) c
+  | Chapter.edited old                  = (Edited,  old)
+  | Chapter.link old /= Chapter.link c  = (Updated, c)
+  | otherwise                           = (Same,    old)
 
-mergeAll :: Text -> HashMap Text Chapter -> [Chapter] -> [Chapter]
-mergeAll sourceId cm cs = map merge cs
+mergeAll :: HashMap Text Chapter -> [Chapter] -> [(MergeResult, Chapter)]
+mergeAll cm cs = map merge cs
   where 
-    merge c = mergeChapter sourceId (lookup (Chapter.id c) cm) c
+    merge c = mergeChapter (lookup (Chapter.id c) cm) c
 
 chapterMap :: [Chapter] -> HashMap Text Chapter
 chapterMap = fromList . map (\c -> (Chapter.id c, c))
 
+isMergeType :: MergeResult -> (MergeResult, Chapter) -> Bool
+isMergeType r = (== r) . fst
+
+---------------------------------------------------------------
+
+-- TODO find NEW chapters
+-- TODO find UPDATED chapters
+-- need to zip up the chapters with their related chapter, right?
+-- mark them as new or not?
 

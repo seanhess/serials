@@ -12,7 +12,14 @@ type Source = {
   name: string;
   url: string;
   imageUrl: string;
-  lastScan: ?any;
+  lastScan?: Scan;
+}
+
+type Scan = {
+  date: string;
+  total: number;
+  new: Array<string>;
+  updated: Array<string>;
 }
 
 
@@ -108,8 +115,17 @@ export function emptySource():Source {
   }
 }
 
+export function emptyScan():Scan {
+  return {
+    date: "",
+    new: [],
+    updated: [],
+    total: 0
+  }
+}
+
 export function showChapter(chapter:Chapter):bool {
-  return !chapter.hidden && chapter.name
+  return !chapter.hidden && (chapter.name.length > 0)
 }
 
 

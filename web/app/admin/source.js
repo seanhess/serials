@@ -4,7 +4,7 @@ var React = require('react')
 var Promise = require('bluebird')
 var Router = require('react-router')
 
-var {SourceModel, ChapterModel, emptySource, toDateString} = require('../model')
+var {SourceModel, ChapterModel, emptySource, emptyScan, toDateString} = require('../model')
 var {Chapters} = require('./chapters.js')
 var {ImportSettings} = require('./import.js')
 var {DisabledButton, FormSection} = require('../comp')
@@ -120,7 +120,7 @@ export class Source extends React.Component {
   render() {
     var source:Source = this.state.source || {}
     var chapters = this.state.chapters || []
-    var lastScan = source.lastScan || {new: [], updated: []}
+    var lastScan = source.lastScan || emptyScan()
 
     console.log("HI", lastScan)
 

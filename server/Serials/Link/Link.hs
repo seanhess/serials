@@ -6,7 +6,7 @@ module Serials.Link.Link where
 import Prelude hiding (dropWhile)
 
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text
+import Data.Text hiding (map, zip)
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe, fromJust)
 
@@ -20,6 +20,7 @@ type DateString = Text
 type URL = Text
 
 data Link = Link {
+  linkNumber :: Int,
   linkURL :: URL,
   linkTitle :: Title
 } deriving (Show, Eq, Generic)
@@ -28,10 +29,15 @@ instance FromJSON Link
 instance ToJSON Link
 
 link :: URL -> Title -> Link
-link u t = Link (clean u) (clean t)
+link u t = Link 0 (clean u) (clean t)
 
 clean :: Text -> Text
 clean = strip
+
+addNumbers :: [Link] -> [Link]
+addNumbers ls = map addNumber $ zip [1..] ls
+  where
+    addNumber (n, l) = l { linkNumber = n }
 
 ---------------------------------------------------------------------
 

@@ -26,8 +26,8 @@ data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
 scanSource :: Source -> IO [Link]
 scanSource s = links (Source.url s) (importSettings s)
 
-linkToChapter :: Text -> (Int, Link) -> Chapter
-linkToChapter sid (n, (Link url text)) = Chapter {
+linkToChapter :: Text -> Link -> Chapter
+linkToChapter sid (Link n url text) = Chapter {
   Chapter.id       = Chapter.urlId url,
   Chapter.sourceId = sid,
   Chapter.number = n,
@@ -35,7 +35,7 @@ linkToChapter sid (n, (Link url text)) = Chapter {
   Chapter.url = url,
   Chapter.edited    = False,
   Chapter.hidden   = False,
-  Chapter.link = Link url text
+  Chapter.link = Link n url text
 }
 
 importSource :: Pool RethinkDBHandle -> Text -> IO (Either [RethinkDBError] ())
@@ -43,7 +43,7 @@ importSource h sourceId = do
   putStrLn $ "Scanning: " <> show sourceId
   Just source <- Source.find h sourceId
   links <- scanSource source
-  let scannedChapters = map (linkToChapter (Source.id source)) (zip [1..] links)
+  let scannedChapters = map (linkToChapter (Source.id source)) links
 
   -- ok I've got a bunch of chapters
   -- now I need to merge them with the current ones
@@ -86,10 +86,4 @@ chapterMap = fromList . map (\c -> (Chapter.id c, c))
 isMergeType :: MergeResult -> (MergeResult, Chapter) -> Bool
 isMergeType r = (== r) . fst
 
----------------------------------------------------------------
-
--- TODO find NEW chapters
--- TODO find UPDATED chapters
--- need to zip up the chapters with their related chapter, right?
--- mark them as new or not?
 

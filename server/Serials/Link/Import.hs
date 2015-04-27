@@ -3,6 +3,7 @@
 module Serials.Link.Import where
 
 import Control.Lens ((^.))
+import Control.Applicative
 
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (fromMaybe, fromJust)
@@ -47,8 +48,10 @@ tocLinks url sel = do
 
 -- yeah, because you need to map a source to an IO action
 links :: URL -> ImportSettings -> IO [Link]
-links url (MenuSettings base open close) = menuLinks url base (openSelector open) (closeSelector close)
-links url (TOCSettings cssQuery) = tocLinks url (selector cssQuery)
+links url set = addNumbers <$> fetchLinks set
+  where
+    fetchLinks (MenuSettings base open close) = menuLinks url base (openSelector open) (closeSelector close)
+    fetchLinks (TOCSettings cssQuery) = tocLinks url (selector cssQuery)
 
 ----------------------------------------------------------
 

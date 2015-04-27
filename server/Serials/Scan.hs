@@ -87,10 +87,15 @@ importSource h source = do
 
 importAllSources :: Pool RethinkDBHandle -> IO ()
 importAllSources h = do
+    time <- getCurrentTime
+    putStrLn $ "Started: " <> show time
     hSetBuffering stdout LineBuffering
     sources <- Source.list h
     putStrLn $ " sources: " <> (show $ length sources)
-    runException (Just 5) $ map (importSource h) sources
+    mapM_ (importSource h) sources
+
+    -- for now, don't do it in parallel
+    --runException (Just 5) $ map (importSource h) sources
 
 -- Merging ---------------------------------------------------
 

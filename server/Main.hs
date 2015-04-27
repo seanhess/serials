@@ -49,7 +49,6 @@ mainScan = do
     db <- lookupDb
     putStrLn $ "DB: " <> show db
     p <- connectDbPool db
-    putStrLn "SCAN NOW"
     importAllSources p
     return ()
 

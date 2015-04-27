@@ -4,6 +4,7 @@ WORKDIR /opt/serials
 
 # System dependencies
 RUN apt-get update && apt-get install -y libpcre3 libpcre3-dev libcurl4-openssl-dev
+# cron, vim
 
 # Copy only the freeze file, install cached dependencies
 ADD ./cabal.config /opt/serials/
@@ -19,9 +20,18 @@ RUN cabal update && \
 ADD ./server /opt/serials/server
 RUN cabal build
 
-# Install Web app
+# Install Web app. Don't run webpack, just make sure to run it before building
+# see bin/build
 ADD ./web    /opt/serials/web
-#RUN cd web && webpack
 
-#Default Command for Container
-CMD ["./dist/build/serials/serials api"]
+RUN apt-get install -y cron
+
+# Add configuration files
+ADD ./conf/  /opt/serials/conf/
+
+# add cron
+# https://phusion.github.io/baseimage-docker/
+RUN crontab ./conf/cron.conf
+
+CMD ["/bin/bash", "./conf/run.sh"]
+

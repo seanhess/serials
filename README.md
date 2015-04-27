@@ -36,6 +36,14 @@ Let's talk! Contact me, submit an issue or PR with your proposed changes, or pic
 Development
 -----------
 
+* Install [RethinkDB](rethinkdb.com)
+* Install GHC 7.8 and Cabal 1.22
+* Install Node and `npm install webpack`
+
+Run Database
+
+    rethinkdb
+
 Haskell Server
 
     cabal sandbox init

@@ -13,26 +13,40 @@ export class MainContainer extends React.Component {
   }
 }
 
+var TitleStyle = {
+  color: 'white',
+  fontSize: '18px',
+  margin: 0,
+}
+
+var LinkStyle = {
+  color: 'white',
+  fontSize: '14px',
+  margin: 14,
+  display: 'inline-block'
+}
+
+var CenterText = {
+  padding: 10,
+  margin: 0,
+}
+
+var NavBar = {
+  backgroundColor: '#333',
+  height: 47,
+  position: 'relative'
+}
+
 export class Header extends React.Component {
   render() {
-    return <nav className="top-bar" data-topbar role="navigation">
-      <ul className="title-area">
-        <li className="name">
-          <h1><a href="#">Serials</a></h1>
-        </li>
-      </ul>
-
-      <section className="top-bar-section">
-        <ul className="right">
-          <li><a href="#/pages/about">About</a></li>
-          <li><a href="#/admin/sources">Admin</a></li>
-        </ul>
-
-        <ul className="left">
-          <li><a href="#">Left Nav Button</a></li>
-        </ul>
-      </section>
+    return <nav style={NavBar} role="navigation">
+      <div style={{float: 'right'}}>
+        <a style={LinkStyle} href="">About</a>
+        <a style={LinkStyle} href="">Admin</a>
+      </div>
+      <div style={CenterText}><a href="#" style={TitleStyle}>Serials</a></div>
     </nav>
   }
 }
+
 

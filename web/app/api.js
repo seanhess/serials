@@ -38,9 +38,17 @@ function error(err) {
 
 // ------------------------------------------------
 
-var API = ""
+var API_ENDPOINT = ""
+if (window.location.host == "localhost:3000") {
+  API_ENDPOINT = "http://localhost:3001"
+}
 
 export function url(...paths:Array<string>):string {
   // I need to join the API with the path
-  return API+'/'+path.join(...paths)
+  return API_ENDPOINT+'/'+path.join(...paths)
 }
+
+// webpack can set this for us, can't it?
+// but it depends on which version we're building...
+// it defaults to ""
+// but sometimes you can override it

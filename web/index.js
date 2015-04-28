@@ -48,7 +48,7 @@ var routes = (
 )
 
 Router.run(routes, function (Handler, state) {
-  React.render(<Handler />, document.body)
+  React.render(<Handler params={state.params}/>, document.body)
 
   loadAll(state.routes, state.params)
   .then(function(data) {
@@ -64,9 +64,15 @@ function loadAll(routes, params) {
 
       // ok, they're allowed to do more than one, right?
       var promises = route.handler.load(params)
+
       var names = Object.keys(promises)
 
       return Promise.all(names.map(function(name) {
+        var promise = promises[name]
+        if (!promise.then) {
+          return promise
+        }
+
         return promises[name].then(function(d) {
           data[name] = d
         }, onError)

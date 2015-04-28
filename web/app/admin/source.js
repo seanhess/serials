@@ -16,7 +16,7 @@ export class Source extends React.Component {
 
   static load(params) {
     if (params.id == "new") {
-      return Promise.resolve({source: emptySource()})
+      return {source: emptySource(), chapters:[]}
     }
 
     return {
@@ -40,6 +40,7 @@ export class Source extends React.Component {
 
 
   onSaveClick() {
+    console.log("TESTING", this.props)
     if (this.props.params.id == "new") {
       this.create()
     }

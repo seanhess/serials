@@ -57,13 +57,22 @@ function loadAll(routes, params) {
   return Promise.all(routes
     .filter(route => route.handler.load)
     .map(function(route) {
-      return route.handler.load(params)
-      .then(function(d) {
-        data = assign(data, d)
-      }, onError)
+
+      // ok, they're allowed to do more than one, right?
+      var promises = route.handler.load(params)
+      var names = Object.keys(promises)
+
+      return Promise.all(names.map(function(name) {
+        return promises[name].then(function(d) {
+          data[name] = d
+        }, onError)
+      }))
     })
   ).then(() => data, onError);
 }
+
+
+
 
 function onError(err) {
   throw err

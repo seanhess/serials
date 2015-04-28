@@ -7,13 +7,14 @@ var {Get, Post, Put, Del, url} = require('./api')
 export var AdminModel = {
   importLog(n:number) {
     return Get(url('admin', 'import-log', n))
+    .then(log => log.text)
   }
 }
 
 
 // SourceModel //////////////////////////////////////
 
-type Source = {
+export type Source = {
   id: string;
   importSettings: any;
   disabled: bool;
@@ -23,7 +24,7 @@ type Source = {
   lastScan?: Scan;
 }
 
-type Scan = {
+export type Scan = {
   date: string;
   total: number;
   new: Array<string>;
@@ -62,7 +63,7 @@ export var SourceModel = {
 // ChapterModel /////////////////////////////////////
 
 
-type Chapter = {
+export type Chapter = {
   id: string;
   url: string;
   edited: bool;
@@ -71,7 +72,7 @@ type Chapter = {
   hidden: bool;
 }
 
-type Link = {
+export type Link = {
   linkURL: string;
   linkTitle: string;
 }

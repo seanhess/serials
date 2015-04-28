@@ -17,13 +17,10 @@ export class Source extends React.Component {
       return Promise.resolve({source: emptySource()})
     }
 
-    return Promise.join(
-      SourceModel.find(params.id), 
-      ChapterModel.findBySource(params.id),
-      function(source, chapters) {
-        return {source, chapters}
-      }
-    )
+    return {
+      source: SourceModel.find(params.id), 
+      chapters: ChapterModel.findBySource(params.id),
+    }
   }
 
   constructor(props) {
@@ -121,8 +118,6 @@ export class Source extends React.Component {
     var source:Source = this.state.source || {}
     var chapters = this.state.chapters || []
     var lastScan = source.lastScan || emptyScan()
-
-    console.log("HI", lastScan)
 
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
     var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"

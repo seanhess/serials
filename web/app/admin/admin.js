@@ -21,12 +21,8 @@ export class Admin extends React.Component {
 export class ImportLog extends React.Component {
 
   static load(params) {
-    return AdminModel.importLog(params.n)
-    .then(function(log) {
-      return {text: log.text}
-    })
+    return {text: AdminModel.importLog(params.n)}
   }
-
 
   render() {
     var numLines = parseInt(this.props.params && this.props.params.n, 10)

@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/seanhess/serials",
   "dependencies": {
-    "ask": "1.5.0",
     "axios": "0.5.4",
     "bluebird": "2.9.24",
     "lodash": "3.6.0",

@@ -4,6 +4,6 @@ set -e
 echo "BUILD"
 echo "-----------------------"
 
-cd web && webpack && cd ..
+cd web && webpack -p && cd ..
 docker build -t seanhess/serials .
 docker push seanhess/serials

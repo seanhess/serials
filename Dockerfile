@@ -15,7 +15,12 @@ ADD ./serials.cabal /opt/serials/
 RUN cabal update && \
     cabal install --only-dependencies
 
-## Install Application
+# Add configuration files and run cron: 
+# https://phusion.github.io/baseimage-docker/
+ADD ./conf/  /opt/serials/conf/
+RUN crontab ./conf/cron.conf
+
+## Install Haskell Application
 ADD ./server /opt/serials/server
 RUN cabal build
 
@@ -23,12 +28,6 @@ RUN cabal build
 # see bin/build
 ADD ./web    /opt/serials/web
 
-# Add configuration files
-ADD ./conf/  /opt/serials/conf/
-
-# add cron
-# https://phusion.github.io/baseimage-docker/
-RUN crontab ./conf/cron.conf
 
 CMD ["/bin/bash", "./conf/run.sh"]
 

@@ -30,11 +30,11 @@ export class Book extends React.Component {
 
     return <div>
       <h3> </h3>
-      <div style={{display: 'flex', marginTop: 10}}>
-        <div style={{width: 160}}>
+      <div style={{marginTop: 10}}>
+        <div style={{float: 'left', width: 160, marginBottom: 15}}>
           <Cover source={source} />
         </div>
-        <div style={{flex: 1}}>
+        <div style={{marginLeft: 160}}>
           <h3>{source.name}</h3>
           <div>by {source.author}</div>
           <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>

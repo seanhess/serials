@@ -70,6 +70,7 @@ export class GalleryCover extends React.Component {
     var source = this.props.source
     var style = {
       margin: '3px 3px 3px 3px',
+      display: 'inline-block'
     }
 
     var url = "#/books/"+source.id

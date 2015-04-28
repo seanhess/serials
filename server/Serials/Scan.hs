@@ -68,9 +68,8 @@ importSource h source = do
       ups = map snd $ filter (isMergeType Updated) merged
       scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
 
-  putStrLn $ name
-  putStrLn $ "  new     " <> show new
-  putStrLn $ "  updated " <> show ups
+  putStr $ "     new " <> show new
+  putStr $ "  updated " <> show ups
 
   checkErr $ Chapter.saveAll h new
   checkErr $ Chapter.saveAll h ups
@@ -78,7 +77,7 @@ importSource h source = do
   -- this means it actually completed, so go last?
   checkErr $ Source.updateLastScan h sid scan
 
-  putStrLn $ "DONE " <> name
+  putStrLn $ "  DONE "
 
   where 
     sid = Source.id source

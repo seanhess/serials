@@ -21,6 +21,7 @@ export type Source = {
   name: string;
   url: string;
   imageUrl: string;
+  imageMissingTitle: boolean;
   lastScan?: Scan;
 }
 
@@ -120,6 +121,7 @@ export function emptySource():Source {
     name: "",
     url: "",
     imageUrl: "",
+    imageMissingTitle: false,
     importSettings: {
       tag: TOC,
     }

@@ -8,7 +8,9 @@ var {SourceModel, ChapterModel, emptySource, emptyScan, toDateString} = require(
 var {Chapters} = require('./chapters.js')
 var {ImportSettings} = require('./import.js')
 var {DisabledButton, FormSection} = require('../comp')
-var {coverStyle} = require('../cover')
+
+import {coverStyle, Cover} from '../cover'
+import {makeUpdate, checked} from '../data/update'
 
 export class Source extends React.Component {
 
@@ -36,13 +38,6 @@ export class Source extends React.Component {
     })
   }
 
-  updateSource(f) {
-    return (e) => {
-      var source = this.state.source
-      f(source, e.target.value)
-      this.setState({source: source})
-    }
-  }
 
   onSaveClick() {
     if (this.props.params.id == "new") {
@@ -122,6 +117,10 @@ export class Source extends React.Component {
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
     var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"
 
+    var update = makeUpdate(source, (v) => {
+      this.setState({source: v})
+    })
+
     return <div>
       <h3>Source</h3>
       <div className="right">
@@ -137,25 +136,30 @@ export class Source extends React.Component {
       <FormSection title="Basic Settings">
         <div>
           <div style={{float: 'left', width: 220}}>
-            <div style={coverStyle(source.imageUrl)}>
-            </div>
+            <Cover source={source} />
           </div>
 
           <div style={{marginLeft: 220, minHeight: 305}}>
             <label>Name</label>
             <input type="text" 
               value={source.name} 
-              onChange={this.updateSource((s, v) => s.name = v)}
+              onChange={update((s, v) => s.name = v)}
             />
             <label>URL</label>
             <input type="text" 
               value={source.url}
-              onChange={this.updateSource((s, v) => s.url = v)}
+              onChange={update((s, v) => s.url = v)}
             />
             <label>Image URL</label>
             <input type="text" 
               value={source.imageUrl}
-              onChange={this.updateSource((s, v) => s.imageUrl = v)}
+              onChange={update((s, v) => s.imageUrl = v)}
+            />
+
+            <label>Image Missing Title</label>
+            <input type="checkbox" 
+              value={source.imageMissingTitle}
+              onChange={update((s, v) => s.imageMissingTitle = v, checked)}
             />
           </div>
         </div>

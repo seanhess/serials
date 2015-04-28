@@ -27,6 +27,7 @@ data Source = Source {
   disabled :: Maybe Bool,
 
   imageUrl :: Text,
+  imageMissingTitle :: Bool,
 
   importSettings :: ImportSettings,
 

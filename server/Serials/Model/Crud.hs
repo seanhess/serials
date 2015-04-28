@@ -70,3 +70,4 @@ createDb p = initDb $ runPool p $ dbCreate $ unpack serialsDbName
 serialsDb = db serialsDbName
 serialsDbName = "serials"
 
+

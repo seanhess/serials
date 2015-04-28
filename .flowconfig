@@ -1,5 +1,6 @@
 [ignore]
 .*node_modules/webpack.*
+.*web/build.*
 
 [include]
 web/

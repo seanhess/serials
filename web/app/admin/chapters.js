@@ -4,6 +4,7 @@ var React = require('react')
 var url = require('url')
 var {cloneDeep} = require('lodash')
 var {toDateString} = require('../model')
+var {makeUpdate} = require('../data/update')
 
 export class Chapters extends React.Component {
   render() {
@@ -86,8 +87,8 @@ export class ChapterRow extends React.Component {
 
     var chapter = this.state.editing || {}
 
-    var update = mkUpdate((setter) => {
-      this.setState({editing: setter(chapter)})
+    var update = makeUpdate(chapter, (v) => {
+      this.setState({editing: v})
     })
 
     return <tr key={chapter.id}>
@@ -157,36 +158,4 @@ function urlPath(u) {
   var out = uri.path
   return out
 }
-
-// Generate a change handler that takes setter functions
-// it'll look like this
-// > update((c, v) => c.something = v)
-// 
-
-function mkUpdate(save) {
-  return function(setter) {
-    return function(e) {
-      var value = e.target.value
-
-      function updateValue(current) {
-        setter(current, value)
-        return current
-      }
-
-      save(updateValue, value)
-    }
-  }
-}
-
-//data Chapter = Chapter {
-  //id :: Maybe Text,
-
-  //sourceId :: Text,
-
-  //chapterNumber :: Int,
-  //chapterName :: Text,
-  //chapterURL :: Text,
-  //chapterHidden :: Bool
-
-//} deriving (Show, Generic)
 

@@ -10,13 +10,10 @@ var {Cover} = require('../cover')
 export class Book extends React.Component {
 
   static load(params) {
-    return Promise.join(
-      SourceModel.find(params.id), 
-      ChapterModel.findBySource(params.id),
-      function(source, chapters) {
-        return {source, chapters}
-      }
-    )
+    return {
+      source: SourceModel.find(params.id), 
+      chapters: ChapterModel.findBySource(params.id),
+    }
   }
 
   render() {

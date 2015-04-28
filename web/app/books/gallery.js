@@ -11,10 +11,7 @@ var {Cover} = require('../cover')
 export class Gallery extends React.Component {
 
   static load() {
-    return SourceModel.findAll()
-    .then(function(sources) {
-      return {sources: sources}
-    })
+    return {sources: SourceModel.findAll()}
   }
 
   render() {

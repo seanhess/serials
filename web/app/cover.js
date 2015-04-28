@@ -8,6 +8,8 @@ import {Source, emptySource} from './model'
 // but get the images at 2x resolution so they can be retina yo
 // or just get the photos at that ratio
 // 200x320 x2
+// 150x240
+// 100x160
 export var CoverSize = {
   Width: 150,
   Height: 240,

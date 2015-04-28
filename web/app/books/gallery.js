@@ -40,12 +40,10 @@ export class Gallery extends React.Component {
     var row = (s) => <GalleryCover source={s} key={s.id} />
 
     var style = {
-      display: 'flex',
-      flexFlow: 'row wrap',
-      justifyContent: 'center',
-      alignContent: 'center',
-      marginLeft: -10,
-      marginRight: -10
+      display: 'block',
+      marginLeft: -15,
+      marginRight: -15,
+      textAlign: 'center'
     }
 
     return <div style={{marginTop: 15}}>
@@ -61,15 +59,11 @@ export class Gallery extends React.Component {
   }
 }
 
-var matchTitle = curry(function(search, source) {
-  return search
-})
-
 export class GalleryCover extends React.Component {
   render() {
     var source = this.props.source
     var style = {
-      margin: '3px 3px 3px 3px',
+      margin: '0px 3px 0px 3px',
       display: 'inline-block'
     }
 

@@ -5,7 +5,7 @@ var React = window.React = require('react')
 var Router = require('react-router')
 var {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect} = require('react-router')
 
-var {Admin} = require('./app/admin/admin')
+var {Admin, ImportLog} = require('./app/admin/admin')
 var {Sources} = require('./app/admin/sources')
 var {Source} = require('./app/admin/source')
 var {Main} = require('./app/books/main')
@@ -38,6 +38,7 @@ var routes = (
     <Route name="admin" handler={Admin}>
       <Route name="sources" handler={Sources}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
+      <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
     </Route>
   </Route>
 )

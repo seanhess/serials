@@ -33,6 +33,7 @@ import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.App
 import Serials.Model.Crud
 import Serials.Scan
+import qualified Serials.Admin as Admin
 
 --import Web.Scotty
 import Servant
@@ -56,6 +57,8 @@ type API =
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
+  :<|> "admin" :> "import-log" :> Capture "n" Int :> Get Admin.Log
+
   :<|> Raw
 
 api :: Proxy API
@@ -67,6 +70,7 @@ server h =
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
     :<|> chapterGet  :<|> chapterPut
+    :<|> importLog
     :<|> serveDirectory "web" 
 
   where 
@@ -86,6 +90,8 @@ server h =
 
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE  $ Chapter.save h c
+
+  importLog n = liftIO $ Admin.importLog n
 
 
 stack :: Application -> Application

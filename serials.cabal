@@ -59,6 +59,8 @@ executable serials
     hashable,
     resource-pool,
     time,
-    pooled-io
+    pooled-io,
+    shelly,
+    string-conversions
     
     

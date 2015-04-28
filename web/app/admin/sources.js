@@ -36,7 +36,10 @@ export class Sources extends React.Component {
 
     return <div>
       <h3>Sources</h3>
-      <p>This is prototype software, there is no security whatsoever. Be careful with our data!</p>
+      <div>This is prototype software, there is no security whatsoever. Be careful with our data!</div>
+      <ul>
+        <li><a href="#/admin/import-log/500">Import Log</a></li>
+      </ul>
       <table>
         <tr>
           <th>Image</th>

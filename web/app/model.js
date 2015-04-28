@@ -2,6 +2,14 @@
 
 var {Get, Post, Put, Del, url} = require('./api')
 
+/////////////////////////////////////////////////////
+
+export var AdminModel = {
+  importLog(n:number) {
+    return Get(url('admin', 'import-log', n))
+  }
+}
+
 
 // SourceModel //////////////////////////////////////
 
@@ -98,6 +106,8 @@ export var ChapterModel = {
     return Del(url('sources', id, 'chapters'))
   },
 }
+
+/////////////////////////////////////////////////////////
 
 export var Menu = "MenuSettings"
 export var TOC = "TOCSettings"

@@ -41,8 +41,8 @@ export class Header extends React.Component {
   render() {
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
-        <a style={LinkStyle} href="">About</a>
-        <a style={LinkStyle} href="">Admin</a>
+        <a style={LinkStyle} href="#/pages/about">About</a>
+        <a style={LinkStyle} href="#/admin/sources">Admin</a>
       </div>
       <div style={CenterText}><a href="#" style={TitleStyle}>Serials</a></div>
     </nav>

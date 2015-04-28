@@ -3,9 +3,13 @@
 var React = require('react')
 var Promise = require('bluebird')
 
-var {RouteHandler} = require('react-router')
-var {SourceModel, ChapterModel, showChapter} = require('../model')
-var {Cover} = require('../cover')
+import {RouteHandler} from 'react-router'
+import {SourceModel, ChapterModel, showChapter} from '../model'
+import {Cover} from'../cover'
+
+import {Source, emptySource, toDateString} from '../model'
+import {SomethingWrong} from './support'
+import {last} from 'lodash'
 
 export class Book extends React.Component {
 
@@ -17,18 +21,35 @@ export class Book extends React.Component {
   }
 
   render() {
-    var source = this.props.source || {}
+    var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
+    var lastChapter = last(chapters) || {}
     var shown = chapters.filter(showChapter)
 
     var row = (c) => <Chapter chapter={c} key={c.id} />
 
-    return <div className="row small-12 columns">
+    return <div>
       <h3> </h3>
-      <Cover source={source} />
+      <div style={{display: 'flex', marginTop: 10}}>
+        <div style={{width: 160}}>
+          <Cover source={source} />
+        </div>
+        <div style={{flex: 1}}>
+          <h3>{source.name}</h3>
+          <div>by {source.author}</div>
+          <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>
+        </div>
+      </div>
 
-      <h3>Chapters</h3>
-      <div>{shown.map(row)}</div>
+      <hr />
+
+      <div style={{marginTop: 10}}>
+        {shown.map(row)}
+      </div>
+
+      <hr />
+
+      <SomethingWrong />
     </div>
   }
 }

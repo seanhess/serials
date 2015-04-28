@@ -11,6 +11,7 @@ var {Source} = require('./app/admin/source')
 var {Main} = require('./app/books/main')
 var {Gallery} = require('./app/books/gallery')
 var {Book} = require('./app/books/book')
+var {About} = require('./app/pages/about')
 
 import {assign} from 'lodash'
 
@@ -31,6 +32,9 @@ class Home extends React.Component {
 var routes = (
   <Route handler={App} path="/">
     <Redirect from="/" to="books" />
+    <Route name="pages" handler={Main}>
+      <Route name="about" handler={About}/>
+    </Route>
     <Route name="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
       <Route name="book" path=":id" handler={Book} />

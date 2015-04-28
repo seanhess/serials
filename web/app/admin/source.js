@@ -135,15 +135,20 @@ export class Source extends React.Component {
 
       <FormSection title="Basic Settings">
         <div>
-          <div style={{float: 'left', width: 220}}>
+          <div style={{float: 'left', width: 170}}>
             <Cover source={source} />
           </div>
 
-          <div style={{marginLeft: 220, minHeight: 305}}>
+          <div style={{marginLeft: 170, minHeight: 305}}>
             <label>Name</label>
             <input type="text" 
               value={source.name} 
               onChange={update((s, v) => s.name = v)}
+            />
+            <label>Author</label>
+            <input type="text" 
+              value={source.author} 
+              onChange={update((s, v) => s.author = v)}
             />
             <label>URL</label>
             <input type="text" 
@@ -158,7 +163,7 @@ export class Source extends React.Component {
 
             <label>Image Missing Title</label>
             <input type="checkbox" 
-              value={source.imageMissingTitle}
+              checked={source.imageMissingTitle}
               onChange={update((s, v) => s.imageMissingTitle = v, checked)}
             />
           </div>

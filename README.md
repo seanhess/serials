@@ -1,9 +1,9 @@
 serials
 =========
 
-We aim to create a podcast-like experience for reading serial publications on the web. 
+Serials aims to be a podcast-like experience for reading serial publications on the web. 
 
-There are many great books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress. 
+Many excellent books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress. 
 
 The system will scan sources to create a table of contents for each book. It will notify subscribers, and keep track of their reading progress.
 
@@ -19,7 +19,7 @@ MILESTONES
 - [x] Button to do a scan per source. Store the results. Page to view the scan results
 - [x] Store the latest chapter list
 - [x] Manage chapter lists (hide, add chapter)
-- [ ] Automatic scanning
+- [x] Automatic scanning
 - [ ] User accounts
 - [ ] Responsive front-end reading experience
 - [ ] Notifications

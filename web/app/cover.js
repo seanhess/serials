@@ -8,8 +8,8 @@ import {Source, emptySource} from './model'
 // but get the images at 2x resolution so they can be retina yo
 // or just get the photos at that ratio
 export var CoverSize = {
-  Width: 200,
-  Height: 320,
+  Width: 150,
+  Height: 240,
   Ratio: 1.6
 }
 
@@ -52,15 +52,20 @@ function display(value:bool) {
   }
 }
 
+// I could specify it in terms of percentages instead?
+// that's a good idea.
+// so do I want 2 or 3 across?
+// definitely 3 :)
+
 var CoverTextStyle = {
-  padding: 15,
+  padding: 10,
   color: 'white',
   textAlign: 'center',
   position: 'absolute',
   bottom: 0,
   fontSize: 18,
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  width: 200
+  width: CoverSize.Width
 }
 
 

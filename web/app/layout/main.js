@@ -24,22 +24,15 @@ export class Header extends React.Component {
 
       <section className="top-bar-section">
         <ul className="right">
+          <li><a href="#/pages/about">About</a></li>
           <li><a href="#/admin/sources">Admin</a></li>
-          {/*<li className="has-dropdown">
-            <a href="#">Right Button Dropdown</a>
-            <ul className="dropdown">
-              <li><a href="#">First link in dropdown</a></li>
-              <li className="active"><a href="#">Active link in dropdown</a></li>
-            </ul>
-          </li>*/}
         </ul>
 
-        {/*
         <ul className="left">
           <li><a href="#">Left Nav Button</a></li>
         </ul>
-        */}
       </section>
     </nav>
   }
 }
+

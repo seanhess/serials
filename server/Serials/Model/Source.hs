@@ -24,6 +24,7 @@ data Source = Source {
   id :: Text,
   url :: Text,
   name :: Text,
+  author :: Text,
   disabled :: Maybe Bool,
 
   imageUrl :: Text,

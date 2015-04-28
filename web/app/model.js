@@ -1,6 +1,7 @@
 // @flow
 
-var {Get, Post, Put, Del, url} = require('./api')
+import {Get, Post, Put, Del, url} from './api'
+import moment from 'moment'
 
 /////////////////////////////////////////////////////
 
@@ -19,6 +20,7 @@ export type Source = {
   importSettings: any;
   disabled: bool;
   name: string;
+  author: string;
   url: string;
   imageUrl: string;
   imageMissingTitle: boolean;
@@ -119,6 +121,7 @@ export function emptySource():Source {
     id: "",
     disabled: false,
     name: "",
+    author: "",
     url: "",
     imageUrl: "",
     imageMissingTitle: false,
@@ -143,6 +146,6 @@ export function showChapter(chapter:Chapter):bool {
 
 
 export function toDateString(str:string):string {
-  var date = new Date(str)
-  return date.getUTCMonth() + "-" + date.getUTCDate() + "-" + date.getUTCFullYear()
+  var date = moment(str)
+  return date.calendar()
 }

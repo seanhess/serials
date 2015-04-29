@@ -14,7 +14,7 @@ export type User = {
   lastName: string;
   email: string;
   token: string;
-  created: date;
+  created: Date;
 }
 
 

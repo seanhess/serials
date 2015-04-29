@@ -1,18 +1,24 @@
 // @flow
 
-var React = window.React = require('react')
-var Router = require('react-router')
-var {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect} = require('react-router')
 
-var {Admin, ImportLog} = require('./app/admin/admin')
-var {Sources} = require('./app/admin/sources')
-var {Source} = require('./app/admin/source')
-var {Main} = require('./app/books/main')
-var {Gallery} = require('./app/books/gallery')
-var {Book} = require('./app/books/book')
-var {About} = require('./app/pages/about')
-var {Login} = require('./app/pages/login')
-var {Signup} = require('./app/pages/signup')
+// Import react and support deubgger
+import React from 'react'
+window.React = React
+
+import Router from 'react-router'
+import {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect} from 'react-router'
+
+import {loadAll} from './app/data/load'
+
+import {Admin, ImportLog} from './app/admin/admin'
+import {Sources} from './app/admin/sources'
+import {Source} from './app/admin/source'
+import {Main} from './app/books/main'
+import {Gallery} from './app/books/gallery'
+import {Book} from './app/books/book'
+import {About} from './app/pages/about'
+import {Login} from './app/pages/login'
+import {Signup} from './app/pages/signup'
 
 import {assign} from 'lodash'
 import {UserModel} from './app/model/user'
@@ -74,42 +80,13 @@ var routes = (
 )
 
 Router.run(routes, function (Handler, state) {
-  React.render(<Handler params={state.params}/>, document.body)
-
-  loadAll(state.routes, state.params)
-  .then(function(data) {
+  function render(data) {
     React.render(<Handler {...data} params={state.params}/>, document.body)
-  })
+  }
+
+  // render once without any data
+  render({})
+
+  // render again every time any of the promises resolve
+  loadAll(state.routes, state.params, render)
 })
-
-function loadAll(routes, params) {
-  var data = {};
-  return Promise.all(routes
-    .filter(route => route.handler.load)
-    .map(function(route) {
-
-      // ok, they're allowed to do more than one, right?
-      var promises = route.handler.load(params)
-
-      var names = Object.keys(promises)
-
-      return Promise.all(names.map(function(name) {
-        var promise = promises[name]
-        if (!promise.then) {
-          return promise
-        }
-
-        return promises[name].then(function(d) {
-          data[name] = d
-        }, onError)
-      }))
-    })
-  ).then(() => data, onError);
-}
-
-
-
-
-function onError(err) {
-  throw err
-}

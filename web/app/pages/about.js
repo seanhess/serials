@@ -18,6 +18,10 @@ export class About extends React.Component {
 
       <p>Have a suggestion? Want to be notified when we launch? Email us at <EmailLink /></p>
       <BetaSignupView />
+
+      <hr />
+
+      <p>Serials is Open Source! View the source on <a href="http://github.com/seanhess/serials">Github</a></p>
     </div>
   }
 }

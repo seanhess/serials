@@ -1,7 +1,7 @@
 
 // @flow
 import React from 'react'
-import {EmailLink} from '../books/support'
+import {EmailLink, BetaSignupView} from '../books/support'
 
 
 export class About extends React.Component {
@@ -17,6 +17,7 @@ export class About extends React.Component {
       <hr/>
 
       <p>Have a suggestion? Want to be notified when we launch? Email us at <EmailLink /></p>
+      <BetaSignupView />
     </div>
   }
 }

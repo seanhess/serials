@@ -1,13 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Serials.Api where
 
-import Control.Applicative 
+import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
 
@@ -27,9 +26,11 @@ import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source (Source(..))
+import Serials.Model.Chapter (Chapter(..))
+import Serials.Model.BetaSignup (BetaSignup(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
-import Serials.Model.Chapter (Chapter(..))
+import qualified Serials.Model.BetaSignup as BetaSignup
 import Serials.Model.App
 import Serials.Model.Crud
 import Serials.Scan
@@ -57,6 +58,8 @@ type API =
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
+  :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
+
   :<|> "admin" :> "import-log" :> Capture "n" Int :> Get Admin.Log
 
   :<|> Raw
@@ -65,15 +68,16 @@ api :: Proxy API
 api = Proxy
 
 server :: Pool RethinkDBHandle -> Server API
-server h = 
-         sourcesGetAll :<|> sourcesPost 
+server h =
+         sourcesGetAll :<|> sourcesPost
     :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
     :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
     :<|> chapterGet  :<|> chapterPut
+    :<|> betaSignup
     :<|> importLog
-    :<|> serveDirectory "web" 
+    :<|> serveDirectory "web"
 
-  where 
+  where
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 
@@ -90,6 +94,8 @@ server h =
 
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE  $ Chapter.save h c
+
+  betaSignup s = liftIO $ BetaSignup.insert h s
 
   importLog n = liftIO $ Admin.importLog n
 
@@ -108,6 +114,7 @@ runApi port p = do
     createDb p
     Source.init p
     Chapter.init p
+    BetaSignup.init p
     putStrLn $ "Starting..."
     run port $ stack $ serve api (server p)
     return ()

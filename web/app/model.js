@@ -113,6 +113,26 @@ export var ChapterModel = {
 
 /////////////////////////////////////////////////////////
 
+
+// BetaSignupModel /////////////////////////////////////
+
+
+export type BetaSignup = {
+  id: string;
+  email: string;
+}
+
+export var BetaSignupModel = {
+  create(betaSignup:BetaSignup) {
+    betaSignup.id = ""
+    return Post(url('beta-signup'), betaSignup)
+  }
+}
+
+
+/////////////////////////////////////////////////////////
+
+
 export var Menu = "MenuSettings"
 export var TOC = "TOCSettings"
 

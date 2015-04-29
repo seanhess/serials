@@ -22,7 +22,6 @@ export class Book extends React.Component {
   }
 
   render() {
-    console.log("RENDER", this.props.source, this.props.chapters)
     var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
     var lastChapter = last(chapters) || {}

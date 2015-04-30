@@ -15,7 +15,8 @@ import qualified Data.Text as T
 import Debug.Trace
 
 import Text.ParserCombinators.Parsec hiding (Parser, (<|>))
-import Text.HTML.TagSoup
+import Text.HTML.TagSoup hiding (Tag)
+import qualified Text.HTML.TagSoup as TagSoup
 
 import Control.Applicative hiding (many)
 
@@ -26,63 +27,65 @@ data HTMLOption = HTMLOption Int Text
 --------------------------------------------------------------
 -- tags to links
 
-type TagSelect = [BTag] -> [BTag]
-type TagSelector = BTag
+type Tag = TagSoup.Tag Text
 
-parseMenuLinks :: URL -> TagSelect -> [BTag] -> [Link]
-parseMenuLinks base select ts = map (optionToLink base) $ allOptions $ select ts
+type TagSelect = [Tag] -> [Tag]
+type TagMatch = Tag
+type TagPred = Tag -> Bool
 
-optionToLink :: URL -> HTMLOption -> Link
-optionToLink base (HTMLOption n t) = link (base <> (pack $ show n)) t
+parseMenuContent :: URL -> TagSelect -> [Tag] -> [Content]
+parseMenuContent base select ts = map (optionToContent base) $ allOptions $ select ts
+
+optionToContent :: URL -> HTMLOption -> Content
+optionToContent base (HTMLOption n t) = cleanLink (base <> (pack $ show n)) t
 
 -------------------------------------------------------------
 -- find the select tag
 
-selectMenu :: TagSelector -> TagSelector -> ([BTag] -> [BTag])
+selectMenu :: TagMatch -> TagMatch -> ([Tag] -> [Tag])
 selectMenu start end = takeWhile (~/= end) . dropWhile (~/= start)
 
-closeSelector :: Text -> TagSelector
-closeSelector t = TagClose t
-
-openSelector :: Text -> TagSelector
-openSelector = sel . parseSelector
+selector :: Text -> TagMatch
+selector = sel . css
   where
     sel (ID id)     = TagOpen "" [("id", id)]
     sel (Class cls) = TagOpen "" [("class", cls)]
     sel (Tag tag)   = TagOpen tag []
 
+close :: Text -> TagMatch
+close name = TagClose name
+
 -------------------------------------------------------------
 
-type BTag = Tag Text
 
-anyOpen :: BTag
+anyOpen :: Tag
 anyOpen = TagOpen "" []
 
-anyClose :: BTag
+anyClose :: Tag
 anyClose = TagClose ""
 
-isTagChange :: BTag -> Bool
+isTagChange :: Tag -> Bool
 isTagChange t = t ~== anyOpen || t ~== anyClose
 
 -------------------------------------------------------------
 -- parsing <select> tags
 
-allOptions :: [BTag] -> [HTMLOption]
+allOptions :: [Tag] -> [HTMLOption]
 allOptions = optionsFromTags . optionTags
 
-takeOptionTag :: [BTag] -> ([BTag], [BTag])
+takeOptionTag :: [Tag] -> ([Tag], [Tag])
 takeOptionTag [] = ([], [])
 takeOptionTag (t:ts) = (t : taken, rest)
   where
   (taken, rest) = span (not . isTagChange) ts
 
-nextOptionTag :: [BTag] -> ([BTag], [BTag])
+nextOptionTag :: [Tag] -> ([Tag], [Tag])
 nextOptionTag = takeOptionTag . dropWhile (not . isOptionTag)
 
-isOptionTag :: BTag -> Bool
+isOptionTag :: Tag -> Bool
 isOptionTag = (~== open)
   where
-    open = TagOpen "option" [] :: Tag Text
+    open = TagOpen "option" [] :: Tag
 
 chunks :: ([a] -> ([a], [a])) -> [a] -> [[a]]
 chunks f [] = []
@@ -97,7 +100,7 @@ optionTags = chunks nextOptionTag
 optionsFromTags = catMaybes . map tagsToOption
 
 
-tagsToOption :: [BTag] -> Maybe HTMLOption
+tagsToOption :: [Tag] -> Maybe HTMLOption
 tagsToOption (TagOpen _ as : TagText text : []) = do
     ns <- lookup "value" as
     let t = text

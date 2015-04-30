@@ -19,25 +19,34 @@ type Title = Text
 type DateString = Text
 type URL = Text
 
-data Link = Link {
-  linkNumber :: Int,
+-- no, represent my friend, represent!
+data Content = Link {
   linkURL :: URL,
-  linkTitle :: Title
+  linkText :: Title
+} | Title {
+  titleText :: Title
 } deriving (Show, Eq, Generic)
 
-instance FromJSON Link
-instance ToJSON Link
+instance FromJSON Content
+instance ToJSON Content
 
-link :: URL -> Title -> Link
-link u t = Link 0 (clean u) (clean t)
+cleanLink :: URL -> Title -> Content
+cleanLink u t = Link (clean u) (clean t)
+
+cleanTitle :: Title -> Content
+cleanTitle t = Title (clean t)
 
 clean :: Text -> Text
 clean = strip
 
-addNumbers :: [Link] -> [Link]
-addNumbers ls = map addNumber $ zip [1..] ls
-  where
-    addNumber (n, l) = l { linkNumber = n }
+contentText :: Content -> Text
+contentText (Link _ txt) = txt
+contentText (Title txt) = txt
+
+--addNumbers :: [Link] -> [Link]
+--addNumbers ls = map addNumber $ zip [1..] ls
+  --where
+    --addNumber (n, l) = l { linkNumber = n }
 
 ---------------------------------------------------------------------
 
@@ -55,8 +64,8 @@ infixr 6 </>
 
 data CSSSelector = ID Text | Class Text | Tag Text deriving (Show, Eq)
 
-parseSelector :: Text -> CSSSelector
-parseSelector xs = (sel . fromJust . uncons) xs
+css :: Text -> CSSSelector
+css xs = (sel . fromJust . uncons) xs
   where
     sel ('#',id) = ID id
     sel ('.',cls) = Class cls

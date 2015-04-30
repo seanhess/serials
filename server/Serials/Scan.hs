@@ -32,21 +32,33 @@ import Data.HashMap.Strict (HashMap, fromList, lookup)
 
 data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
 
-scanSource :: Source -> IO [Link]
-scanSource s = links (Source.url s) (importSettings s)
+scanSource :: Source -> IO [Content]
+scanSource s = importContent (Source.url s) (importSettings s)
 
-linkToChapter :: Text -> UTCTime -> Link -> Chapter
-linkToChapter sid time (Link n url text) = Chapter {
+-- this only turns a Link into a chapter, not a Title
+linkToChapter :: Text -> UTCTime -> (Int, Content) -> Chapter
+linkToChapter sid time (n, (Link url text)) = Chapter {
   Chapter.id       = Chapter.urlId url,
   Chapter.sourceId = sid,
   Chapter.added = time,
   Chapter.number = n,
   Chapter.name = text,
   Chapter.url = url,
+  Chapter.arc = Nothing,
   Chapter.edited    = False,
   Chapter.hidden   = False,
-  Chapter.link = Link n url text
+  Chapter.link = Link url text
 }
+
+toChapters :: Text -> UTCTime -> [Content] -> [Chapter]
+toChapters sid time content = map (linkToChapter sid time) (zip [1..] content)
+
+-- NEXT STEP: get the import to return them
+-- filter out the links?
+-- no, we need them IN CONTEXT
+-- some kind of a fold or something
+-- map (linkToChapter 
+-- zip [1..]
 
 importSourceId :: Pool RethinkDBHandle -> Text -> IO ()
 importSourceId h sourceId = do
@@ -57,9 +69,9 @@ importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
   putStrLn $ "SCAN " <> show sid <> " " <> name
 
-  links <- scanSource source
+  content <- scanSource source
   time <- getCurrentTime
-  let scannedChapters = map (linkToChapter sid time) links
+  let scannedChapters = toChapters sid time content
 
   edits <- chapterMap <$> Chapter.bySource h sid
 

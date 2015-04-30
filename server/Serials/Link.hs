@@ -1,15 +1,12 @@
 module Serials.Link (
-  Link(..),
-  link,
-  menuLinks,
-  tocLinks,
-  links,
-
+  Content(..),
+  cleanLink,
+  cleanTitle,
+  menuContent,
+  tocContent,
+  importContent,
+  downloadBody,
   testWorm,
-  testGinny,
-  testHPMOR,
-  testPact,
-  testTwig
 ) where
 
 import Serials.Link.Link

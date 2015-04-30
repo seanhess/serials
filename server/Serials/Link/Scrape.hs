@@ -17,40 +17,50 @@ import Text.HTML.Scalpel hiding (URL)
 import Text.HTML.TagSoup
 import Text.StringLike hiding (fromString, toString)
 
-
 ---------------------------------------------------------------------------
 -- toc sites here
 -- should I drop empty title links? Sure, let's try it. It'll fix friendship too
 
-data HTMLAnchor = HTMLAnchor URL Title deriving (Show)
+-- everything in this one file
 
 
-parseToc :: URL -> Selector Text -> [Tag Text] -> [Link]
-parseToc base sel tags = clean
+data HTMLContent = HTMLAnchor URL Title | HTMLTitle Title deriving (Show)
+
+parseToc :: URL -> Selector Text -> [Tag Text] -> [Content]
+parseToc base sel tags = links
   where
-    anchors = scrape (scrapeAnchors sel) tags
-    links   = map (anchorToLink base) $ fromMaybe [] anchors
-    clean   = filter ((>0) . length . linkTitle) links
+    anchors = scrape (scrapeContent sel) tags
+    links   = map (htmlToContent base) $ fromMaybe [] anchors
+    --clean   = filter ((>0) . length . contentText) links
 
-scrapeAnchors :: Selector Text -> Scraper Text [HTMLAnchor]
-scrapeAnchors sel = chroot sel $ chroots a scrapeAnchor
+scrapeContent :: Selector Text -> Scraper Text [HTMLContent]
+scrapeContent sel = chroot sel $ chroots (p // Any) (scrapeAnchor <|> scrapeTitle)
 
-scrapeAnchor :: Scraper Text HTMLAnchor
+-- I want this to FAIL if it isn't an exact match
+scrapeAnchor :: Scraper Text HTMLContent
 scrapeAnchor = do
-  url <- attr "href" Any
-  title <- text Any
+  url <- attr "href" a
+  title <- text a
   return $ HTMLAnchor url title
 
-anchorToLink :: URL -> HTMLAnchor -> Link
-anchorToLink base (HTMLAnchor url title) = link (base </> url) title
+-- I want it to fail if there isn't any text though
+-- pure? MonadPlus? I'll figure it out
+scrapeTitle :: Scraper Text HTMLContent
+scrapeTitle = do
+  title <- text Any
+  return $ HTMLTitle title
+
+htmlToContent :: URL -> HTMLContent -> Content
+htmlToContent base (HTMLAnchor url title) = cleanLink (base </> url) title
+htmlToContent _ (HTMLTitle title) = cleanTitle title
 
 ---------------------------------------------------------------------------
 
-scrapeTitle :: Scraper Text Text
-scrapeTitle = text ("title" :: Text)
-
 selector :: Text -> Selector Text
-selector = sel . parseSelector
+selector = soupSelector . css
+
+soupSelector :: CSSSelector -> Selector Text
+soupSelector = sel
   where
     sel (ID id)     = Any @: [("id" :: Text) @= id]
     sel (Class cls) = Any @: [hasClass cls] 
@@ -58,6 +68,9 @@ selector = sel . parseSelector
 
 a :: Text
 a = "a"
+
+strong :: Text
+strong = "strong"
 
 p :: Text
 p = "p"

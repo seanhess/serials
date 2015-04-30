@@ -37,10 +37,11 @@ data Chapter = Chapter {
   number :: Int,
   name :: Text,
   url :: Text,
+  arc :: Maybe Text,
 
   hidden :: Bool,
   edited :: Bool,
-  link :: Link
+  link :: Content
 } deriving (Show, Generic, Eq)
 
 instance FromJSON Chapter

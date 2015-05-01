@@ -60,14 +60,3 @@ contentText (Title txt) = txt
 
 infixr 6 </>
 
-----------------------------------------------------------------------
-
-data CSSSelector = ID Text | Class Text | Tag Text deriving (Show, Eq)
-
-css :: Text -> CSSSelector
-css xs = (sel . fromJust . uncons) xs
-  where
-    sel ('#',id) = ID id
-    sel ('.',cls) = Class cls
-    sel _   = Tag xs
-

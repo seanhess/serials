@@ -16,9 +16,11 @@ import GHC.Generics (Generic)
 
 import Network.Wreq hiding (Link)
 
-import Serials.Link.Scrape
-import Serials.Link.Parse
+--import Serials.Link.Scrape
+--import Serials.Link.Parse
+import Serials.Link.TOC
 import Serials.Link.Link
+import Serials.Link.Soup
 
 import Text.HTML.Scalpel hiding (URL)
 import Text.HTML.TagSoup
@@ -41,11 +43,11 @@ data ImportSettings =
         --select = selectMenu start end
     --return $ parseMenuContent base select tags
 
---tocContent :: URL -> Selector Text -> IO [Content]
---tocContent url sel = do
-    --body <- downloadBody url
-    --let tags = parseTags body
-    --return $ parseToc url sel tags
+tocContent :: URL -> CSSSelector -> IO [Content]
+tocContent url sel = do
+    body <- downloadBody url
+    let tags = parseTags body
+    return $ parseToc url sel tags
 
 -- yeah, because you need to map a source to an IO action
 importContent :: URL -> ImportSettings -> IO [Content]
@@ -54,6 +56,11 @@ importContent url set = fetchLinks set
     fetchLinks = undefined
     --fetchLinks (MenuSettings base open close) = menuContent url base (openSelector open) (closeSelector close)
     --fetchLinks (TOCSettings cssQuery) = tocContent url (selector cssQuery)
+
+--test = do
+    --body <- downloadBody "http://www.fimfiction.net/story/62074/friendship-is-optimal"
+    --let tags = parseTags body
+    --mapM_ print $ parseToc "http://www.fimfiction.net/story/62074/friendship-is-optimal" (css ".chapters") $ tags
 
 ----------------------------------------------------------
 
@@ -71,7 +78,7 @@ downloadBodyLazy url = do
 --testTwig = menuLinks "https://twigserial.wordpress.com/donate/" "https://twigserial.wordpress.com/?cat=" (openSelector "#cat") (closeSelector "select")
 --testGinny = menuLinks "http://fanfiction.net/s/11117811/" "http://fanfiction.net/s/11117811/" (openSelector "#chap_select") (closeSelector "select")
 
---testPact = tocLinks "https://pactwebserial.wordpress.com/table-of-contents/" (selector ".entry-content")
+testPact = mapM_ print =<< tocContent "https://pactwebserial.wordpress.com/table-of-contents/" (css ".entry-content")
 --testWorm = tocContent "https://parahumans.wordpress.com/table-of-contents/" (selector ".entry-content")
 --testHPMOR = tocLinks "http://hpmor.com/" (selector ".toclist")
 

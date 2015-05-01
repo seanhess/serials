@@ -23,51 +23,45 @@ import Serials.Link.Soup
 
 data HTMLContent = HTMLAnchor URL Title | HTMLTitle Title deriving (Show)
 
---parseToc :: URL -> CSSSelector -> [Tag] -> [Content]
---parseToc base sel = catMaybes . map blockContent . chunks chunkTOC . select sel
+parseToc :: URL -> CSSSelector -> Maybe CSSSelector -> [Tag] -> [Content]
+parseToc base sel mTitleSelector = toContent . matchersChunks matchers . select sel
+  where
+  toContent = map (htmlToContent base)
+  matchers = catMaybes [Just linkMatcher, tMatcher]
 
+  tMatcher :: Maybe (TagMatcher HTMLContent)
+  tMatcher = titleMatcher <$> (matchSelector <$> mTitleSelector)
 
-    -- TODO htmlToContent
-    --links   = map (htmlToContent base) $ fromMaybe [] anchors
-
-    -- TODO clean
-    --clean   = filter ((>0) . length . contentText) links
+  -- I don't think I need to clean, it's alrady in there
+  -- TODO clean
 
 --testFriendship = tocLinks "http://www.fimfiction.net/story/62074/friendship-is-optimal" (selector ".chapters")
 
-linkMatcher :: TagMatcher Content
-linkMatcher = TagMatcher start end blockLink
+linkMatcher :: TagMatcher HTMLContent
+linkMatcher = TagMatcher start end blockAnchor
   where start = match [(~== (open "a"))] 
         end   = match [(~== (close "a"))]
 
 -- I want to match text inside an 
-titleMatcher :: (Tag -> Bool) -> TagMatcher Content
+titleMatcher :: (Tag -> Bool) -> TagMatcher HTMLContent
 titleMatcher m = TagMatcher start end blockTitle
   where start = match [m, isText] 
         end   = match [(~== (close ""))]
 
-wormTitleMatcher = titleMatcher (~== open "strong")
-
 ----------------------------------------------------------------------
 
-blockContent :: [Tag] -> Maybe Content
-blockContent [] = Nothing
-blockContent (t:ts)
-  | isTagText t = blockTitle (t:ts)
-  | otherwise   = blockLink (t:ts)
-
-blockLink :: [Tag] -> Maybe Content
-blockLink (t:ts) = do
+blockAnchor :: [Tag] -> Maybe HTMLContent
+blockAnchor (t:ts) = do
     href <- maybeAttr "href" t
     let txt = allText ts
     guard (length txt > 0)
-    return $ Link href txt
+    return $ HTMLAnchor href txt
 
-blockTitle :: [Tag] -> Maybe Content
+blockTitle :: [Tag] -> Maybe HTMLContent
 blockTitle ts = do
     let txt = allText ts
     guard (length txt > 0)
-    return $ Title txt
+    return $ HTMLTitle txt
 
 -------------------------------------------------------------------
 

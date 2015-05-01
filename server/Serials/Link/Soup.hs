@@ -46,6 +46,14 @@ css xs = (sel . fromJust . uncons) xs
     sel ('.',cls) = Class cls
     sel _   = Tag xs
 
+-- only matches opens
+matchSelector :: CSSSelector -> (Tag -> Bool)
+matchSelector c = (~== sel c)
+  where
+    sel (ID id)     = TagOpen "" [("id", id)]
+    sel (Class cls) = TagOpen "" [("class", cls)]    
+    sel (Tag tag)   = TagOpen tag []
+
 -------------------------------------------------------
 
 -- start and end!
@@ -119,6 +127,12 @@ chunks f xs = unfoldr f' xs
   where f' [] = Nothing
         f' xs' = Just $ f xs'
 
+-------------------------------------------------------------
+
+
+anyChange :: Tag -> Bool
+anyChange t = (t ~== open "" || t ~== close "")
+
 isText :: Tag -> Bool
 isText (TagText txt) = not . null . strip $ txt
 isText _ = False
@@ -134,4 +148,5 @@ anyText = TagText ""
 
 match :: [(Tag -> Bool)] -> [Tag] -> Bool
 match ms ts = and $ map (\(f, t) -> f t) $ zip ms ts
+
 

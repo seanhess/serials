@@ -6,7 +6,6 @@ module Serials.Link (
   tocContent,
   importContent,
   downloadBody,
-  testWorm,
 ) where
 
 import Serials.Link.Link

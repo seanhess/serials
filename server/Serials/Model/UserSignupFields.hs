@@ -19,7 +19,7 @@ data UserSignupFields = UserSignupFields {
   , email :: Text
   , password :: Text
   , passwordConfirmation :: Text
-} deriving (Show, Generic)
+  } deriving (Show, Generic)
 
 instance FromJSON UserSignupFields
 instance ToJSON UserSignupFields

@@ -15,7 +15,7 @@ var {Login} = require('./app/pages/login')
 var {Signup} = require('./app/pages/signup')
 
 import {assign} from 'lodash'
-import {UserModel} from './app/model'
+import {UserModel} from './app/model/user'
 import {updateLocalStorage} from './app/helpers'
 
 class App extends React.Component {

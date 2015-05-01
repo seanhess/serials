@@ -3,7 +3,7 @@
 var React = require('react')
 var url = require('url')
 var {cloneDeep} = require('lodash')
-var {toDateString} = require('../model')
+var {toDateString} = require('../helpers')
 var {makeUpdate} = require('../data/update')
 
 export class Chapters extends React.Component {

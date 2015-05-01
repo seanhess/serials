@@ -13,7 +13,7 @@ import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table)
 
-import Serials.Lib.Crud
+import Serials.Model.Lib.Crud
 
 import Numeric
 

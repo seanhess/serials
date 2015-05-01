@@ -2,7 +2,7 @@
 import React from 'react'
 import _ from 'lodash'
 
-var {BetaSignupModel} = require('../model')
+var {BetaSignupModel} = require('../model/betaSignup')
 var EMAIL = "serials@orbit.al"
 
 import {makeUpdate} from '../data/update'

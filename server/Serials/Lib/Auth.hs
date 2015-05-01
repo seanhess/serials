@@ -7,11 +7,11 @@
 
 module Serials.Lib.Auth where
 
-import Data.Text (Text, unpack)
-import Data.ByteString.Char8 (pack)
+import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Data.ByteString hiding (head, last, pack, unpack)
-import Data.Maybe (listToMaybe, fromJust)
+import Data.ByteString hiding (head, last)
+import Data.Maybe (fromJust, isJust)
+import Safe (headMay)
 import Data.Pool (Pool)
 import Database.RethinkDB.NoClash (RethinkDBHandle)
 import Crypto.BCrypt (validatePassword)
@@ -29,7 +29,7 @@ import qualified Serials.Model.User as User hiding (User())
 data UserLogin = UserLogin {
   email :: Text
   , password :: Text
-} deriving (Show, Generic)
+  } deriving (Show, Generic)
 
 instance FromJSON UserLogin
 instance ToJSON UserLogin
@@ -58,37 +58,22 @@ checkCurrentAuth h token = case token of
   Nothing -> return Nothing
   Just t -> do
     users <- User.findByToken h t
-    case listToMaybe users of
-      Nothing -> return Nothing
-      Just x -> return $ Just x
+    return $ headMay users
 
 checkAuthToken :: Pool RethinkDBHandle -> TokenLookup
 checkAuthToken h token = do
   users <- User.findByToken h $ decodeUtf8 $ token
-  case listToMaybe users of
-    Nothing -> return False
-    Just x -> return True
-
--- Helpers should we move these to their respective models or to Helpers.hs or somewhere else?
-textToByteString :: Text -> ByteString
-textToByteString = pack . unpack
-
-userPassword :: UserLogin -> Text
-userPassword = password
-
-userHashedPassword :: User -> Text
-userHashedPassword = fromJust . User.hashedPassword
---
+  return . isJust $ headMay users
 
 userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text User)
 userLogin h u = do
   users <- User.findByEmail h $ email u
-  case listToMaybe users of
+  case headMay users of
     Nothing -> return $ Left "Invalid email address"
     Just user -> do
-      let hashedPassword = textToByteString $ userHashedPassword user
-      let password = textToByteString $ userPassword u
-      case validatePassword hashedPassword password of
+      let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
+      let pass = encodeUtf8 $ password u
+      case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
         True -> return $ Right user
 

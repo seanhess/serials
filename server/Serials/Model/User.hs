@@ -12,7 +12,8 @@ import Data.ByteString.UTF8 (fromString, toString)
 import Data.Aeson (ToJSON, FromJSON, Value(..), toJSON, parseJSON, object, (.=), (.:), (.:?))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (mzero)
-import Data.Maybe (catMaybes, fromJust, listToMaybe)
+import Data.Maybe (catMaybes, fromJust)
+import Safe (headMay)
 import Data.Pool
 import Data.Time
 import Crypto.BCrypt
@@ -23,7 +24,7 @@ import Database.RethinkDB.NoClash hiding (table, Object)
 
 import Serials.Model.UserSignupFields (UserSignupFields)
 import qualified Serials.Model.UserSignupFields as U
-import Serials.Lib.Crud
+import Serials.Model.Lib.Crud
 import Serials.Lib.Helpers
 
 data User = User {
@@ -38,7 +39,7 @@ data User = User {
   , admin :: Bool -- Should we have more permissions?
 
   , created :: UTCTime
-} deriving (Show, Generic)
+  } deriving (Show, Generic)
 
 instance FromJSON User where
   parseJSON (Object v) = User
@@ -55,25 +56,25 @@ instance FromJSON User where
 instance ToJSON User where
   toJSON (User id firstName lastName email hashedPassword token admin created) = object $ catMaybes
     [ ("id" .=) <$> pure id
-      , ("firstName" .=) <$> pure firstName
-      , ("lastName" .=) <$> pure lastName
-      , ("email" .=) <$> pure email
-      , ("token" .=) <$> pure token
-      , ("admin" .=) <$> pure admin
-      , ("created" .=) <$> pure created
+    , ("firstName" .=) <$> pure firstName
+    , ("lastName" .=) <$> pure lastName
+    , ("email" .=) <$> pure email
+    , ("token" .=) <$> pure token
+    , ("admin" .=) <$> pure admin
+    , ("created" .=) <$> pure created
     ]
 
 instance FromDatum User
 instance ToDatum User where
   toDatum (User id firstName lastName email hashedPassword token admin created) = toDatum . object $ catMaybes
     [ ("id" .=) <$> pure id
-      , ("firstName" .=) <$> pure firstName
-      , ("lastName" .=) <$> pure lastName
-      , ("email" .=) <$> pure email
-      , ("hashedPassword" .=) <$> hashedPassword
-      , ("token" .=) <$> pure token
-      , ("admin" .=) <$> pure admin
-      , ("created" .=) <$> pure created
+    , ("firstName" .=) <$> pure firstName
+    , ("lastName" .=) <$> pure lastName
+    , ("email" .=) <$> pure email
+    , ("hashedPassword" .=) <$> hashedPassword
+    , ("token" .=) <$> pure token
+    , ("admin" .=) <$> pure admin
+    , ("created" .=) <$> pure created
     ]
 
 table = R.table "users"
@@ -119,7 +120,7 @@ insert h u = do
           , admin = False
           , created = created
         }
-        case listToMaybe isEmail of
+        case headMay isEmail of
           Nothing -> do
             r <- runPool h $ table # create user
             return . Right $ user {id = generatedKey r}

@@ -36,7 +36,7 @@ import qualified Serials.Model.User as User
 import qualified Serials.Model.BetaSignup as BetaSignup
 import Serials.Model.App
 import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, userLogin, checkCurrentAuth)
-import Serials.Lib.Crud
+import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 

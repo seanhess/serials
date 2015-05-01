@@ -5,11 +5,11 @@
 var React = require('react')
 
 var {RouteHandler} = require('react-router')
-var {SourceModel} = require('../model')
+var {SourceModel} = require('../model/source')
 var {Cover} = require('../cover')
 
 import {SuggestBook} from './support'
-import {Source} from '../model'
+import {Source} from '../model/source'
 import {curry} from 'lodash'
 
 export class Gallery extends React.Component {

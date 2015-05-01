@@ -2,7 +2,7 @@
 import React from 'react'
 
 import {FormSection} from '../comp'
-import {UserModel} from '../model'
+import {UserModel} from '../model/user'
 import {makeUpdate} from '../data/update'
 
 var emptyLogin = function() {

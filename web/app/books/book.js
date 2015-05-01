@@ -4,10 +4,11 @@ var React = require('react')
 var Promise = require('bluebird')
 
 import {RouteHandler} from 'react-router'
-import {SourceModel, ChapterModel, showChapter} from '../model'
+import {SourceModel, Source, emptySource} from '../model/source'
+import {ChapterModel, showChapter} from '../model/chapter'
 import {Cover} from'../cover'
 
-import {Source, emptySource, toDateString} from '../model'
+import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last} from 'lodash'
 

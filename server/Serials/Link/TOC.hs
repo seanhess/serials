@@ -32,11 +32,6 @@ parseToc base sel mTitleSelector = toContent . matchersChunks matchers . select 
   tMatcher :: Maybe (TagMatcher HTMLContent)
   tMatcher = titleMatcher <$> (matchSelector <$> mTitleSelector)
 
-  -- I don't think I need to clean, it's alrady in there
-  -- TODO clean
-
---testFriendship = tocLinks "http://www.fimfiction.net/story/62074/friendship-is-optimal" (selector ".chapters")
-
 linkMatcher :: TagMatcher HTMLContent
 linkMatcher = TagMatcher start end blockAnchor
   where start = match [(~== (open "a"))] 

@@ -26,6 +26,11 @@ import qualified Text.HTML.Scalpel as Scalpel
 
 data CSSSelector = ID Text | Class Text | Tag Text deriving (Show, Eq)
 
+cssSelectorName :: CSSSelector -> Text
+cssSelectorName (ID id)  = id
+cssSelectorName (Class cls) = cls
+cssSelectorName (Tag tag) = tag
+
 selector :: Text -> Selector Text
 selector = soupSelector . css
 
@@ -38,6 +43,9 @@ soupSelector = sel
 
 select :: CSSSelector -> [Tag] -> [Tag]
 select css = fromMaybe [] . headMay . Scalpel.select (soupSelector css)
+
+selectIn :: CSSSelector -> CSSSelector -> [Tag] -> [Tag]
+selectIn start end = takeWhile (not . (~== close (cssSelectorName end))) . dropWhile (not . matchSelector start)
 
 css :: Text -> CSSSelector
 css xs = (sel . fromJust . uncons) xs

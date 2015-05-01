@@ -17,13 +17,13 @@ import GHC.Generics (Generic)
 import Network.Wreq hiding (Link)
 
 --import Serials.Link.Scrape
---import Serials.Link.Parse
+import Serials.Link.Menu
 import Serials.Link.TOC
 import Serials.Link.Link
 import Serials.Link.Soup
 
 import Text.HTML.Scalpel hiding (URL)
-import Text.HTML.TagSoup hiding (Tag)
+import Text.HTML.TagSoup hiding (Tag, select)
 
 data ImportSettings = 
   MenuSettings {
@@ -36,25 +36,19 @@ data ImportSettings =
   }
   deriving (Show, Eq, Generic)
 
---menuContent :: URL -> URL -> TagSelector -> TagSelector -> IO [Content]
---menuContent url base start end = do
-    --body <- downloadBody url
-    --let tags = parseTags body
-        --select = selectMenu start end
-    --return $ parseMenuContent base select tags
+menuContent :: URL -> URL -> CSSSelector -> CSSSelector -> IO [Content]
+menuContent url base start end = parseMenuContent base start end <$> downloadTags url
 
 -- if it's empty, then don't select the text...
 tocContent :: URL -> CSSSelector -> Maybe CSSSelector -> IO [Content]
-tocContent url rootSelector titleSelector = 
-    parseToc url rootSelector titleSelector <$> downloadTags url
+tocContent url root title = parseToc url root title <$> downloadTags url
 
 -- yeah, because you need to map a source to an IO action
 importContent :: URL -> ImportSettings -> IO [Content]
 importContent url set = fetchLinks set
   where
-    fetchLinks = undefined
-    --fetchLinks (MenuSettings base open close) = menuContent url base (openSelector open) (closeSelector close)
-    --fetchLinks (TOCSettings cssQuery) = tocContent url (selector cssQuery)
+    fetchLinks (MenuSettings base open close) = menuContent url base (css open)(css "select")
+    fetchLinks (TOCSettings cssQuery) = tocContent url (css cssQuery) Nothing
 
 --test = do
     --body <- downloadBody "http://www.fimfiction.net/story/62074/friendship-is-optimal"
@@ -77,8 +71,8 @@ downloadBodyLazy url = do
 
 -----------------------------------------------------------
 
---testTwig = menuLinks "https://twigserial.wordpress.com/donate/" "https://twigserial.wordpress.com/?cat=" (openSelector "#cat") (closeSelector "select")
---testGinny = menuLinks "http://fanfiction.net/s/11117811/" "http://fanfiction.net/s/11117811/" (openSelector "#chap_select") (closeSelector "select")
+testTwig = mapM_ print =<< menuContent "https://twigserial.wordpress.com/donate/" "https://twigserial.wordpress.com/?cat=" (css "#cat") (css "select")
+testGinny = mapM_ print =<< menuContent "http://fanfiction.net/s/11117811/" "http://fanfiction.net/s/11117811/" (css "#chap_select") (css "select")
 
 testPact = mapM_ print =<< tocContent "https://pactwebserial.wordpress.com/table-of-contents/" (css ".entry-content") (Just $ css "strong")
 testWorm = mapM_ print =<< tocContent "https://parahumans.wordpress.com/table-of-contents/" (css ".entry-content") (Just $ css "strong")

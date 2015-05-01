@@ -10,7 +10,7 @@ import Safe
 import Data.Maybe
 import Data.Text (Text, strip, null, length, uncons)
 import Data.Monoid ((<>), mconcat)
-import Data.List (unfoldr, find)
+import Data.List (unfoldr, find, tails)
 
 import Control.Applicative
 import Control.Monad
@@ -50,22 +50,22 @@ css xs = (sel . fromJust . uncons) xs
 
 -- start and end!
 data TagMatcher = TagMatcher {
-  isStart :: (Tag -> Bool),
-  isEnd   :: (Tag -> Bool)
+  isStart :: ([Tag] -> Bool),
+  isEnd   :: ([Tag] -> Bool)
   -- then you can add something else, like a potential output here
 }
 
 -- skips and finds the one that matched
 skipNextMatchers :: [TagMatcher] -> [Tag] -> (Maybe TagMatcher, [Tag])
 skipNextMatchers ms [] = (Nothing, [])
-skipNextMatchers ms (t:ts) = 
-  case find (isMatch t) ms of
-    Nothing -> skipNextMatchers ms ts
-    Just m  -> (Just m, (t:ts))
-  where isMatch t m = isStart m t
+skipNextMatchers ms ts = 
+  case find (isMatch ts) ms of
+    Nothing -> skipNextMatchers ms (tail ts)
+    Just m  -> (Just m, ts)
+  where isMatch ts m = isStart m ts
 
 takeNextMatcher :: TagMatcher -> [Tag] -> ([Tag], [Tag])
-takeNextMatcher m = takeNext (isStart m)
+takeNextMatcher m = takeNext (isEnd m)
 
 findNextMatchers :: [TagMatcher] -> [Tag] -> ([Tag], [Tag])
 findNextMatchers ms ts = 
@@ -91,18 +91,26 @@ maybeAttr _ _ = Nothing
 (<||>) :: (a -> Bool) -> (a -> Bool) -> a -> Bool
 (<||>) f g t = f t || g t
 
--- take next should always take at least one tag
-takeNext :: (Tag -> Bool) -> [Tag] -> ([Tag], [Tag])
+-- always take at least one item off the list
+takeNext :: ([Tag] -> Bool) -> [Tag] -> ([Tag], [Tag])
 takeNext end (t:ts) = (t:tks, rest)
   where
-  (tks, rest) = span (not . end) ts
+  (tks, rest) = spanTails (not . end) ts
 takeNext _ _ = ([], [])
 
-skipNext :: (Tag -> Bool) -> [Tag] -> [Tag]
-skipNext start = dropWhile (not . start)
+-- like span, but sends the predicate the whole list instead of just the first element
+spanTails                    :: ([a] -> Bool) -> [a] -> ([a],[a])
+spanTails _ xs@[]            =  (xs, xs)
+spanTails p xs@(x:xs')
+              | p (x:xs')    =  let (ys,zs) = spanTails p xs' in (x:ys,zs)
+              | otherwise    =  ([],xs)
 
-chunk :: (Tag -> Bool) -> (Tag -> Bool) -> [Tag] -> ([Tag], [Tag])
-chunk start end = takeNext end . skipNext start
+
+skipNext :: ([Tag] -> Bool) -> [Tag] -> [Tag]
+skipNext start = fromMaybe [] . headMay . dropWhile (not . start) . tails
+
+--chunk :: ([Tag] -> Bool) -> (Tag -> Bool) -> [Tag] -> ([Tag], [Tag])
+--chunk start end = takeNext end . skipNext start
 
 chunks :: ([a] -> ([a], [a])) -> [a] -> [[a]]
 chunks f xs = unfoldr f' xs
@@ -121,3 +129,7 @@ close name = TagClose name
 
 anyText :: Tag
 anyText = TagText ""
+
+match :: [(Tag -> Bool)] -> [Tag] -> Bool
+match ms ts = and $ map (\(f, t) -> f t) $ zip ms ts
+

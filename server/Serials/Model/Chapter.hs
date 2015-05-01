@@ -21,7 +21,7 @@ import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table)
 
 import Safe (headMay)
-import Serials.Model.Crud
+import Serials.Lib.Crud
 import Serials.Link.Link
 
 import Numeric

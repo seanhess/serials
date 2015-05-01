@@ -11,3 +11,4 @@ npm-debug.log
 .vagrant
 rethinkdb_data
 TODO.md
+.lvimrc

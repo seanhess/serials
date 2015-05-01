@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Serials.Model.Crud where
+module Serials.Lib.Crud where
 
 import Database.RethinkDB.NoClash
 import Data.Text (Text, unpack)

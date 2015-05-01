@@ -27,12 +27,16 @@ import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
+import Serials.Model.User (User(..))
+import Serials.Model.UserSignupFields (UserSignupFields)
 import Serials.Model.BetaSignup (BetaSignup(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
+import qualified Serials.Model.User as User
 import qualified Serials.Model.BetaSignup as BetaSignup
 import Serials.Model.App
-import Serials.Model.Crud
+import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, userLogin, checkCurrentAuth)
+import Serials.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 
@@ -43,8 +47,7 @@ import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBE
 import qualified Database.RethinkDB as R
 
 type API =
-
-       "sources" :> Get [Source]
+  "sources" :> Get [Source]
   :<|> "sources" :> ReqBody Source :> Post Text
 
   :<|> "sources" :> Capture "id" Text :> Get Source
@@ -58,24 +61,60 @@ type API =
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
+  :<|> "signup" :> ReqBody UserSignupFields :> Post User
+  :<|> "login" :> ReqBody UserLogin :> Post User
+  :<|> "auth" :> "current" :> QueryParam "token" Text :> Get User
+
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
 
-  :<|> "admin" :> "import-log" :> Capture "n" Int :> Get Admin.Log
+  -- We need to have this prefixed for the time being because of how HasServer instances work in 0.2
+  -- 0.3 should have more ability to customize this stuff to our liking
+  :<|> "admin" :> AuthTokenAPI
 
   :<|> Raw
+
+type AuthTokenAPI =
+
+  WithAuthToken :> (
+
+  "private" :> Get String -- example to see a few routes in here. Remove when we add more.
+
+  :<|> "import-log" :> Capture "n" Int :> Get Admin.Log
+  )
 
 api :: Proxy API
 api = Proxy
 
+authTokenServer :: Pool RethinkDBHandle -> Server AuthTokenAPI
+authTokenServer h =
+
+  (checkAuth,
+
+  getPrivate -- example to see a few routes in here. Remove when we add more.
+
+  :<|> importLog
+  )
+
+  where
+
+  getPrivate = return "Serials Private Route"
+
+  importLog n = liftIO $ Admin.importLog n
+
+  checkAuth :: TokenLookup
+  checkAuth = checkAuthToken h
+
 server :: Pool RethinkDBHandle -> Server API
 server h =
-         sourcesGetAll :<|> sourcesPost
-    :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
-    :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
-    :<|> chapterGet  :<|> chapterPut
-    :<|> betaSignup
-    :<|> importLog
-    :<|> serveDirectory "web"
+
+  sourcesGetAll :<|> sourcesPost
+  :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
+  :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
+  :<|> chapterGet  :<|> chapterPut
+  :<|> signup :<|> login :<|> authCurrent
+  :<|> betaSignup
+  :<|> authTokenServer h
+  :<|> serveDirectory "web"
 
   where
 
@@ -93,11 +132,13 @@ server h =
   sourceScan  id = liftIO $ importSourceId h id
 
   chapterGet id   = liftE $ Chapter.find h id
-  chapterPut id c = liftE  $ Chapter.save h c
+  chapterPut id c = liftE $ Chapter.save h c
 
-  betaSignup s = liftIO $ BetaSignup.insert h s
+  signup u = liftE $ User.insert h u
+  login u = liftE $ userLogin h u
+  authCurrent t = liftE $ checkCurrentAuth h t
 
-  importLog n = liftIO $ Admin.importLog n
+  betaSignup b = liftIO $ BetaSignup.insert h b
 
 
 stack :: Application -> Application
@@ -111,40 +152,42 @@ stack app = heads $ cors' $ app
 
 runApi :: Int -> Pool RethinkDBHandle -> IO ()
 runApi port p = do
-    createDb p
-    Source.init p
-    Chapter.init p
-    BetaSignup.init p
-    putStrLn $ "Starting..."
-    run port $ stack $ serve api (server p)
-    return ()
+  createDb p
+  Source.init p
+  Chapter.init p
+  User.init p
+  BetaSignup.init p
+  putStrLn $ "Starting..."
+  run port $ stack $ serve api (server p)
+  return ()
 
 -- Cors ---------------------------------------------------------
 
 corsResourcePolicy :: CorsResourcePolicy
 corsResourcePolicy = CorsResourcePolicy
-    { corsOrigins = Nothing
-    , corsMethods = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"]
-    , corsRequestHeaders = simpleResponseHeaders
-    , corsExposedHeaders = Nothing
-    , corsMaxAge = Nothing
-    , corsVaryOrigin = False
-    , corsRequireOrigin = False
-    , corsIgnoreFailures = False
-    }
+  { corsOrigins = Nothing
+  , corsMethods = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"]
+  , corsRequestHeaders = simpleResponseHeaders
+  , corsExposedHeaders = Nothing
+  , corsMaxAge = Nothing
+  , corsVaryOrigin = False
+  , corsRequireOrigin = False
+  , corsIgnoreFailures = False
+  }
 
 -- ToStatus ------------------------------------------------------
 
 class ToStatus a where
-    toStatus :: a val -> Either (Int, String) val
+  toStatus :: a val -> Either (Int, String) val
 
 instance ToStatus Maybe where
-    toStatus Nothing  = Left (404, "Not Found")
-    toStatus (Just v) = Right v
+  toStatus Nothing  = Left (404, "Not Found")
+  toStatus (Just v) = Right v
 
 instance Show a => ToStatus (Either a) where
-    toStatus (Left e) = Left (500, "Server Error: " <> show e)
-    toStatus (Right v) = Right v
+  toStatus (Left e) = Left (500, "Server Error: " <> show e)
+  toStatus (Right v) = Right v
 
 liftE :: ToStatus a => IO (a v) -> EitherT (Int, String) IO v
 liftE action = EitherT $ toStatus <$> action
+

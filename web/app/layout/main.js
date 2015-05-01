@@ -3,7 +3,7 @@
 
 var React = require('react')
 
-var {RouteHandler} = require('react-router')
+var {RouteHandler, Link} = require('react-router')
 
 export class MainContainer extends React.Component {
   render() {
@@ -38,15 +38,33 @@ var NavBar = {
 }
 
 export class Header extends React.Component {
+  renderCurrentUser() {
+    var currentUser = this.props.currentUser;
+
+    if (currentUser) {
+      return <div style={{display: 'inline-block'}}>
+        <p style={LinkStyle}>Hello, {this.props.currentUser.firstName}</p>
+        <a style={LinkStyle} onClick={this.props.logout}>Logout</a>
+      </div>
+    }
+
+    else {
+      return <div style={{display: 'inline-block'}}>
+        <Link style={LinkStyle} to='login'>Login</Link>
+        <Link style={LinkStyle} to='signup'>Signup</Link>
+      </div>
+    }
+  }
+
   render() {
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
-        <a style={LinkStyle} href="#/pages/about">About</a>
-        <a style={LinkStyle} href="#/admin/sources">Admin</a>
+        {this.renderCurrentUser()}
+        <Link style={LinkStyle} to="about">About</Link>
+        <Link style={LinkStyle} to="sources">Admin</Link>
       </div>
-      <div style={CenterText}><a href="#" style={TitleStyle}>Serials</a></div>
+      <div style={CenterText}><Link to="books" style={TitleStyle}>Serials</Link></div>
     </nav>
   }
 }
-
 

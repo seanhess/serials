@@ -9,7 +9,7 @@ import Control.Applicative
 import Serials.Link
 import Serials.Api
 import Serials.Scan
-import Serials.Model.Crud
+import Serials.Lib.Crud
 
 import System.Environment
 import Network.URI

@@ -33,7 +33,7 @@ function toData(res) {
 }
 
 function error(err) {
-  console.err(err)
+  console.error(err)
 }
 
 // ------------------------------------------------

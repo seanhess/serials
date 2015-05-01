@@ -1,6 +1,7 @@
 // @flow
 
 import {Get, Post, Put, Del, url} from './api'
+import {getLocalStorage} from './helpers'
 import moment from 'moment'
 
 /////////////////////////////////////////////////////
@@ -10,6 +11,34 @@ export var AdminModel = {
     return Get(url('admin', 'import-log', n))
     .then(log => log.text)
   }
+}
+
+
+// UserModel //////////////////////////////////////
+
+export type Source = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  token: string;
+  created: date;
+}
+
+
+export var UserModel = {
+  checkAuth() {
+    var token = getLocalStorage('userToken')
+    return Get(url('auth/current?token=' + token))
+  },
+
+  login(login) {
+    return Post(url('login'), login)
+  },
+
+  signup(signup) {
+    return Post(url('signup'), signup)
+  },
 }
 
 

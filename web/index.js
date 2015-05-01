@@ -1,7 +1,6 @@
 // @flow
 
 var React = window.React = require('react')
-
 var Router = require('react-router')
 var {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect} = require('react-router')
 
@@ -12,12 +11,38 @@ var {Main} = require('./app/books/main')
 var {Gallery} = require('./app/books/gallery')
 var {Book} = require('./app/books/book')
 var {About} = require('./app/pages/about')
+var {Login} = require('./app/pages/login')
+var {Signup} = require('./app/pages/signup')
 
 import {assign} from 'lodash'
+import {UserModel} from './app/model'
+import {updateLocalStorage} from './app/helpers'
 
 class App extends React.Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {currentUser: this.props.currentUser}
+  }
+
+  componentDidMount() {
+    UserModel.checkAuth()
+    .then((user) => this.setState({currentUser: user}))
+  }
+
+  setCurrentUser(user) {
+    updateLocalStorage('userToken', user.token)
+    this.setState({currentUser: user})
+  }
+
+  logout(e) {
+    e.preventDefault()
+    updateLocalStorage('userToken', null)
+    this.setState({currentUser: null})
+  }
+
   render() {
-    return <RouteHandler {...this.props}/>
+    return <RouteHandler {...this.props} currentUser={this.state.currentUser} logout={this.logout.bind(this)} setCurrentUser={this.setCurrentUser.bind(this)}/>
   }
 }
 
@@ -33,6 +58,8 @@ var routes = (
   <Route handler={App} path="/">
     <Redirect from="/" to="books" />
     <Route name="pages" handler={Main}>
+      <Route name='login' handler={Login}/>
+      <Route name='signup' handler={Signup}/>
       <Route name="about" handler={About}/>
     </Route>
     <Route name="books" handler={Main}>

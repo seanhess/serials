@@ -49,14 +49,14 @@ css xs = (sel . fromJust . uncons) xs
 -------------------------------------------------------
 
 -- start and end!
-data TagMatcher = TagMatcher {
+data TagMatcher a = TagMatcher {
   isStart :: ([Tag] -> Bool),
-  isEnd   :: ([Tag] -> Bool)
-  -- then you can add something else, like a potential output here
+  isEnd   :: ([Tag] -> Bool),
+  toValue   :: ([Tag] -> Maybe a)
 }
 
 -- skips and finds the one that matched
-skipNextMatchers :: [TagMatcher] -> [Tag] -> (Maybe TagMatcher, [Tag])
+skipNextMatchers :: [TagMatcher a] -> [Tag] -> (Maybe (TagMatcher a), [Tag])
 skipNextMatchers ms [] = (Nothing, [])
 skipNextMatchers ms ts = 
   case find (isMatch ts) ms of
@@ -64,17 +64,19 @@ skipNextMatchers ms ts =
     Just m  -> (Just m, ts)
   where isMatch ts m = isStart m ts
 
-takeNextMatcher :: TagMatcher -> [Tag] -> ([Tag], [Tag])
+takeNextMatcher :: TagMatcher a -> [Tag] -> ([Tag], [Tag])
 takeNextMatcher m = takeNext (isEnd m)
 
-findNextMatchers :: [TagMatcher] -> [Tag] -> ([Tag], [Tag])
+findNextMatchers :: [TagMatcher a] -> [Tag] -> (Maybe a, [Tag])
 findNextMatchers ms ts = 
   case skipNextMatchers ms ts of
-    (Nothing, _) -> ([], [])
-    (Just m, ts') -> takeNextMatcher m ts'
+    (Nothing, _) -> (Nothing, [])
+    (Just m, ts') -> 
+      let (block, ts'') = takeNextMatcher m ts'
+      in  (toValue m block, ts'')
 
-matchersChunks :: [TagMatcher] -> [Tag] -> [[Tag]]
-matchersChunks = chunks . findNextMatchers
+matchersChunks :: [TagMatcher a] -> [Tag] -> [a]
+matchersChunks ms ts = catMaybes $ chunks (findNextMatchers ms) ts
 
 --------------------------------------------------------
 
@@ -112,7 +114,7 @@ skipNext start = fromMaybe [] . headMay . dropWhile (not . start) . tails
 --chunk :: ([Tag] -> Bool) -> (Tag -> Bool) -> [Tag] -> ([Tag], [Tag])
 --chunk start end = takeNext end . skipNext start
 
-chunks :: ([a] -> ([a], [a])) -> [a] -> [[a]]
+chunks :: ([a] -> (b, [a])) -> [a] -> [b]
 chunks f xs = unfoldr f' xs
   where f' [] = Nothing
         f' xs' = Just $ f xs'

@@ -32,7 +32,7 @@ docker run -it -d  \
   --link rethinkdb:rethinkdb \
   -p $port:$port \
   $image
-
+  exit 0
 END
 
 # TODO private docker registry. Actually get it to work!

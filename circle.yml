@@ -8,7 +8,7 @@ dependencies:
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
     - echo $PATH
-    - cp -f ./flow/flow /usr/bin
+    - cp -f ./flow/flow /usr/local/bin
 
   override:
     - docker info

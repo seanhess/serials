@@ -11,11 +11,10 @@ dependencies:
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
     - mv ./flow/flow /home/ubuntu/bin
-    - which flow
     - rm -rf ./flow
+    - npm install -g webpack
 
   override:
-    - ls
     - docker info
     - bin/build
 

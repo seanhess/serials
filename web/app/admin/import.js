@@ -12,7 +12,7 @@
   //deriving (Show, Eq, Generic)
 
 var React = require('react')
-var {Menu, TOC} = require('../helpers')
+var {Menu, TOC} = require('../model/source')
 var {makeUpdate} = require('../data/update')
 
 

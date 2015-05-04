@@ -2,12 +2,14 @@
 
 import moment from 'moment'
 
-export var updateLocalStorage = function(key, data) {
+declare var localStorage;
+
+export var updateLocalStorage = function(key:string, data:?Object):void {
     return localStorage.setItem(key, JSON.stringify(data))
 }
 
 
-export var getLocalStorage = function(key) {
+export var getLocalStorage = function(key:string):Object {
     return JSON.parse(localStorage.getItem(key))
 }
 

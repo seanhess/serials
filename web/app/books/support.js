@@ -14,9 +14,11 @@ var validateEmail = function(email) {
 }
 
 export class BetaSignupView extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = this.emptyState()
+    this._timer = null
   }
 
   emptyState(obj = {}) {

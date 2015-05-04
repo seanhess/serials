@@ -17,6 +17,14 @@ export type User = {
   created: Date;
 }
 
+export type Login = {
+
+}
+
+export type Signup = {
+
+}
+
 
 export var UserModel = {
   checkAuth() {
@@ -24,7 +32,7 @@ export var UserModel = {
     return Get(url('auth/current?token=' + token))
   },
 
-  login(login) {
+  login(login:Login) {
     return Post(url('login'), login)
     .then((obj) => {
       updateLocalStorage('userToken', obj.token)
@@ -39,7 +47,7 @@ export var UserModel = {
     })
   },
 
-  signup(signup) {
+  signup(signup:Signup) {
     return Post(url('signup'), signup)
   },
 }

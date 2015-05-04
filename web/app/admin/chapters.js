@@ -13,7 +13,7 @@ export class Chapters extends React.Component {
     //var source = this.props.source
 
     var row = c => (
-      <ChapterRow chapter={c} 
+      <ChapterRow chapter={c}
         onSaveChapter={this.props.onSaveChapter}
         onClearChapter={this.props.onClearChapter}
         onHiddenChange={this.props.onHiddenChange}
@@ -27,6 +27,7 @@ export class Chapters extends React.Component {
           <th></th>
           <th>Number</th>
           <th>Name</th>
+          <th>Arc</th>
           <th>URL</th>
           <th>Added</th>
         </tr>
@@ -56,7 +57,7 @@ export class ChapterRow extends React.Component {
 
   update(f) {
     return (e) => {
-      var chapter = this.state.editing    
+      var chapter = this.state.editing
       f(chapter, e.target.value)
       this.setState({editing: chapter})
     }
@@ -102,8 +103,14 @@ export class ChapterRow extends React.Component {
           </div>
           <div className="columns small-10">
             <label>Name</label>
-            <input type="text" value={chapter.name} 
+            <input type="text" value={chapter.name}
               onChange={update((c, v) => c.name = v)}/>
+          </div>
+
+          <div className="columns small-10">
+            <label>Arc</label>
+            <input type="text" value={chapter.arc}
+              onChange={update((c, v) => c.arc = v)}/>
           </div>
         </div>
         <label>URL</label>
@@ -146,6 +153,7 @@ export class ChapterRow extends React.Component {
       </td>
       <td style={style}>{chapter.number}</td>
       <td style={style}>{chapter.name}</td>
+      <td style={style}>{chapter.arc}</td>
       <td><a href={chapter.url} style={style}>{urlPath(chapter.url)}</a></td>
       <td>{toDateString(chapter.added)}</td>
     </tr>

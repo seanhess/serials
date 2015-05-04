@@ -10,6 +10,7 @@ import Data.Either (lefts)
 import Data.Pool
 import Data.Monoid ((<>))
 import Data.Time
+import Debug.Trace
 
 import Control.Applicative
 import Control.Concurrent.PooledIO.Independent
@@ -36,22 +37,31 @@ scanSource :: Source -> IO [Content]
 scanSource s = importContent (Source.url s) (importSettings s)
 
 -- this only turns a Link into a chapter, not a Title
-linkToChapter :: Text -> UTCTime -> (Int, Content) -> Chapter
-linkToChapter sid time (n, (Link url text)) = Chapter {
+linkToChapter :: Text -> UTCTime -> Maybe Text -> Int -> Content -> Chapter
+linkToChapter sid time arc n (Link url text) = Chapter {
   Chapter.id       = Chapter.urlId url,
   Chapter.sourceId = sid,
   Chapter.added = time,
   Chapter.number = n,
   Chapter.name = text,
   Chapter.url = url,
-  Chapter.arc = Nothing,
+  Chapter.arc = arc,
   Chapter.edited    = False,
   Chapter.hidden   = False,
   Chapter.link = Link url text
 }
 
+--addChapter :: ((Int, Content) -> Chapter) -> (Maybe Text, [Chapter]) -> Content -> (Maybe Text, [Chapter])
+--addChapter = undefined
+--addChapter (ma, cs) content = 
+
 toChapters :: Text -> UTCTime -> [Content] -> [Chapter]
-toChapters sid time content = map (linkToChapter sid time) (zip [1..] content)
+toChapters sid time content = f Nothing 1 content
+    where
+    f arc _ []                 = []
+    f arc n ((Title title):cs) = f (Just title) n cs
+    f arc n (c:cs)             = toChapter arc n c : f arc n cs
+    toChapter = linkToChapter sid time
 
 -- NEXT STEP: get the import to return them
 -- filter out the links?
@@ -71,6 +81,7 @@ importSource h source = do
 
   content <- scanSource source
   time <- getCurrentTime
+
   let scannedChapters = toChapters sid time content
 
   edits <- chapterMap <$> Chapter.bySource h sid

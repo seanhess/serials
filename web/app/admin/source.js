@@ -22,7 +22,7 @@ export class Source extends React.Component {
     }
 
     return {
-      source: SourceModel.find(params.id), 
+      source: SourceModel.find(params.id),
       chapters: ChapterModel.findBySource(params.id),
     }
   }
@@ -42,7 +42,6 @@ export class Source extends React.Component {
 
 
   onSaveClick() {
-    console.log("TESTING", this.props)
     if (this.props.params.id == "new") {
       this.create()
     }

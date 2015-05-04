@@ -1,7 +1,7 @@
 // @flow
 
-var React = require('react')
-var Promise = require('bluebird')
+import React from 'react'
+import Promise from 'bluebird'
 
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource} from '../model/source'
@@ -10,7 +10,7 @@ import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
-import {last} from 'lodash'
+import {last, groupBy, values} from 'lodash'
 
 export class Book extends React.Component {
 
@@ -26,8 +26,10 @@ export class Book extends React.Component {
     var chapters = this.props.chapters || []
     var lastChapter = last(chapters) || {}
     var shown = chapters.filter(showChapter)
+    var arcs = groupBy(shown, c => c.arc)
 
-    var row = (c) => <Chapter chapter={c} key={c.id} />
+    // group them by arcs?
+    //var row = (c) => <Chapter chapter={c} key={c.id} />
 
     return <div>
       <h3> </h3>
@@ -45,7 +47,9 @@ export class Book extends React.Component {
       <hr />
 
       <div style={{marginTop: 10}}>
-        {shown.map(row)}
+        {values(arcs).map(function(cs) {
+          return <Arc chapters={cs} key={cs[0].arc}/>
+        })}
       </div>
 
       <hr />
@@ -64,3 +68,13 @@ export class Chapter extends React.Component {
   }
 }
 
+export class Arc extends React.Component {
+  render() {
+    var chapters = this.props.chapters
+    return <div>
+      <h5>{chapters[0].arc}</h5>
+      <div>{chapters.map((c) => <Chapter chapter={c} key={c.id}/>)}</div>
+      <br />
+    </div>
+  }
+}

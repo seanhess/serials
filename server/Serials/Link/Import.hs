@@ -2,12 +2,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Serials.Link.Import where
 
+import Prelude hiding (null)
+
 import Control.Lens ((^.))
 import Control.Applicative
 
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (fromMaybe, fromJust)
-import Data.Text (unpack, Text)
+import Data.Text (unpack, Text, null)
 import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy (toStrict, fromStrict)
 import Data.Text.Lazy.Encoding (decodeUtf8, encodeUtf8, decodeLatin1)
@@ -25,14 +27,14 @@ import Serials.Link.Soup
 import Text.HTML.Scalpel hiding (URL)
 import Text.HTML.TagSoup hiding (Tag, select)
 
-data ImportSettings = 
+data ImportSettings =
   MenuSettings {
     menuBase :: URL,
-    menuOpen :: Text,
-    menuClose ::  Text
+    menuOpen :: Text
   } |
   TOCSettings {
-    tocSelector :: Text
+    tocSelector :: Text,
+    titleSelector :: Text
   }
   deriving (Show, Eq, Generic)
 
@@ -47,8 +49,9 @@ tocContent url root title = parseToc url root title <$> downloadTags url
 importContent :: URL -> ImportSettings -> IO [Content]
 importContent url set = fetchLinks set
   where
-    fetchLinks (MenuSettings base open close) = menuContent url base (css open)(css "select")
-    fetchLinks (TOCSettings cssQuery) = tocContent url (css cssQuery) Nothing
+    fetchLinks (MenuSettings base open) = menuContent url base (css open)(css "select")
+    fetchLinks (TOCSettings root title) = tocContent url (css root) (emptySelector title)
+    emptySelector t = if null t then Nothing else Just (css t)
 
 --test = do
     --body <- downloadBody "http://www.fimfiction.net/story/62074/friendship-is-optimal"

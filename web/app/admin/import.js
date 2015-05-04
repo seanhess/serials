@@ -1,3 +1,4 @@
+// @flow
 
 //data ImportSettings = 
   //MenuSettings {
@@ -12,6 +13,8 @@
 
 var React = require('react')
 var {Menu, TOC} = require('../helpers')
+var {makeUpdate} = require('../data/update')
+
 
 export class MenuSettings extends React.Component {
 
@@ -31,14 +34,9 @@ export class MenuSettings extends React.Component {
       <input type="text" value={settings.menuBase} onChange={this.onChange("menuBase")} />
 
       <div className="row">
-        <div className="small-6 columns">
+        <div className="small-12 columns">
           <label placeholder="#chap_select">Open Selector</label>
           <input type="text" value={settings.menuOpen} onChange={this.onChange("menuOpen")} />
-        </div>
-
-        <div className="small-6 columns">
-          <label placeholder="select">Close Selector</label>
-          <input type="text" value={settings.menuClose} onChange={this.onChange("menuClose")} />
         </div>
       </div>
     </div>
@@ -47,18 +45,30 @@ export class MenuSettings extends React.Component {
 
 export class TOCSettings extends React.Component {
 
-  onChange() {
-    return (e) => {
-      var settings = this.props.settings
-      settings.tocSelector = e.target.value
-      this.props.onUpdate(settings)
-    }
-  }
   render() {
     var settings = this.props.settings
+    var update = makeUpdate(settings, (value) => {
+      this.props.onUpdate(value)
+    })
+
     return <div>
-      <label placeholder="#toc">Selector</label>
-      <input type="text" value={settings.tocSelector} onChange={this.onChange()} />
+      <div className="row">
+        <div className="columns small-6">
+          <label>Root Selector</label>
+          <input placeholder="#toc" type="text"
+            value={settings.tocSelector}
+            onChange={update((s, v) => s.tocSelector = v)}
+          />
+        </div>
+
+        <div className="columns small-6">
+          <label>Title Selector</label>
+          <input placeholder="(leave blank for none)" type="text"
+            value={settings.titleSelector}
+            onChange={update((s, v) => s.titleSelector = v)}
+          />
+        </div>
+      </div>
     </div>
   }
 }

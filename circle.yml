@@ -1,6 +1,6 @@
 machine:
   environment:
-    PATH: ${PATH}:/home/ubuntu/bin
+    #PATH: ${PATH}:/home/ubuntu/bin
     NODE_ENV: test
   services:
     - docker

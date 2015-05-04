@@ -4,9 +4,11 @@ var React = require('react')
 var Promise = require('bluebird')
 var Router = require('react-router')
 
-var {SourceModel, ChapterModel, emptySource, emptyScan, toDateString} = require('../model')
-var {Chapters} = require('./chapters.js')
-var {ImportSettings} = require('./import.js')
+var {SourceModel, emptySource, emptyScan} = require('../model/source')
+var {ChapterModel} = require('../model/chapter')
+var {toDateString} = require('../helpers')
+var {Chapters} = require('./chapters')
+var {ImportSettings} = require('./import')
 var {DisabledButton, FormSection} = require('../comp')
 
 import {coverStyle, Cover} from '../cover'

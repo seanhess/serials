@@ -3,7 +3,7 @@
 var React = require('react')
 var {assign} = require('lodash')
 
-import {Source, emptySource} from './model'
+import {Source, emptySource} from './model/source'
 
 // but get the images at 2x resolution so they can be retina yo
 // or just get the photos at that ratio

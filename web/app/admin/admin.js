@@ -5,7 +5,7 @@ var React = require('react')
 
 var {RouteHandler} = require('react-router')
 var {MainContainer, Header} = require('../layout/main')
-var {AdminModel} = require('../model')
+var {AdminModel} = require('../model/admin')
 
 export class Admin extends React.Component {
   render() {

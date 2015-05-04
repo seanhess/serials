@@ -13,15 +13,15 @@ import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table)
 
-import Serials.Model.Crud
+import Serials.Model.Lib.Crud
 
 import Numeric
 
 -- these are the things you can change
 -- they need an id if you're going to send them down :(
 data BetaSignup = BetaSignup {
-  id :: Text,
-  email :: Text
+  id :: Text
+  , email :: Text
 } deriving (Show, Generic, Eq)
 
 instance FromJSON BetaSignup

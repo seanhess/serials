@@ -1,7 +1,7 @@
 // @flow
 
 var React = require('react')
-var {SourceModel} = require('../model')
+var {SourceModel} = require('../model/source')
 var {Link} = require('react-router')
 var {sortBy} = require('lodash')
 

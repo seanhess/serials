@@ -17,7 +17,7 @@ import Control.Concurrent
 import Control.Monad
 import Control.Exception
 
-import Serials.Model.Crud
+import Serials.Model.Lib.Crud
 import Serials.Link
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter

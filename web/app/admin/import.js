@@ -11,7 +11,7 @@
   //deriving (Show, Eq, Generic)
 
 var React = require('react')
-var {Menu, TOC} = require('../model')
+var {Menu, TOC} = require('../helpers')
 
 export class MenuSettings extends React.Component {
 

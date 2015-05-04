@@ -13,6 +13,7 @@ dependencies:
     - which flow
 
   override:
+    - ls
     - docker info
     - bin/build
 

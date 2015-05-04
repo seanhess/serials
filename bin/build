@@ -8,6 +8,10 @@ echo $version
 echo $version > web/version.txt
 
 echo "
+-- npm -------------------"
+npm install
+
+echo "
 -- flow ------------------"
 flow --version
 flow

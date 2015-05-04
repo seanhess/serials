@@ -9,6 +9,7 @@ echo $version > web/version.txt
 
 echo "
 -- flow ------------------"
+flow --version
 flow
 
 echo "

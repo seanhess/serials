@@ -7,18 +7,19 @@ machine:
 
 dependencies:
   pre:
-    - echo "EMAIL=$DOCKER_EMAIL USER=$DOCKER_USER PASS=$DOCKER_PASS"
     - sudo apt-get -y -qq update; sudo apt-get -y -qq install wget unzip
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
+    - which flow
 
   override:
     - docker info
-    - docker build -t seanhess/serials .
+    - bin/build
 
 test:
   override:
-    - bin/build; sleep 10
+    - sleep 10
+    - echo "Running tests"
     # run extra tests here
     #- sudo lxc-attach -n "$(docker inspect --format '{{.Id}}' seanhess/serials)" -- bash -c flow
     # I'd like to be able to run flow without

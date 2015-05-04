@@ -66,7 +66,3 @@ executable serials
     random,
     jwt
 
-    tagchup,
-    taggy,
-    taggy-lens,
-    polysoup

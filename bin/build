@@ -3,7 +3,12 @@ set -e
 
 echo "BUILD"
 echo "-----------------------"
+version=$(git log -1 --format="%h | %ad | %an | %s")
+echo $version
+echo $version > web/version.txt
 
 cd web && webpack -p && cd ..
 docker build -t seanhess/serials .
 docker push seanhess/serials
+
+

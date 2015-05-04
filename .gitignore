@@ -12,3 +12,4 @@ npm-debug.log
 rethinkdb_data
 TODO.md
 .lvimrc
+web/version.txt

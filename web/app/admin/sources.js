@@ -1,14 +1,15 @@
 // @flow
 
-var React = require('react')
-var {SourceModel} = require('../model/source')
-var {Link} = require('react-router')
-var {sortBy} = require('lodash')
+import React from 'react'
+import {SourceModel} from '../model/source'
+import {AdminModel} from '../model/admin'
+import {Link} from 'react-router'
+import {sortBy} from 'lodash'
 
 export class Sources extends React.Component {
 
   static load() {
-    return {sources: SourceModel.findAll()}
+    return {sources: SourceModel.findAll(), version: AdminModel.version()}
   }
 
   constructor(props) {
@@ -33,10 +34,7 @@ export class Sources extends React.Component {
 
     return <div>
       <h3>Sources</h3>
-      <div>This is prototype software, there is no security whatsoever. Be careful with our data!</div>
-      <ul>
-        <li><a href="#/admin/import-log/500">Import Log</a></li>
-      </ul>
+      <a className="button" href="#/admin/sources/new">Add Source</a>
       <table>
         <tr>
           <th>Image</th>
@@ -47,7 +45,13 @@ export class Sources extends React.Component {
         </tr>
         {sorted.map(renderRow)}
       </table>
-      <div><a href="#/admin/sources/new">Add Source</a></div>
+
+      <div>
+        <pre style={{fontSize: 'smaller'}}>
+          <li>Version: {this.props.version}</li>
+          <li><a href="#/admin/import-log/500">Import Log</a></li>
+        </pre>
+      </div>
     </div>
   }
 }

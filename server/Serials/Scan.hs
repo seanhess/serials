@@ -60,7 +60,7 @@ toChapters sid time content = f Nothing 1 content
     where
     f arc _ []                 = []
     f arc n ((Title title):cs) = f (Just title) n cs
-    f arc n (c:cs)             = toChapter arc n c : f arc n cs
+    f arc n (c:cs)             = toChapter arc n c : f arc (n+1) cs
     toChapter = linkToChapter sid time
 
 -- NEXT STEP: get the import to return them

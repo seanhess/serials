@@ -63,5 +63,6 @@ executable serials
     shelly,
     string-conversions,
     bcrypt,
-    random
+    random,
+    jwt
 

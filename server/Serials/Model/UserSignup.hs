@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Serials.Model.UserSignupFields where
+module Serials.Model.UserSignup where
 
 import Prelude hiding (id)
 
@@ -13,7 +13,7 @@ import Data.Aeson (ToJSON, FromJSON)
 import GHC.Generics
 import Database.RethinkDB.NoClash hiding (table)
 
-data UserSignupFields = UserSignupFields {
+data UserSignup = UserSignup {
   firstName :: Text
   , lastName :: Text
   , email :: Text
@@ -21,8 +21,8 @@ data UserSignupFields = UserSignupFields {
   , passwordConfirmation :: Text
   } deriving (Show, Generic)
 
-instance FromJSON UserSignupFields
-instance ToJSON UserSignupFields
-instance FromDatum UserSignupFields
-instance ToDatum UserSignupFields
+instance FromJSON UserSignup
+instance ToJSON UserSignup
+instance FromDatum UserSignup
+instance ToDatum UserSignup
 

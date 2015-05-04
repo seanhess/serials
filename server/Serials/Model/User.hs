@@ -17,27 +17,23 @@ import Safe (headMay)
 import Data.Pool
 import Data.Time
 import Crypto.BCrypt
+import qualified Data.ByteString.Char8 as C
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table, Object)
 
-import Serials.Model.UserSignupFields (UserSignupFields)
-import qualified Serials.Model.UserSignupFields as U
+import Serials.Model.UserSignup (UserSignup)
+import qualified Serials.Model.UserSignup as U
 import Serials.Model.Lib.Crud
-import Serials.Lib.Helpers
 
 data User = User {
   id :: Text
   , firstName :: Text
   , lastName :: Text
   , email :: Text
-
   , hashedPassword :: Maybe Text
-
-  , token :: Text
-  , admin :: Bool -- Should we have more permissions?
-
+  , admin :: Bool
   , created :: UTCTime
   } deriving (Show, Generic)
 
@@ -48,39 +44,33 @@ instance FromJSON User where
     <*> v .: "lastName"
     <*> v .: "email"
     <*> v .:? "hashedPassword"
-    <*> v .: "token"
     <*> v .: "admin"
     <*> v .: "created"
   parseJSON _ = mzero
 
 instance ToJSON User where
-  toJSON (User id firstName lastName email hashedPassword token admin created) = object $ catMaybes
+  toJSON (User id firstName lastName email hashedPassword admin created) = object $ catMaybes
     [ ("id" .=) <$> pure id
     , ("firstName" .=) <$> pure firstName
     , ("lastName" .=) <$> pure lastName
     , ("email" .=) <$> pure email
-    , ("token" .=) <$> pure token
     , ("admin" .=) <$> pure admin
     , ("created" .=) <$> pure created
     ]
 
 instance FromDatum User
 instance ToDatum User where
-  toDatum (User id firstName lastName email hashedPassword token admin created) = toDatum . object $ catMaybes
+  toDatum (User id firstName lastName email hashedPassword admin created) = toDatum . object $ catMaybes
     [ ("id" .=) <$> pure id
     , ("firstName" .=) <$> pure firstName
     , ("lastName" .=) <$> pure lastName
     , ("email" .=) <$> pure email
     , ("hashedPassword" .=) <$> hashedPassword
-    , ("token" .=) <$> pure token
     , ("admin" .=) <$> pure admin
     , ("created" .=) <$> pure created
     ]
 
 table = R.table "users"
-
-tokenIndexName = "token"
-tokenIndex = Index tokenIndexName
 
 emailIndexName = "email"
 emailIndex = Index emailIndexName
@@ -91,17 +81,10 @@ list h = runPool h $ table
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
 find h id = runPool h $ table # get (expr id)
 
-findByToken :: Pool RethinkDBHandle -> Text -> IO [User]
-findByToken h token = runPool h $ table # getAll tokenIndex [expr token]
-
 findByEmail :: Pool RethinkDBHandle -> Text -> IO [User]
 findByEmail h email = runPool h $ table # getAll emailIndex [expr email]
 
-{-insertUser :: User -> Maybe Text -> Either Text (Maybe User)-}
-{-insertUser j (Just x) = Right . Just $ j { id = unpack x }-}
-{-insertUser _ Nothing = Left WriteFailure-}
-
-insert :: Pool RethinkDBHandle -> UserSignupFields -> IO (Either Text User)
+insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text User)
 insert h u = do
     let pass = U.password u
     if pass == (U.passwordConfirmation u)
@@ -109,14 +92,12 @@ insert h u = do
         hashPass <- liftIO . hashPasswordUsingPolicy customHashPolicy . fromString $ unpack pass
         isEmail <- findByEmail h $ U.email u
         created <- liftIO getCurrentTime
-        token <- liftIO randomString
         let user = User {
           id = pack ""
           , firstName = U.firstName u
           , lastName = U.lastName u
           , email = U.email u
           , hashedPassword = Just . pack $ toString $ fromJust hashPass
-          , token = pack token
           , admin = False
           , created = created
         }
@@ -130,6 +111,8 @@ insert h u = do
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack tokenIndexName) (!expr tokenIndexName)
     initDb $ runPool h $ table # indexCreate (unpack emailIndexName) (!expr emailIndexName)
+
+customHashPolicy :: HashingPolicy
+customHashPolicy = HashingPolicy 10 (C.pack "$2b$")
 

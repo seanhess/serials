@@ -28,14 +28,14 @@ import Network.Wai.Middleware.AddHeaders
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..))
-import Serials.Model.UserSignupFields (UserSignupFields)
+import Serials.Model.UserSignup (UserSignup)
 import Serials.Model.BetaSignup (BetaSignup(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
 import qualified Serials.Model.BetaSignup as BetaSignup
 import Serials.Model.App
-import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, userLogin, checkCurrentAuth)
+import Serials.Lib.Auth (UserLogin, AuthUser, WithAuthToken, checkAuthToken, TokenLookup, userLogin, checkCurrentAuth)
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
@@ -61,8 +61,8 @@ type API =
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
 
-  :<|> "signup" :> ReqBody UserSignupFields :> Post User
-  :<|> "login" :> ReqBody UserLogin :> Post User
+  :<|> "signup" :> ReqBody UserSignup :> Post User
+  :<|> "login" :> ReqBody UserLogin :> Post AuthUser
   :<|> "auth" :> "current" :> QueryParam "token" Text :> Get User
 
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text

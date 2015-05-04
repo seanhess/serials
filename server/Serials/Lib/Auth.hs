@@ -7,9 +7,9 @@
 
 module Serials.Lib.Auth where
 
-import Data.Text (Text)
+import Data.Text (Text, pack)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
-import Data.ByteString hiding (head, last)
+import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
 import Safe (headMay)
 import Data.Pool (Pool)
@@ -21,8 +21,10 @@ import Servant
 import Servant.Server.Internal
 import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics
+import Web.JWT (JSON)
 import qualified Data.Text as T
 
+import Serials.Lib.JWT
 import Serials.Model.User (User (hashedPassword))
 import qualified Serials.Model.User as User hiding (User())
 
@@ -33,6 +35,14 @@ data UserLogin = UserLogin {
 
 instance FromJSON UserLogin
 instance ToJSON UserLogin
+
+data AuthUser = AuthUser {
+  user :: User
+  , token :: JSON
+  } deriving (Show, Generic)
+
+instance FromJSON AuthUser
+instance ToJSON AuthUser
 
 type TokenLookup = ByteString -> IO Bool
 
@@ -57,15 +67,19 @@ checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
 checkCurrentAuth h token = case token of
   Nothing -> return Nothing
   Just t -> do
-    users <- User.findByToken h t
-    return $ headMay users
+    tok <- verifyJwt t
+    case tok of
+      Nothing -> return Nothing
+      Just to -> User.find h $ pack $ show $ fromJust $ subject tok
 
 checkAuthToken :: Pool RethinkDBHandle -> TokenLookup
 checkAuthToken h token = do
-  users <- User.findByToken h $ decodeUtf8 $ token
-  return . isJust $ headMay users
+  tok <- verifyJwt $ decodeUtf8 token
+  case tok of
+    Nothing -> return False
+    Just x -> return True
 
-userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text User)
+userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text AuthUser)
 userLogin h u = do
   users <- User.findByEmail h $ email u
   case headMay users of
@@ -73,7 +87,8 @@ userLogin h u = do
     Just user -> do
       let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
       let pass = encodeUtf8 $ password u
+      jwtToken <- signedJwtWebToken user
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
-        True -> return $ Right user
+        True -> return $ Right $ AuthUser user jwtToken
 

@@ -1,6 +1,6 @@
 machine:
   environment:
-    PATH: ${PATH}:/home/ubuntu/serials/flow
+    PATH: ${PATH}:/home/ubuntu/bin
     NODE_ENV: test
   services:
     - docker
@@ -10,7 +10,10 @@ dependencies:
     - sudo apt-get -y -qq update; sudo apt-get -y -qq install wget unzip
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
+    - mkdir /home/ubuntu/bin
+    - mv ./flow/flow /home/ubuntu/bin
     - which flow
+    - rm -rf ./flow
 
   override:
     - ls

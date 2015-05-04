@@ -4,9 +4,10 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get update; sudo apt-get install wget unzip
+    - sudo apt-get -y -qq update; sudo apt-get -y -qq install wget unzip
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
+    - echo $PATH
     - cp -f ./flow/flow /usr/bin
 
   override:

@@ -30,7 +30,6 @@ deployment:
   hub:
     branch: master
     commands:
-      - echo "EMAIL=$DOCKER_EMAIL USER=$DOCKER_USER PASS=$DOCKER_PASS"
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push seanhess/serials
       - bin/remote

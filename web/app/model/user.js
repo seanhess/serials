@@ -1,7 +1,9 @@
 // @flow
 
+import Promise from 'bluebird'
+
 import {Get, Post, Put, Del, url} from '../api'
-import {getLocalStorage} from '../helpers'
+import {getLocalStorage, updateLocalStorage} from '../helpers'
 
 
 // UserModel //////////////////////////////////////
@@ -25,6 +27,17 @@ export var UserModel = {
 
   login(login) {
     return Post(url('login'), login)
+    .then((user) => {
+      updateLocalStorage('userToken', user.token)
+      return user
+    })
+  },
+
+  logout() {
+    return new Promise((resolve, reject) => {
+      updateLocalStorage('userToken', null)
+      resolve()
+    })
   },
 
   signup(signup) {

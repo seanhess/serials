@@ -31,14 +31,13 @@ class App extends React.Component {
   }
 
   setCurrentUser(user) {
-    updateLocalStorage('userToken', user.token)
     this.setState({currentUser: user})
   }
 
   logout(e) {
     e.preventDefault()
-    updateLocalStorage('userToken', null)
-    this.setState({currentUser: null})
+    UserModel.logout()
+    .then(() => this.setState({currentUser: null}))
   }
 
   render() {

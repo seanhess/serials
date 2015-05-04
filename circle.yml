@@ -1,18 +1,16 @@
 machine:
   environment:
-    PATH: ${PATH}:/home/ubuntu/flow
+    PATH: ${PATH}:/home/ubuntu/serials/flow
     NODE_ENV: test
   services:
     - docker
 
 dependencies:
   pre:
+    - echo "EMAIL=$DOCKER_EMAIL USER=$DOCKER_USER PASS=$DOCKER_PASS"
     - sudo apt-get -y -qq update; sudo apt-get -y -qq install wget unzip
     - wget http://flowtype.org/downloads/flow-linux64-latest.zip
     - unzip -o flow-linux64-latest.zip
-    - pwd
-    - echo $PATH
-    - cp -f ./flow/flow /usr/local/bin
 
   override:
     - docker info
@@ -29,6 +27,7 @@ deployment:
   hub:
     branch: master
     commands:
+      - echo "EMAIL=$DOCKER_EMAIL USER=$DOCKER_USER PASS=$DOCKER_PASS"
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push seanhess/serials
       - bin/remote

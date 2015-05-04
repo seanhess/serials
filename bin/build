@@ -1,14 +1,24 @@
 #!/bin/bash
 set -e
 
-echo "BUILD"
-echo "-----------------------"
+echo "
+== BUILD ==================="
 version=$(git log -1 --format="%h | %ad | %an | %s")
 echo $version
 echo $version > web/version.txt
 
+echo "
+-- flow ------------------"
+flow
+
+echo "
+-- webpack ------------------"
 cd web && webpack -p && cd ..
+
+echo "
+-- docker ------------------"
 docker build -t seanhess/serials .
-docker push seanhess/serials
+# push as a separate command!
+# docker push seanhess/serials
 
 

@@ -3,14 +3,22 @@ machine:
     - docker
 
 dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install wget unzip
+    - wget http://flowtype.org/downloads/flow-linux64-latest.zip
+    - unzip -o flow-linux64-latest.zip
+    - cp -f ./flow/flow /usr/bin
+
   override:
     - docker info
     - docker build -t seanhess/serials .
 
 test:
   override:
-    - docker run -d seanhess/serials .; sleep 10
-    - ls
+    - bin/build; sleep 10
+    # run extra tests here
+    #- sudo lxc-attach -n "$(docker inspect --format '{{.Id}}' seanhess/serials)" -- bash -c flow
+    # I'd like to be able to run flow without
 
 deployment:
   hub:
@@ -18,6 +26,6 @@ deployment:
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push seanhess/serials
+      - bin/remote
 
-#sudo lxc-attach -n "$(docker inspect --format '{{.Id}}' $MY_CONTAINER_NAME)" -- bash -c $MY_COMMAND
 

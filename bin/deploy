@@ -3,4 +3,5 @@
 set -e
 
 bin/build
+docker push seanhess/serials
 bin/remote

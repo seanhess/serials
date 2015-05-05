@@ -4,7 +4,7 @@ import React from 'react'
 import Promise from 'bluebird'
 
 import {RouteHandler} from 'react-router'
-import {SourceModel, Source, emptySource} from '../model/source'
+import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink} from '../model/chapter'
 import {Cover} from'../cover'
 
@@ -40,6 +40,7 @@ export class Book extends React.Component {
           <h3>{source.name}</h3>
           <div>by {source.author}</div>
           <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>
+          <div style={{color: statusColor(source.status)}}>{source.status}</div>
         </div>
       </div>
 
@@ -53,6 +54,18 @@ export class Book extends React.Component {
 
       <SomethingWrong />
     </div>
+  }
+}
+
+function statusColor(status:SourceStatus) {
+  if (status === Status.Active) {
+    return "#009800"
+  }
+  else if (status === Status.Complete) {
+    return "#207DE5"
+  }
+  else {
+    return "#888"
   }
 }
 

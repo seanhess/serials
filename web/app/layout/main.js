@@ -1,9 +1,10 @@
 
 // @flow
 
-var React = require('react')
+import React from 'react'
 
-var {RouteHandler, Link} = require('react-router')
+import {RouteHandler, Link} from 'react-router'
+import {assign} from 'lodash'
 
 export class MainContainer extends React.Component {
   render() {
@@ -57,11 +58,21 @@ export class Header extends React.Component {
   }
 
   render() {
+
+    var isAdmin = false
+    if (this.props.currentUser && this.props.currentUser.admin) {
+      isAdmin = true
+    }
+
+    var adminStyle = assign({}, LinkStyle, {
+      display: (isAdmin) ? 'inline-block' : 'none'
+    })
+
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
-        {this.renderCurrentUser()}
         <Link style={LinkStyle} to="about">About</Link>
-        <Link style={LinkStyle} to="sources">Admin</Link>
+        <Link style={adminStyle} to="sources">Admin</Link>
+        {this.renderCurrentUser()}
       </div>
       <div style={CenterText}><Link to="books" style={TitleStyle}>Serials</Link></div>
     </nav>

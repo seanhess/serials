@@ -7,6 +7,7 @@
 
 module Serials.Lib.Auth where
 
+import Prelude hiding (id)
 import Data.Text (Text, pack)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.ByteString hiding (head, last, pack)
@@ -25,7 +26,7 @@ import Web.JWT (JSON)
 import qualified Data.Text as T
 
 import Serials.Lib.JWT
-import Serials.Model.User (User (hashedPassword))
+import Serials.Model.User (User (id, hashedPassword), AuthUser(..))
 import qualified Serials.Model.User as User hiding (User())
 
 data UserLogin = UserLogin {
@@ -35,14 +36,6 @@ data UserLogin = UserLogin {
 
 instance FromJSON UserLogin
 instance ToJSON UserLogin
-
-data AuthUser = AuthUser {
-  user :: User
-  , token :: JSON
-  } deriving (Show, Generic)
-
-instance FromJSON AuthUser
-instance ToJSON AuthUser
 
 type TokenLookup = ByteString -> IO Bool
 
@@ -87,7 +80,7 @@ userLogin h u = do
     Just user -> do
       let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
       let pass = encodeUtf8 $ password u
-      jwtToken <- signedJwtWebToken user
+      jwtToken <- signedJwtWebToken $ id user
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
         True -> return $ Right $ AuthUser user jwtToken

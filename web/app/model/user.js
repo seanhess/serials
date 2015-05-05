@@ -49,6 +49,10 @@ export var UserModel = {
 
   signup(signup:Signup) {
     return Post(url('signup'), signup)
+    .then((obj) => {
+      updateLocalStorage('userToken', obj.token)
+      return obj.user
+    })
   },
 }
 

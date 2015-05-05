@@ -16,8 +16,6 @@ import Data.Aeson (toJSON)
 import Web.JWT
 import qualified Data.Map as Map
 
-import Serials.Model.User
-
 oneDay :: NominalDiffTime
 oneDay = 24 * 60 * 60
 
@@ -56,22 +54,21 @@ subject :: Maybe (JWT a) -> Maybe StringOrURI
 subject (Just j) = sub $ claimSet j
 subject Nothing = Nothing
 
-signedJwtWebToken :: User -> IO JSON
-signedJwtWebToken user = do
+signedJwtWebToken :: Text -> IO JSON
+signedJwtWebToken id = do
     o <- oneDayLater
-    signedJwtToken o user
+    signedJwtToken o id
 
 jwtSecret :: Secret
 jwtSecret = secret "6aefad90e7a41c1d9267feccc0ee763ebd8ef9c3496a2d84b5c36e6ff4b7534dce5dbb705254d6a0253f3ccf36300bb0f1b6e1c4ab805c3c85884e3df3dbd0c7"
 
-signedJwtToken :: Maybe IntDate -> User -> IO JSON
-signedJwtToken exp user = do
-    let userId = id user
+signedJwtToken :: Maybe IntDate -> Text -> IO JSON
+signedJwtToken exp id = do
     iat <- currentTime
     let cs = def {
         iss = stringOrURI "Serials"
         , iat = iat
-        , sub = stringOrURI userId
+        , sub = stringOrURI id
         , exp = exp
         }
     return $ encodeSigned HS256 jwtSecret cs

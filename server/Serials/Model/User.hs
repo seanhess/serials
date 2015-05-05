@@ -18,6 +18,7 @@ import Data.Pool
 import Data.Time
 import Crypto.BCrypt
 import qualified Data.ByteString.Char8 as C
+import Web.JWT (JSON)
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
@@ -26,6 +27,7 @@ import Database.RethinkDB.NoClash hiding (table, Object)
 import Serials.Model.UserSignup (UserSignup)
 import qualified Serials.Model.UserSignup as U
 import Serials.Model.Lib.Crud
+import Serials.Lib.JWT
 
 data User = User {
   id :: Text
@@ -70,6 +72,15 @@ instance ToDatum User where
     , ("created" .=) <$> pure created
     ]
 
+-- Used for signup/login to pass back user and token
+data AuthUser = AuthUser {
+  user :: User
+  , token :: JSON
+  } deriving (Show, Generic)
+
+instance FromJSON AuthUser
+instance ToJSON AuthUser
+
 table = R.table "users"
 
 emailIndexName = "email"
@@ -84,7 +95,7 @@ find h id = runPool h $ table # get (expr id)
 findByEmail :: Pool RethinkDBHandle -> Text -> IO [User]
 findByEmail h email = runPool h $ table # getAll emailIndex [expr email]
 
-insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text User)
+insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text AuthUser)
 insert h u = do
     let pass = U.password u
     if pass == (U.passwordConfirmation u)
@@ -92,7 +103,7 @@ insert h u = do
         hashPass <- liftIO . hashPasswordUsingPolicy customHashPolicy . fromString $ unpack pass
         isEmail <- findByEmail h $ U.email u
         created <- liftIO getCurrentTime
-        let user = User {
+        let user' = User {
           id = pack ""
           , firstName = U.firstName u
           , lastName = U.lastName u
@@ -103,8 +114,10 @@ insert h u = do
         }
         case headMay isEmail of
           Nothing -> do
-            r <- runPool h $ table # create user
-            return . Right $ user {id = generatedKey r}
+            r <- runPool h $ table # create user'
+            let user = user' {id = generatedKey r}
+            jwtToken <- signedJwtWebToken $ id user
+            return . Right $ AuthUser user jwtToken
           Just _-> return $ Left "User already exists with that email"
     else return $ Left "Password and Password Confirmation do not match"
 

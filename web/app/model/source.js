@@ -5,14 +5,18 @@ import {Get, Post, Put, Del, url} from '../api'
 
 // SourceModel //////////////////////////////////////
 
+export type SourceStatus = "Active" | "Disabled" | "Complete" | "Abandoned";
+
 export var Status = {
   Active: "Active",
   Disabled: "Disabled",
   Complete: "Complete",
-  Abandoned: "Abandoned"
+  Abandoned: "Abandoned",
+  All: ([]: Array<SourceStatus>)
 }
 
-export type SourceStatus = "Active" | "Disabled" | "Complete" | "Abandoned";
+Status.All = [Status.Active, Status.Disabled, Status.Complete, Status.Abandoned]
+
 
 export type Source = {
   id: string;

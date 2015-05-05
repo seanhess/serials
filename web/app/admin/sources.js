@@ -3,6 +3,7 @@
 import React from 'react'
 import {SourceModel} from '../model/source'
 import {AdminModel} from '../model/admin'
+import {statusColor} from '../books/book'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'
 
@@ -27,7 +28,7 @@ export class Sources extends React.Component {
         <td style={{padding: 3, textAlign: 'center'}}><img src={source.imageUrl} style={{height: 35}}/></td>
         <td><Link to="source" params={{id: source.id}}>{source.name}</Link></td>
         <td><a href={source.url}>{source.url}</a></td>
-        <td>{source.status}</td>
+        <td style={{color: statusColor(source.status)}}>{source.status}</td>
         <td>{lastScan.total}</td>
       </tr>
     }

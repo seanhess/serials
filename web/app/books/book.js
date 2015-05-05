@@ -57,7 +57,7 @@ export class Book extends React.Component {
   }
 }
 
-function statusColor(status:SourceStatus) {
+export function statusColor(status:SourceStatus):string {
   if (status === Status.Active) {
     return "#009800"
   }

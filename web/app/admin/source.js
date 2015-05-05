@@ -1,15 +1,16 @@
 // @flow
 
-var React = require('react')
-var Promise = require('bluebird')
-var Router = require('react-router')
+import React from 'react'
+import Promise from 'bluebird'
+import Router from 'react-router'
 
-var {SourceModel, emptySource, emptyScan, Status} = require('../model/source')
-var {ChapterModel} = require('../model/chapter')
-var {toDateString} = require('../helpers')
-var {Chapters} = require('./chapters')
-var {ImportSettings} = require('./import')
-var {DisabledButton, FormSection} = require('../comp')
+import {SourceModel, emptySource, emptyScan, Status} from '../model/source'
+import {ChapterModel} from '../model/chapter'
+import {toDateString} from '../helpers'
+import {Chapters} from './chapters'
+import {ImportSettings} from './import'
+import {DisabledButton, FormSection} from '../comp'
+import {statusColor} from '../books/book'
 
 import {coverStyle, Cover} from '../cover'
 import {makeUpdate, checked} from '../data/update'

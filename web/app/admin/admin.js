@@ -10,7 +10,7 @@ var {AdminModel} = require('../model/admin')
 export class Admin extends React.Component {
   render() {
     return <div>
-      <Header />
+      <Header {...this.props}/>
       <MainContainer>
         <RouteHandler {...this.props}/>
       </MainContainer>

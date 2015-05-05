@@ -3,6 +3,7 @@ module Main where
 import Data.Char
 import Data.Maybe (fromMaybe)
 import Data.Monoid
+import Data.Text (pack)
 
 import Control.Applicative
 
@@ -27,7 +28,7 @@ command :: [String] -> IO ()
 command (name:xs) = cmd name
   where
     cmd "api"  = mainApi
-    cmd "scan" = mainScan
+    cmd "scan" = mainScan xs
     cmd name   = putStrLn $ "Could not find command: " ++ name
 command _ = usage
 
@@ -43,13 +44,15 @@ mainApi = do
     p <- connectDbPool db
     runApi port p
 
-mainScan :: IO ()
-mainScan = do
+mainScan :: [String] -> IO ()
+mainScan ids = do
     putStrLn "-- SERIALS SCAN --------------"
     db <- lookupDb
     putStrLn $ "DB: " <> show db
     p <- connectDbPool db
-    importAllSources p
+    case ids of
+      [] -> importAllSources p
+      is -> mapM_ (importSourceId p) (map pack is)
     return ()
 
 --------------------------------------------------------

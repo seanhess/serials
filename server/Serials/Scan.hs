@@ -4,12 +4,15 @@ module Serials.Scan where
 
 import Prelude hiding (id, lookup)
 
+import Data.Char (isAlphaNum)
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Database.RethinkDB.NoClash
 import Data.Either (lefts)
 import Data.Pool
 import Data.Monoid ((<>))
 import Data.Time
+import Data.List (nubBy)
 import Debug.Trace
 
 import Control.Applicative
@@ -50,7 +53,7 @@ linkToChapter sid time n content =
   }
   where
   makeId (Link url _) = Chapter.urlId url
-  makeId (Title text) = sid <> Chapter.urlId text
+  makeId (Title text) = sid <> Text.filter isAlphaNum text
 
 importSourceId :: Pool RethinkDBHandle -> Text -> IO ()
 importSourceId h sourceId = do
@@ -68,7 +71,7 @@ importSource h source = do
 
   edits <- chapterMap <$> Chapter.bySource h sid
 
-  let merged = mergeAll edits scannedChapters
+  let merged = mergeAll edits $ nubBy idEqual scannedChapters
       new = map snd $ filter (isMergeType New) merged
       ups = map snd $ filter (isMergeType Updated) merged
       scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
@@ -84,10 +87,10 @@ importSource h source = do
 
   putStrLn $ "  DONE "
 
-  where 
+  where
     sid = Source.id source
     name = show $ Source.name source
-
+    idEqual a b = Chapter.id a == Chapter.id b
 
 importAllSources :: Pool RethinkDBHandle -> IO ()
 importAllSources h = do

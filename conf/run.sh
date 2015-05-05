@@ -5,7 +5,8 @@
 env -u OPTS_APT > env.sh
 
 # cron in the background
-cron &
+cron & >> /var/log/serials.log 2>&1
+echo "Initialized Cron" >> /var/log/serials.log
 
 # run the server
 ./dist/build/serials/serials api

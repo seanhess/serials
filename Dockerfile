@@ -28,6 +28,5 @@ RUN cabal build
 # see bin/build
 ADD ./web    /opt/serials/web
 
-
 CMD ["/bin/bash", "./conf/run.sh"]
 

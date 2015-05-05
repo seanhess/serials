@@ -7,6 +7,8 @@ Many excellent books and webcomics are being published openly on the web today. 
 
 The system will scan sources to create a table of contents for each book. It will notify subscribers, and keep track of their reading progress.
 
+![https://circleci.com/gh/seanhess/serials.svg?&style=shield&circle-token=5b00f3b0fd452b4027e442419d1a1ef381215f26](Build Status)
+
 Pre-alpha Site
 --------------
 

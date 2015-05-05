@@ -47,10 +47,10 @@ export class Sources extends React.Component {
       </table>
 
       <div>
-        <pre style={{fontSize: 'smaller'}}>
-          <li>Version: {this.props.version}</li>
+        <ul>
           <li><a href="#/admin/import-log/500">Import Log</a></li>
-        </pre>
+          <li>Version: <code style={{fontSize: 'smaller'}}>{this.props.version}</code></li>
+        </ul>
       </div>
     </div>
   }

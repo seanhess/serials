@@ -22,10 +22,12 @@ MILESTONES
 - [x] Store the latest chapter list
 - [x] Manage chapter lists (hide, add chapter)
 - [x] Automatic scanning
-- [ ] User accounts
-- [ ] Responsive front-end reading experience
+- [x] User accounts
+- [x] Responsive front-end reading experience
 - [ ] Notifications
 - [ ] Keep track of where you are / queue
+- [ ] Discovery
+- [ ] Launch / optimization / etc
 
 Contributing
 ------------

@@ -45,4 +45,12 @@ export class DisabledButton extends React.Component {
       <button className={className} onClick={this.props.onClick}>{text}</button>
     </div>
   }
+
+
+  //toggleActive() {
+    //var source = this.state.source
+    //source.disabled = !source.disabled
+    //this.setState({source: source})
+  //}
+
 }

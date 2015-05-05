@@ -27,7 +27,7 @@ import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.Scan as Scan
 import Serials.Model.Chapter (Chapter(..))
-import Serials.Model.Source (Source(..))
+import Serials.Model.Source (Source(..), Status(..))
 import Serials.Model.Scan (Scan(..))
 
 import System.IO
@@ -60,9 +60,13 @@ importSourceId h sourceId = do
     Just source <- Source.find h sourceId
     importSource h source
 
+skipSource :: Source -> IO ()
+skipSource source = do
+  putStrLn $ " skip  " <> scanShowSource source
+
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
-  putStrLn $ "SCAN " <> show sid <> " " <> name
+  putStrLn $ "[SCAN] " <> scanShowSource source
 
   content <- scanSource source
   time <- getCurrentTime
@@ -89,8 +93,10 @@ importSource h source = do
 
   where
     sid = Source.id source
-    name = show $ Source.name source
     idEqual a b = Chapter.id a == Chapter.id b
+
+scanShowSource :: Source -> String
+scanShowSource s = show (Source.id s) <> " " <> show (Source.status s) <> " " <> show (Source.name s)
 
 importAllSources :: Pool RethinkDBHandle -> IO ()
 importAllSources h = do
@@ -98,8 +104,11 @@ importAllSources h = do
     putStrLn $ "Started: " <> show time
     hSetBuffering stdout LineBuffering
     sources <- Source.list h
-    putStrLn $ " sources: " <> (show $ length sources)
-    mapM_ (importSource h) sources
+    putStrLn $ "sources: " <> (show $ length sources)
+    let active = filter Source.isActive sources
+        inactive = filter (not . Source.isActive) sources
+    mapM_ (skipSource) inactive
+    mapM_ (importSource h) active
 
     -- for now, don't do it in parallel
     --runException (Just 5) $ map (importSource h) sources

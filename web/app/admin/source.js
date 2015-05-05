@@ -4,7 +4,7 @@ var React = require('react')
 var Promise = require('bluebird')
 var Router = require('react-router')
 
-var {SourceModel, emptySource, emptyScan} = require('../model/source')
+var {SourceModel, emptySource, emptyScan, Status} = require('../model/source')
 var {ChapterModel} = require('../model/chapter')
 var {toDateString} = require('../helpers')
 var {Chapters} = require('./chapters')
@@ -85,12 +85,6 @@ export class Source extends React.Component {
     .then(() => window.location.hash = "/admin/sources")
   }
 
-  toggleActive() {
-    var source = this.state.source
-    source.disabled = !source.disabled
-    this.setState({source: source})
-  }
-
   runScan() {
     this.setState({scanning: true})
     ChapterModel.importSource(this.props.params.id)
@@ -125,9 +119,6 @@ export class Source extends React.Component {
 
     return <div>
       <h3>Source</h3>
-      <div className="right">
-        <DisabledButton onClick={this.toggleActive.bind(this)} disabled={source.disabled} />
-      </div>
 
       <div>
         <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
@@ -143,31 +134,45 @@ export class Source extends React.Component {
 
           <div style={{marginLeft: 170, minHeight: 305}}>
             <label>Name</label>
-            <input type="text" 
-              value={source.name} 
+            <input type="text"
+              value={source.name}
               onChange={update((s, v) => s.name = v)}
             />
             <label>Author</label>
-            <input type="text" 
-              value={source.author} 
+            <input type="text"
+              value={source.author}
               onChange={update((s, v) => s.author = v)}
             />
+
+              <label>Status</label>
+              <select
+                value={source.status}
+                onChange={update((s, v) => s.status = v)}
+              >
+                <option value={Status.Active}>{Status.Active}</option>
+                <option value={Status.Complete}>{Status.Complete}</option>
+                <option value={Status.Disabled}>{Status.Disabled}</option>
+                <option value={Status.Abandoned}>{Status.Abandoned}</option>
+              </select>
+
             <label>URL</label>
-            <input type="text" 
+            <input type="text"
               value={source.url}
               onChange={update((s, v) => s.url = v)}
             />
             <label>Image URL</label>
-            <input type="text" 
+            <input type="text"
               value={source.imageUrl}
               onChange={update((s, v) => s.imageUrl = v)}
             />
 
-            <label>Image Missing Title</label>
-            <input type="checkbox" 
-              checked={source.imageMissingTitle}
-              onChange={update((s, v) => s.imageMissingTitle = v, checked)}
-            />
+            <div>
+              <label>Image Missing Title</label>
+              <input type="checkbox"
+                checked={source.imageMissingTitle}
+                onChange={update((s, v) => s.imageMissingTitle = v, checked)}
+              />
+            </div>
           </div>
         </div>
 

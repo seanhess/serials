@@ -5,17 +5,25 @@ import {Get, Post, Put, Del, url} from '../api'
 
 // SourceModel //////////////////////////////////////
 
+export var Status = {
+  Active: "Active",
+  Disabled: "Disabled",
+  Complete: "Complete",
+  Abandoned: "Abandoned"
+}
+
+export type SourceStatus = "Active" | "Disabled" | "Complete" | "Abandoned";
 
 export type Source = {
   id: string;
   importSettings: any;
-  disabled: bool;
   name: string;
   author: string;
   url: string;
   imageUrl: string;
   imageMissingTitle: boolean;
   lastScan?: Scan;
+  status: SourceStatus;
 }
 
 export type Scan = {
@@ -58,11 +66,11 @@ export var TOC = "TOCSettings"
 export function emptySource():Source {
   return {
     id: "",
-    disabled: false,
     name: "",
     author: "",
     url: "",
     imageUrl: "",
+    status: Status.Active,
     imageMissingTitle: false,
     importSettings: {
       tag: TOC,

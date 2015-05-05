@@ -14,18 +14,21 @@ import Data.Time
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table)
+import Database.RethinkDB.NoClash hiding (table, status)
 
 import Serials.Model.Lib.Crud
 import Serials.Model.Scan
 import Serials.Link.Import (ImportSettings)
+
+data Status = Complete | Active | Disabled | Abandoned deriving (Show, Eq, Generic)
 
 data Source = Source {
   id :: Text,
   url :: Text,
   name :: Text,
   author :: Text,
-  disabled :: Maybe Bool,
+
+  status :: Status,
 
   imageUrl :: Text,
   imageMissingTitle :: Bool,
@@ -35,6 +38,10 @@ data Source = Source {
   lastScan :: Maybe Scan
 
 } deriving (Show, Generic)
+
+
+instance FromJSON Status
+instance ToJSON Status
 
 instance FromJSON ImportSettings
 instance ToJSON ImportSettings
@@ -69,3 +76,6 @@ updateLastScan h id s = runPool h $ table # get (expr id) # update (const ["last
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
+
+isActive :: Source -> Bool
+isActive = (== Active) . status

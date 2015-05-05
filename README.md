@@ -30,7 +30,7 @@ MILESTONES
 Contributing
 ------------
 
-Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged. 
+Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged.
 
 * [Issues and Features that need work](https://github.com/seanhess/serials/issues)
 
@@ -53,11 +53,10 @@ Haskell Server
     cabal run
 
 Front-end application
-  
-    cd web/
-    webpack -w
 
-Visit the server
-  
-    http://localhost:3001/
+    npm start
+
+Visit the hot reload server (front-end changes will update in-place)
+
+    http://localhost:3000/
 

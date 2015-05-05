@@ -31,17 +31,11 @@ import Numeric
 data Chapter = Chapter {
   id :: Text,
   sourceId :: Text,
-
   added :: UTCTime,
-
   number :: Int,
-  name :: Text,
-  url :: Text,
-  arc :: Maybe Text,
-
   hidden :: Bool,
   edited :: Bool,
-  link :: Content
+  content :: Content
 } deriving (Show, Generic, Eq)
 
 instance FromJSON Chapter

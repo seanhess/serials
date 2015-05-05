@@ -8,16 +8,21 @@ import {Get, Post, Put, Del, url} from '../api'
 
 export type Chapter = {
   id: string;
-  url: string;
   edited: bool;
   name: string;
-  link: Link;
+  content: ContentLink | ContentTitle;
   hidden: bool;
 }
 
-export type Link = {
+export type ContentLink = {
+  tag: string;
   linkURL: string;
-  linkTitle: string;
+  linkText: string;
+}
+
+export type ContentTitle = {
+  tag: string;
+  titleText: string;
 }
 
 export var ChapterModel = {
@@ -36,8 +41,6 @@ export var ChapterModel = {
 
   clear(chapter:Chapter) {
     chapter.edited = false
-    chapter.url = chapter.link.linkURL
-    chapter.name = chapter.link.linkTitle
     return Put(url('chapters', chapter.id), chapter)
   },
 
@@ -51,8 +54,22 @@ export var ChapterModel = {
   },
 }
 
-
-export function showChapter(chapter:Chapter):bool {
-  return !chapter.hidden && (chapter.name.length > 0)
+export function emptyChapter():Chapter {
+  return {
+    id: "",
+    edited: false,
+    name: "",
+    number: 0,
+    content: {tag: "", titleText: ""},
+    hidden: false
+  }
 }
 
+
+export function showChapter(chapter:Chapter):bool {
+  return !chapter.hidden
+}
+
+export function isLink(chapter:Chapter):bool {
+  return chapter.content.tag == "Link"
+}

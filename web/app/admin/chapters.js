@@ -1,10 +1,11 @@
 // @flow
 
-var React = require('react')
-var url = require('url')
-var {cloneDeep} = require('lodash')
-var {toDateString} = require('../helpers')
-var {makeUpdate} = require('../data/update')
+import React from 'react'
+import url from 'url'
+import {cloneDeep} from 'lodash'
+import {toDateString} from '../helpers'
+import {makeUpdate} from '../data/update'
+import {isLink, emptyChapter, Chapter} from '../model/chapter'
 
 export class Chapters extends React.Component {
   render() {
@@ -26,9 +27,7 @@ export class Chapters extends React.Component {
           <th></th>
           <th></th>
           <th>Number</th>
-          <th>Name</th>
-          <th>Arc</th>
-          <th>URL</th>
+          <th>Content</th>
           <th>Added</th>
         </tr>
         {chapters.map(row)}
@@ -36,6 +35,39 @@ export class Chapters extends React.Component {
     </div>
   }
 }
+
+export class LinkContent extends React.Component {
+  render() {
+    var content = this.props.content
+    return <div>
+      <span>{content.linkText}</span>
+      <span> - </span>
+      <span><a href={content.linkURL}>{urlPath(content.linkURL)}</a></span>
+    </div>
+  }
+}
+
+export class TitleContent extends React.Component {
+  render() {
+    var content = this.props.content
+    return <div>{content.titleText}</div>
+  }
+}
+
+export class Content extends React.Component {
+  render() {
+    var content = this.props.content
+    var inner = ""
+    if (content.tag == "Link") {
+      inner = <LinkContent content={content} />
+    }
+    else {
+      inner = <TitleContent content={content} />
+    }
+    return <div>{inner}</div>
+  }
+}
+
 
 export class ChapterRow extends React.Component {
 
@@ -86,11 +118,27 @@ export class ChapterRow extends React.Component {
 
   renderEdit() {
 
-    var chapter = this.state.editing || {}
+    var chapter:any = this.state.editing || emptyChapter()
 
     var update = makeUpdate(chapter, (v) => {
       this.setState({editing: v})
     })
+
+    function updateName(chapter:any, value) {
+      if (isLink(chapter)) {
+        chapter.content.linkText = value
+      }
+
+      else {
+        chapter.content.titleText = value
+      }
+    }
+
+    var nameValue = (isLink(chapter)) ? chapter.content.linkText : chapter.content.titleText
+
+    var urlFieldStyle = {
+      display: (isLink(chapter)) ? 'block' : 'none'
+    }
 
     return <tr key={chapter.id}>
       <td colSpan="6">
@@ -103,20 +151,16 @@ export class ChapterRow extends React.Component {
           </div>
           <div className="columns small-10">
             <label>Name</label>
-            <input type="text" value={chapter.name}
-              onChange={update((c, v) => c.name = v)}/>
-          </div>
-
-          <div className="columns small-10">
-            <label>Arc</label>
-            <input type="text" value={chapter.arc}
-              onChange={update((c, v) => c.arc = v)}/>
+            <input type="text" value={nameValue}
+              onChange={update(updateName)}/>
           </div>
         </div>
-        <label>URL</label>
-        <input type="text" value={chapter.url}
-          onChange={update((c, v) => c.chapterURL = v)}
-        />
+        <div style={urlFieldStyle}>
+          <label>URL</label>
+          <input type="text" value={chapter.content.linkURL}
+            onChange={update((c, v) => c.content.linkURL = v)}
+          />
+        </div>
         <div>
           <button onClick={this.save.bind(this)}>Save</button>
           <span> </span>
@@ -152,13 +196,10 @@ export class ChapterRow extends React.Component {
         <span className="fa fa-eye"></span></a>
       </td>
       <td style={style}>{chapter.number}</td>
-      <td style={style}>{chapter.name}</td>
-      <td style={style}>{chapter.arc}</td>
-      <td><a href={chapter.url} style={style}>{urlPath(chapter.url)}</a></td>
+      <td style={style}><Content content={chapter.content}/></td>
       <td>{toDateString(chapter.added)}</td>
     </tr>
   }
-
 }
 
 function urlPath(u) {

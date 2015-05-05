@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource} from '../model/source'
-import {ChapterModel, showChapter} from '../model/chapter'
+import {ChapterModel, showChapter, isLink} from '../model/chapter'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
@@ -16,7 +16,7 @@ export class Book extends React.Component {
 
   static load(params) {
     return {
-      source: SourceModel.find(params.id), 
+      source: SourceModel.find(params.id),
       chapters: ChapterModel.findBySource(params.id),
     }
   }
@@ -26,10 +26,9 @@ export class Book extends React.Component {
     var chapters = this.props.chapters || []
     var lastChapter = last(chapters) || {}
     var shown = chapters.filter(showChapter)
-    var arcs = groupBy(shown, c => c.arc)
 
     // group them by arcs?
-    //var row = (c) => <Chapter chapter={c} key={c.id} />
+    var row = (c) => <Chapter chapter={c} key={c.id} />
 
     return <div>
       <h3> </h3>
@@ -47,9 +46,7 @@ export class Book extends React.Component {
       <hr />
 
       <div style={{marginTop: 10}}>
-        {values(arcs).map(function(cs) {
-          return <Arc chapters={cs} key={cs[0].arc}/>
-        })}
+        {shown.map(row)}
       </div>
 
       <hr />
@@ -61,20 +58,25 @@ export class Book extends React.Component {
 
 export class Chapter extends React.Component {
   render() {
-    var chapter = this.props.chapter
-    return <div>
-      <a href={chapter.url}>{chapter.name}</a>
-    </div>
+    var chapter:Chapter = this.props.chapter
+
+    var content = ""
+    if (isLink(chapter)) {
+      content = this.renderLink(this.props.chapter)
+    }
+    else {
+      content=this.renderTitle(this.props.chapter)
+    }
+
+    return <div>{content}</div>
+  }
+
+  renderLink(chapter:Chapter) {
+    return <a href={chapter.content.linkURL}>{chapter.content.linkText}</a>
+  }
+
+  renderTitle(chapter) {
+    return <h5 style={{marginTop: 15, marginBottom: 5}}>{chapter.content.titleText}</h5>
   }
 }
 
-export class Arc extends React.Component {
-  render() {
-    var chapters = this.props.chapters
-    return <div>
-      <h5>{chapters[0].arc}</h5>
-      <div>{chapters.map((c) => <Chapter chapter={c} key={c.id}/>)}</div>
-      <br />
-    </div>
-  }
-}

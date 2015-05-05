@@ -37,38 +37,20 @@ scanSource :: Source -> IO [Content]
 scanSource s = importContent (Source.url s) (importSettings s)
 
 -- this only turns a Link into a chapter, not a Title
-linkToChapter :: Text -> UTCTime -> Maybe Text -> Int -> Content -> Chapter
-linkToChapter sid time arc n (Link url text) = Chapter {
-  Chapter.id       = Chapter.urlId url,
-  Chapter.sourceId = sid,
-  Chapter.added = time,
-  Chapter.number = n,
-  Chapter.name = text,
-  Chapter.url = url,
-  Chapter.arc = arc,
-  Chapter.edited    = False,
-  Chapter.hidden   = False,
-  Chapter.link = Link url text
-}
-
---addChapter :: ((Int, Content) -> Chapter) -> (Maybe Text, [Chapter]) -> Content -> (Maybe Text, [Chapter])
---addChapter = undefined
---addChapter (ma, cs) content = 
-
-toChapters :: Text -> UTCTime -> [Content] -> [Chapter]
-toChapters sid time content = f Nothing 1 content
-    where
-    f arc _ []                 = []
-    f arc n ((Title title):cs) = f (Just title) n cs
-    f arc n (c:cs)             = toChapter arc n c : f arc (n+1) cs
-    toChapter = linkToChapter sid time
-
--- NEXT STEP: get the import to return them
--- filter out the links?
--- no, we need them IN CONTEXT
--- some kind of a fold or something
--- map (linkToChapter 
--- zip [1..]
+linkToChapter :: Text -> UTCTime -> Int -> Content -> Chapter
+linkToChapter sid time n content =
+  Chapter {
+    Chapter.id       = makeId content,
+    Chapter.sourceId = sid,
+    Chapter.added = time,
+    Chapter.number = n,
+    Chapter.edited    = False,
+    Chapter.hidden   = False,
+    Chapter.content = content
+  }
+  where
+  makeId (Link url _) = Chapter.urlId url
+  makeId (Title text) = sid <> Chapter.urlId text
 
 importSourceId :: Pool RethinkDBHandle -> Text -> IO ()
 importSourceId h sourceId = do
@@ -82,7 +64,7 @@ importSource h source = do
   content <- scanSource source
   time <- getCurrentTime
 
-  let scannedChapters = toChapters sid time content
+  let scannedChapters = map (uncurry $ linkToChapter sid time) (zip [1..] content)
 
   edits <- chapterMap <$> Chapter.bySource h sid
 
@@ -125,12 +107,12 @@ mergeChapter :: Maybe Chapter -> Chapter -> (MergeResult, Chapter)
 mergeChapter Nothing c = (New, c)
 mergeChapter (Just old) c
   | Chapter.edited old                  = (Edited,  old)
-  | Chapter.link old /= Chapter.link c  = (Updated, c)
+  | Chapter.content old /= Chapter.content c  = (Updated, c)
   | otherwise                           = (Same,    old)
 
 mergeAll :: HashMap Text Chapter -> [Chapter] -> [(MergeResult, Chapter)]
 mergeAll cm cs = map merge cs
-  where 
+  where
     merge c = mergeChapter (lookup (Chapter.id c) cm) c
 
 chapterMap :: [Chapter] -> HashMap Text Chapter

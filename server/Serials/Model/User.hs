@@ -7,22 +7,25 @@ import Prelude hiding (id)
 
 import Control.Applicative
 
+import Data.Aeson (ToJSON, FromJSON, Value(..), toJSON, parseJSON, object, (.=), (.:), (.:?), gToJSON)
 import Data.Text (Text, unpack, pack)
 import Data.ByteString.UTF8 (fromString, toString)
-import Data.Aeson (ToJSON, FromJSON, Value(..), toJSON, parseJSON, object, (.=), (.:), (.:?))
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad (mzero)
+import qualified Data.ByteString.Char8 as C
 import Data.Maybe (catMaybes, fromJust)
-import Safe (headMay)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Pool
 import Data.Time
+
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad (mzero)
 import Crypto.BCrypt
-import qualified Data.ByteString.Char8 as C
+
+import Safe (headMay)
 import Web.JWT (JSON)
 
-import GHC.Generics
+import GHC.Generics (from, Generic)
 import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table, Object)
+import Database.RethinkDB.NoClash hiding (table, Object, toJSON)
 
 import Serials.Model.UserSignup (UserSignup)
 import qualified Serials.Model.UserSignup as U
@@ -30,51 +33,32 @@ import Serials.Model.Lib.Crud
 import Serials.Lib.JWT
 
 data User = User {
-  id :: Text
-  , firstName :: Text
-  , lastName :: Text
-  , email :: Text
-  , hashedPassword :: Maybe Text
-  , admin :: Bool
-  , created :: UTCTime
-  } deriving (Show, Generic)
+  id :: Text,
+  firstName :: Text,
+  lastName :: Text,
+  email :: Text,
+  hashedPassword :: Maybe Text,
+  admin :: Bool,
+  created :: UTCTime
+} deriving (Show, Generic)
 
 instance FromJSON User where
-  parseJSON (Object v) = User
-    <$> v .: "id"
-    <*> v .: "firstName"
-    <*> v .: "lastName"
-    <*> v .: "email"
-    <*> v .:? "hashedPassword"
-    <*> v .: "admin"
-    <*> v .: "created"
-  parseJSON _ = mzero
-
 instance ToJSON User where
-  toJSON (User id firstName lastName email hashedPassword admin created) = object $ catMaybes
-    [ ("id" .=) <$> pure id
-    , ("firstName" .=) <$> pure firstName
-    , ("lastName" .=) <$> pure lastName
-    , ("email" .=) <$> pure email
-    , ("admin" .=) <$> pure admin
-    , ("created" .=) <$> pure created
-    ]
 
 instance FromDatum User
 instance ToDatum User where
-  toDatum (User id firstName lastName email hashedPassword admin created) = toDatum . object $ catMaybes
-    [ ("id" .=) <$> pure id
-    , ("firstName" .=) <$> pure firstName
-    , ("lastName" .=) <$> pure lastName
-    , ("email" .=) <$> pure email
-    , ("hashedPassword" .=) <$> hashedPassword
-    , ("admin" .=) <$> pure admin
-    , ("created" .=) <$> pure created
-    ]
+
+-- use SecureUser when you want to hide the hashedPassword
+newtype SecureUser = SecureUser User deriving (Show, Generic)
+
+instance FromJSON SecureUser
+instance ToJSON SecureUser where
+  toJSON (SecureUser user) = Object $ HashMap.delete "hashedPassword" obj
+    where (Object obj) = toJSON user
 
 -- Used for signup/login to pass back user and token
 data AuthUser = AuthUser {
-  user :: User
+  user :: SecureUser
   , token :: JSON
   } deriving (Show, Generic)
 
@@ -94,6 +78,9 @@ find h id = runPool h $ table # get (expr id)
 
 findByEmail :: Pool RethinkDBHandle -> Text -> IO [User]
 findByEmail h email = runPool h $ table # getAll emailIndex [expr email]
+
+secure :: (Functor m) => m User -> m SecureUser
+secure = fmap SecureUser
 
 insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text AuthUser)
 insert h u = do
@@ -117,7 +104,7 @@ insert h u = do
             r <- runPool h $ table # create user'
             let user = user' {id = generatedKey r}
             jwtToken <- signedJwtWebToken $ id user
-            return . Right $ AuthUser user jwtToken
+            return . Right $ AuthUser (SecureUser user) jwtToken
           Just _-> return $ Left "User already exists with that email"
     else return $ Left "Password and Password Confirmation do not match"
 

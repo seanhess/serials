@@ -27,7 +27,7 @@ import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
-import Serials.Model.User (User(..), AuthUser)
+import Serials.Model.User (User(..), AuthUser, SecureUser, secure)
 import Serials.Model.UserSignup (UserSignup)
 import Serials.Model.BetaSignup (BetaSignup(..))
 import qualified Serials.Model.Source as Source
@@ -60,6 +60,11 @@ type API =
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
+
+  :<|> "users" :> Capture "id" Text :> Get SecureUser
+  :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
+  :<|> "users" :> Capture "id" Text :> "books" :> Post ()
+  :<|> "users" :> Capture "id" Text :> "books" :> Capture "id" Text :> Delete
 
   :<|> "signup" :> ReqBody UserSignup :> Post AuthUser
   :<|> "login" :> ReqBody UserLogin :> Post AuthUser
@@ -111,6 +116,7 @@ server h =
   :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
   :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
   :<|> chapterGet  :<|> chapterPut
+  :<|> userGet :<|> userBooksGet :<|> userBooksPost :<|> userBooksDel
   :<|> signup :<|> login :<|> authCurrent
   :<|> betaSignup
   :<|> authTokenServer h
@@ -133,6 +139,12 @@ server h =
 
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE $ Chapter.save h c
+
+  userGet :: Text -> EitherT (Int, String) IO SecureUser
+  userGet id   = liftE $ secure <$> User.find h id
+  userBooksGet  id = return []
+  userBooksPost id = return ()
+  userBooksDel  id sourceId = return ()
 
   signup u = liftE $ User.insert h u
   login u = liftE $ userLogin h u

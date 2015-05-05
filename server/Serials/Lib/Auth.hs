@@ -26,7 +26,7 @@ import Web.JWT (JSON)
 import qualified Data.Text as T
 
 import Serials.Lib.JWT
-import Serials.Model.User (User (id, hashedPassword), AuthUser(..))
+import Serials.Model.User (User (id, hashedPassword), AuthUser(..), SecureUser(..))
 import qualified Serials.Model.User as User hiding (User())
 
 data UserLogin = UserLogin {
@@ -83,5 +83,5 @@ userLogin h u = do
       jwtToken <- signedJwtWebToken $ id user
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
-        True -> return $ Right $ AuthUser user jwtToken
+        True -> return $ Right $ AuthUser (SecureUser user) jwtToken
 

@@ -4,6 +4,7 @@ import Promise from 'bluebird'
 
 import {Get, Post, Put, Del, url} from '../api'
 import {getLocalStorage, updateLocalStorage} from '../helpers'
+import {EventEmitter} from 'events'
 
 // UserModel //////////////////////////////////////
 
@@ -18,19 +19,37 @@ export type User = {
 }
 
 export type Login = {
-
+  email:string;
+  password:string;
 }
 
 export type Signup = {
-
+  firstName:string;
+  lastName:string;
+  email:string;
+  password:string;
+  passwordConfirmation:string;
 }
 
+// methods for logging in and out
+// also currently logged in state
+export class UserModel {
 
-export var UserModel = {
-  checkAuth() {
-    var token = getLocalStorage('userToken')
-    return Get(url('auth/current?token=' + token))
-  },
+  currentUser: ?User;
+
+  constructor() {
+    this.currentUser = null
+    this.events = new EventEmitter()
+  }
+
+  //// Auth ////////////////////////////////
+  auth():Promise<User> {
+    if (this._auth) {
+      return this._auth
+    }
+    this._auth = this._checkAuth()
+    return this._auth
+  }
 
   login(login:Login) {
     return Post(url('login'), login)
@@ -38,14 +57,15 @@ export var UserModel = {
       updateLocalStorage('userToken', obj.token)
       return obj.user
     })
-  },
+    .then(u => this._updateAuth(u))
+  }
 
   logout() {
-    return new Promise((resolve, reject) => {
-      updateLocalStorage('userToken', null)
-      resolve()
-    })
-  },
+    updateLocalStorage('userToken', null)
+    return Promise.resolve(null)
+    .then(() => this._clearAuth())
+    .then(u => this._updateAuth(u))
+  }
 
   signup(signup:Signup) {
     return Post(url('signup'), signup)
@@ -53,6 +73,37 @@ export var UserModel = {
       updateLocalStorage('userToken', obj.token)
       return obj.user
     })
-  },
+    .then(u => this._updateAuth(u))
+  }
+
+
+  //// Changes //////////////////////////////
+  bind(f:Function) {
+    this.events.on('change', f)
+  }
+
+  // private
+  _auth: ?Promise<User>;
+
+  _checkAuth() {
+    console.log("CHECK AUTH: should only be called once")
+    var token = getLocalStorage('userToken')
+    return Get(url('auth/current?token=' + token))
+    .then(u => this._updateAuth(u))
+  }
+
+  _updateAuth(user:User):Promise<User> {
+    this.currentUser = user
+    this.events.emit('change', this)
+    return user
+  }
+
+  _clearAuth():void {
+    this._auth = null
+    this.currentUser = null
+  }
 }
+
+export var Users = new UserModel()
+
 

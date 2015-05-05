@@ -30,24 +30,27 @@ import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), AuthUser, SecureUser, secure)
 import Serials.Model.UserSignup (UserSignup)
 import Serials.Model.BetaSignup (BetaSignup(..))
+import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
 import qualified Serials.Model.BetaSignup as BetaSignup
+import qualified Serials.Model.Subscription as Subscription
 import Serials.Model.App
 import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, userLogin, checkCurrentAuth)
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 
---import Web.Scotty
 import Servant
 
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
 import qualified Database.RethinkDB as R
 
+-- if you use (Maybe a) with liftIO it will return null instead of a 404
+-- this is intentional for some routes
 type API =
-  "sources" :> Get [Source]
+       "sources" :> Get [Source]
   :<|> "sources" :> ReqBody Source :> Post Text
 
   :<|> "sources" :> Capture "id" Text :> Get Source
@@ -63,12 +66,15 @@ type API =
 
   :<|> "users" :> Capture "id" Text :> Get SecureUser
   :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
-  :<|> "users" :> Capture "id" Text :> "books" :> Post ()
-  :<|> "users" :> Capture "id" Text :> "books" :> Capture "id" Text :> Delete
+
+  :<|> "users" :> Capture "id" Text :> "subs" :> Get [Subscription]
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get (Maybe Subscription)
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Put ()
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete
 
   :<|> "signup" :> ReqBody UserSignup :> Post AuthUser
   :<|> "login" :> ReqBody UserLogin :> Post AuthUser
-  :<|> "auth" :> "current" :> QueryParam "token" Text :> Get User
+  :<|> "auth" :> "current" :> QueryParam "token" Text :> Get SecureUser
 
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
 
@@ -116,7 +122,9 @@ server h =
   :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
   :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
   :<|> chapterGet  :<|> chapterPut
-  :<|> userGet :<|> userBooksGet :<|> userBooksPost :<|> userBooksDel
+  :<|> userGet
+  :<|> userBooksGet
+  :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubDel
   :<|> signup :<|> login :<|> authCurrent
   :<|> betaSignup
   :<|> authTokenServer h
@@ -140,15 +148,18 @@ server h =
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE $ Chapter.save h c
 
-  userGet :: Text -> EitherT (Int, String) IO SecureUser
   userGet id   = liftE $ secure <$> User.find h id
-  userBooksGet  id = return []
-  userBooksPost id = return ()
-  userBooksDel  id sourceId = return ()
+
+  userBooksGet uid = liftIO $ Subscription.booksByUser h uid
+
+  userSubsGet uid    = liftIO $ Subscription.subsByUser h uid
+  userSubGet uid sid = liftIO $ Subscription.find h uid sid
+  userSubPut uid sid = liftIO $ Subscription.add h uid sid
+  userSubDel uid sid = liftIO $ Subscription.remove h uid sid
 
   signup u = liftE $ User.insert h u
   login u = liftE $ userLogin h u
-  authCurrent t = liftE $ checkCurrentAuth h t
+  authCurrent t = liftE $ secure <$> checkCurrentAuth h t
 
   betaSignup b = liftIO $ BetaSignup.insert h b
 
@@ -169,6 +180,7 @@ runApi port p = do
   Chapter.init p
   User.init p
   BetaSignup.init p
+  Subscription.init p
   putStrLn $ "Starting..."
   run port $ stack $ serve api (server p)
   return ()
@@ -179,7 +191,7 @@ corsResourcePolicy :: CorsResourcePolicy
 corsResourcePolicy = CorsResourcePolicy
   { corsOrigins = Nothing
   , corsMethods = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"]
-  , corsRequestHeaders = simpleResponseHeaders
+  , corsRequestHeaders = simpleResponseHeaders <> ["Authorization"]
   , corsExposedHeaders = Nothing
   , corsMaxAge = Nothing
   , corsVaryOrigin = False

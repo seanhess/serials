@@ -37,6 +37,21 @@ export class Gallery extends React.Component {
       })
     }
 
+    return <div style={{marginTop: 15}}>
+      <div>
+        <input type="text" value={this.state.search} placeholder="Find Book" onChange={this.search.bind(this)}/>
+      </div>
+      <SimpleGallery sources={sources} />
+      <hr />
+      <SuggestBook />
+    </div>
+  }
+}
+
+export class SimpleGallery extends React.Component {
+
+  render() {
+    var sources:Array<Source> = this.props.sources || []
     var row = (s) => <GalleryCover source={s} key={s.id} />
 
     var style = {
@@ -46,15 +61,8 @@ export class Gallery extends React.Component {
       textAlign: 'center'
     }
 
-    return <div style={{marginTop: 15}}>
-      <div>
-        <input type="text" value={this.state.search} placeholder="Find Book" onChange={this.search.bind(this)}/>
-      </div>
-      <div style={style}>
-        {sources.map(row)}
-      </div>
-      <hr />
-      <SuggestBook />
+    return <div style={style}>
+      {sources.map(row)}
     </div>
   }
 }

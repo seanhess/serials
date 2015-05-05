@@ -54,7 +54,7 @@ instance ToDatum Source
 table = R.table "sources"
 
 list :: Pool RethinkDBHandle -> IO [Source]
-list h = runPool h $ table
+list h = runPool h $ table # orderBy [asc "id"]
 
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe Source)
 find h id = runPool h $ table # get (expr id)

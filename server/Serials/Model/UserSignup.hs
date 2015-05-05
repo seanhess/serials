@@ -14,12 +14,12 @@ import GHC.Generics
 import Database.RethinkDB.NoClash hiding (table)
 
 data UserSignup = UserSignup {
-  firstName :: Text
-  , lastName :: Text
-  , email :: Text
-  , password :: Text
-  , passwordConfirmation :: Text
-  } deriving (Show, Generic)
+  firstName :: Text,
+  lastName :: Text,
+  email :: Text,
+  password :: Text,
+  passwordConfirmation :: Text
+} deriving (Show, Generic)
 
 instance FromJSON UserSignup
 instance ToJSON UserSignup

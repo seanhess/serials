@@ -10,30 +10,35 @@ port="3001"
 
 ###################################################
 
-echo "DEPLOY"
-echo "-----------------------"
-
 # NOTE: the rethinkdb container must be started by hand?
 
 # download it
-ssh -t -t root@dev.orbit.al << END
-echo "REMOTE"
+ssh root@dev.orbit.al << END
+echo "== REMOTE ============"
 set -e
 
 # clean up and pull latest
+echo "-- pull --------------"
 docker pull $image
+
+echo "-- stop --------------"
 docker stop $name
+
+echo "-- rm --------------"
 docker rm $name
 
 # run the application with the database linked
+echo "-- run --------------"
 docker run -it -d  \
   --name $name     \
   --restart=always \
   --link rethinkdb:rethinkdb \
   -p $port:$port \
   $image
-  exit 0
 END
+
+# this may be exiting cron!
+# exit 0
 
 # TODO private docker registry. Actually get it to work!
 # https://docs.docker.com/registry/deploying/

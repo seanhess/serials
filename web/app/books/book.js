@@ -6,11 +6,17 @@ import Promise from 'bluebird'
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink} from '../model/chapter'
+import {Users} from '../model/user'
+import {findSubscription, setSubscribed} from '../model/subscription'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last, groupBy, values} from 'lodash'
+
+function loadSubscription(params) {
+  return Users.auth().then((user) => findSubscription(user.id, params.id))
+}
 
 export class Book extends React.Component {
 
@@ -18,10 +24,35 @@ export class Book extends React.Component {
     return {
       source: SourceModel.find(params.id),
       chapters: ChapterModel.findBySource(params.id),
+      subscription: loadSubscription(params)
     }
   }
 
+  constructor(props) {
+    super(props)
+    this.state = {subscription: null}
+  }
+
+  toggleSubscribe() {
+    var hasSubscription = !!this.state.subscription
+    var sourceId = this.props.params.id
+    return Users.auth()
+    .then((user) => setSubscribed(user.id, sourceId, !hasSubscription))
+    .then(() => this.reloadSubscription())
+  }
+
+  reloadSubscription() {
+    return loadSubscription(this.props.params)
+    .then((sub) => this.setState({subscription: sub}))
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({subscription: props.subscription})
+  }
+
   render() {
+    var subscription = this.state.subscription
+
     var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
     var lastChapter = last(chapters) || {}
@@ -44,6 +75,10 @@ export class Book extends React.Component {
         </div>
       </div>
 
+      <div style={{clear: 'both'}}>
+        {this.renderSubscribe(subscription)}
+      </div>
+
       <hr />
 
       <div style={{marginTop: 10}}>
@@ -54,6 +89,18 @@ export class Book extends React.Component {
 
       <SomethingWrong />
     </div>
+  }
+
+  renderSubscribe(subscription) {
+    var hasSubscription = !!subscription
+    var className = "expand"
+    var text = "Subscribe"
+    if (hasSubscription) {
+      className += " secondary"
+      text = "Unsubscribe"
+    }
+
+    return <button className={className} onClick={this.toggleSubscribe.bind(this)}>{text}</button>
   }
 }
 

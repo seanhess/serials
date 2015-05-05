@@ -2,7 +2,7 @@
 import React from 'react'
 
 import {FormSection} from '../comp'
-import {UserModel} from '../model/user'
+import {Users} from '../model/user'
 import {makeUpdate} from '../data/update'
 
 var emptyLogin = function() {
@@ -19,12 +19,12 @@ export class Login extends React.Component {
     this.state = {login: emptyLogin()}
   }
 
-  onSubmit() {
+  onSubmit(e) {
+    e.preventDefault()
     var login = this.state.login
-    UserModel.login(login)
+    Users.login(login)
     .then((user) => {
       if (user) {
-        this.props.setCurrentUser(user)
         this.setState({login: emptyLogin()})
         window.location.hash = "/"
       }
@@ -39,7 +39,7 @@ export class Login extends React.Component {
 
     return <div>
       <FormSection title="Login">
-        <div>
+        <form onSubmit={this.onSubmit.bind(this)}>
           <label>Email</label>
           <input type="text"
             value={login.email}
@@ -51,8 +51,8 @@ export class Login extends React.Component {
             onChange={update((s, v) => s.password = v)}
           />
 
-          <button className="" onClick={this.onSubmit.bind(this)}>Submit</button>
-        </div>
+          <button>Submit</button>
+        </form>
       </FormSection>
     </div>
   }

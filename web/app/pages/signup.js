@@ -2,7 +2,7 @@
 import React from 'react'
 
 import {FormSection} from '../comp'
-import {UserModel} from '../model/user'
+import {Users} from '../model/user'
 import {makeUpdate} from '../data/update'
 
 var emptySignup = function() {
@@ -24,7 +24,7 @@ export class Signup extends React.Component {
 
   onSubmit() {
     var signup = this.state.signup
-    UserModel.signup(signup)
+    Users.signup(signup)
     .then((user) => {
       if (user) {
         this.props.setCurrentUser(user)

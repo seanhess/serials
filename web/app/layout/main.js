@@ -5,6 +5,7 @@ import React from 'react'
 
 import {RouteHandler, Link} from 'react-router'
 import {assign} from 'lodash'
+import {Users} from '../model/user'
 
 export class MainContainer extends React.Component {
   render() {
@@ -39,13 +40,19 @@ var NavBar = {
 }
 
 export class Header extends React.Component {
+
+  logout() {
+    Users.logout()
+  }
+
   renderCurrentUser() {
     var currentUser = this.props.currentUser;
 
     if (currentUser) {
       return <div style={{display: 'inline-block'}}>
+        <Link style={LinkStyle} to="library" params={{id: this.props.currentUser.id}}>My Books</Link>
         <p style={LinkStyle}>Hello, {this.props.currentUser.firstName}</p>
-        <a style={LinkStyle} onClick={this.props.logout}>Logout</a>
+        <a style={LinkStyle} onClick={this.logout.bind(this)}>Logout</a>
       </div>
     }
 

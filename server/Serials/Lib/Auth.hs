@@ -30,9 +30,9 @@ import Serials.Model.User (User (id, hashedPassword), AuthUser(..), SecureUser(.
 import qualified Serials.Model.User as User hiding (User())
 
 data UserLogin = UserLogin {
-  email :: Text
-  , password :: Text
-  } deriving (Show, Generic)
+  email :: Text,
+  password :: Text
+} deriving (Show, Generic)
 
 instance FromJSON UserLogin
 instance ToJSON UserLogin

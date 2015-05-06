@@ -21,5 +21,5 @@ RUN cabal build
 # see bin/build
 ADD ./web    /opt/serials/web
 
-CMD ["./dist/build/serials/serials api"]
+CMD ["./dist/build/Serials/serials api"]
 

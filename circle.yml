@@ -19,7 +19,6 @@ deployment:
   hub:
     branch: master
     commands:
-      - bin/sync
-      - bin/remote
+      - bin/push
 
 

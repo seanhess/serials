@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-bin/build
-bin/push
+bin/sync
+bin/remote

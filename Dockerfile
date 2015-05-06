@@ -22,5 +22,5 @@ RUN cabal install
 # see bin/build
 ADD ./web    /opt/serials/web
 
-CMD [".cabal-sandbox/bin/serials api"]
+CMD [".cabal-sandbox/bin/serials","api"]
 

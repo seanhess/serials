@@ -1,0 +1,5 @@
+#!/bin/bash
+
+server="root@serials.orbit.al"
+
+rsync -rav -e ssh --delete --exclude-from .rsyncignore . $server:/opt/serials

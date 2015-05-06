@@ -4,6 +4,10 @@ set -e
 echo "
 == BUILD ==================="
 version=$(git log -1 --format="%h | %ad | %an | %s")
+
+# TODO I need to include a text file statically in the build somehow
+# maybe write to .cabal file?
+
 echo $version
 echo $version > web/version.txt
 
@@ -20,9 +24,9 @@ echo "
 -- webpack ------------------"
 cd web && webpack -p && cd ..
 
-echo "
--- docker ------------------"
-docker build -t seanhess/serials .
+#echo "
+#-- docker ------------------"
+#docker build -t seanhess/serials .
 # push as a separate command!
 # docker push seanhess/serials
 

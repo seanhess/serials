@@ -31,11 +31,22 @@ ln -s /vagrant/rethinkdb_data /var/lib/rethinkdb/instance1/data
 sudo apt-add-repository ppa:hvr/ghc -y
 sudo apt-get update
 sudo apt-get install -y ghc-7.8.3 cabal-install-1.22
-echo $'\n\nexport PATH=/opt/ghc/7.8.3/bin:/opt/cabal/1.22/bin:$PATH' >> /home/vagrant/.bashrc
+echo $'\n\nexport PATH=/opt/ghc/7.8.3/bin:/opt/cabal/1.22/bin:$PATH' >> ~/.bashrc
+
+####### Node ########################################
+curl -sL https://deb.nodesource.com/setup | sudo bash -
+sudo apt-get install -y nodejs
+npm install webpack
+
+###### it needs extra memory to complete the install
+dd if=/dev/zero of=/tmp/swap bs=1M count=1024
+mkswap /tmp/swap
+swapon /tmp/swap
 
 ####### Init Project ###########################################################
 cd /vagrant
 cabal sandbox init
 cabal update
 cabal install --only-dependencies
+
 

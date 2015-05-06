@@ -3,62 +3,14 @@ set -e
 
 ####################################################
 
-name="serials"
-server="root@dev.orbit.al"
-image="seanhess/$name"
-port="3001"
+server="root@serials.orbit.al"
 
 ###################################################
 
-# NOTE: the rethinkdb container must be started by hand?
-
-# Save the contents of cron.conf
-cron=`cat conf/cron.conf`
-
 # download it
-ssh -t -t root@dev.orbit.al << END
-echo "== REMOTE ============"
-set -e
-
-# clean up and pull latest
-echo "-- pull --------------"
-docker pull $image
-
-echo "-- stop --------------"
-docker stop $name
-
-echo "-- rm --------------"
-docker rm $name
-
-# install the cron file, but... I don't have it...
-echo "-- cron ------------"
-echo "$cron" > /etc/cron.d/serials
-echo "$cron"
-
-# run the application with the database linked
-echo "-- run --------------"
-docker run -it -d  \
-  --name $name     \
-  --restart=always \
-  --link rethinkdb:rethinkdb \
-  -p $port:$port \
-  $image
-
+ssh -t -t $server << END
+cd /opt/serials
+bash bin/remote.sh
 exit 0
 END
 
-# this may be exiting cron!
-# exit 0
-
-# TODO private docker registry. Actually get it to work!
-# https://docs.docker.com/registry/deploying/
-
-# TODO automatic rethinkdb running?
-
-# Must be run once on the server
-#docker run -it -d  \
-  #--name rethinkdb \
-  #--restart=always \
-  #-p 8080:8080   \
-  #-v /data:/data \
-  #rethinkdb:1.16

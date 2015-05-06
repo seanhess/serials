@@ -1,13 +1,14 @@
 // @flow
 
 import React from 'react'
+import {Link} from 'react-router'
 import Promise from 'bluebird'
 
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
-import {ChapterModel, showChapter, isLink} from '../model/chapter'
+import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
 import {Users} from '../model/user'
-import {findSubscription, setSubscribed} from '../model/subscription'
+import {findSubscription, saveSubscription} from '../model/subscription'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
@@ -34,10 +35,16 @@ export class Book extends React.Component {
   }
 
   toggleSubscribe() {
-    var hasSubscription = !!this.state.subscription
-    var sourceId = this.props.params.id
-    return Users.auth()
-    .then((user) => setSubscribed(user.id, sourceId, !hasSubscription))
+
+    var sub = this.state.subscription
+    if (!sub) {
+      // TODO: get them to log in
+      return
+    }
+
+    sub.subscribed = !sub.subscribed
+
+    return saveSubscription(sub)
     .then(() => this.reloadSubscription())
   }
 
@@ -92,7 +99,7 @@ export class Book extends React.Component {
   }
 
   renderSubscribe(subscription) {
-    var hasSubscription = !!subscription
+    var hasSubscription = subscription && subscription.subscribed
     var className = "expand"
     var text = "Subscribe"
     if (hasSubscription) {
@@ -132,7 +139,9 @@ export class Chapter extends React.Component {
   }
 
   renderLink(chapter:Chapter) {
-    return <a href={chapter.content.linkURL}>{chapter.content.linkText}</a>
+    return <Link to="chapter" params={{id: chapter.id}}>
+      {chapter.content.linkText}
+    </Link>
   }
 
   renderTitle(chapter) {

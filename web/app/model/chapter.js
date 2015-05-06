@@ -73,3 +73,17 @@ export function showChapter(chapter:Chapter):bool {
 export function isLink(chapter:Chapter):bool {
   return chapter.content.tag == "Link"
 }
+
+export function proxyURL(remoteUrl:string):string {
+  return url('proxy', encodeURIComponent(remoteUrl))
+}
+
+export function chapterProxyURL(chapter:Chapter):string {
+  var content:ContentLink = (chapter.content : any)
+  return proxyURL(content.linkURL)
+}
+
+export function findChapter(id:string):Promise<Chapter> {
+  return Get(url('chapters', id))
+}
+

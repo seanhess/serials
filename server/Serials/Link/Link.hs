@@ -6,9 +6,10 @@ module Serials.Link.Link where
 import Prelude hiding (dropWhile)
 
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text hiding (map, zip)
+import Data.Text hiding (map, zip, elem)
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe, fromJust)
+import Data.List (elem)
 
 import Control.Lens ((^.))
 
@@ -55,8 +56,9 @@ contentText (Title txt) = txt
 (</>) :: URL -> URL -> URL
 (</>) base path = fromMaybe path $ do
     b <- parseURIReference $ unpack $ strip base
-    p <- parseURIReference $ unpack $ strip path
+    p <- parseURIReference $ clean $ unpack $ strip path
     return $ pack $ show $ p `relativeTo` b
+    where clean = escapeURIString (`elem` "[]")
 
 infixr 6 </>
 

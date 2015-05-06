@@ -18,6 +18,7 @@ import {MainContainer, Header} from './app/layout/main'
 import {Gallery} from './app/books/gallery'
 import {Library} from './app/books/library'
 import {Book} from './app/books/book'
+import {Read} from './app/books/read'
 import {About} from './app/pages/about'
 import {Login} from './app/pages/login'
 import {Signup} from './app/pages/signup'
@@ -70,10 +71,16 @@ var routes = (
       <Route name='signup' handler={Signup}/>
       <Route name="about" handler={About}/>
     </Route>
+
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
       <Route name="book" path=":id" handler={Book} />
     </Route>
+
+    <Route name="chapters" path="chapters">
+      <Route name="chapter" path=":id" handler={Read} />
+    </Route>
+
     <Route name="admin" handler={Admin}>
       <Route name="sources" handler={Sources}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
@@ -85,6 +92,7 @@ var routes = (
     <NotFoundRoute handler={NotFound} />
   </Route>
 )
+
 
 var lastHandler:any
 var lastState:any

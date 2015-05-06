@@ -41,6 +41,7 @@ import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, 
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
+import Serials.Proxy.Test (proxyApp)
 
 import Servant
 
@@ -68,8 +69,8 @@ type API =
   :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
 
   :<|> "users" :> Capture "id" Text :> "subs" :> Get [Subscription]
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get (Maybe Subscription)
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Put ()
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get Subscription
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> ReqBody Subscription :> Put ()
   :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete
 
   :<|> "signup" :> ReqBody UserSignup :> Post AuthUser
@@ -77,6 +78,8 @@ type API =
   :<|> "auth" :> "current" :> QueryParam "token" Text :> Get SecureUser
 
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
+
+  :<|> "proxy" :> Raw
 
   -- We need to have this prefixed for the time being because of how HasServer instances work in 0.2
   -- 0.3 should have more ability to customize this stuff to our liking
@@ -127,6 +130,7 @@ server h =
   :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubDel
   :<|> signup :<|> login :<|> authCurrent
   :<|> betaSignup
+  :<|> proxy
   :<|> authTokenServer h
   :<|> serveDirectory "web"
 
@@ -154,7 +158,8 @@ server h =
 
   userSubsGet uid    = liftIO $ Subscription.subsByUser h uid
   userSubGet uid sid = liftIO $ Subscription.find h uid sid
-  userSubPut uid sid = liftIO $ Subscription.add h uid sid
+  userSubPut uid sid sub = liftIO $ Subscription.save h uid sid sub
+  --userSubPost uid sid = liftIO $ Subscription.add h uid sid
   userSubDel uid sid = liftIO $ Subscription.remove h uid sid
 
   signup u = liftE $ User.insert h u
@@ -162,6 +167,8 @@ server h =
   authCurrent t = liftE $ secure <$> checkCurrentAuth h t
 
   betaSignup b = liftIO $ BetaSignup.insert h b
+
+  proxy = proxyApp
 
 
 stack :: Application -> Application

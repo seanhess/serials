@@ -10,11 +10,14 @@ import Data.Aeson (ToJSON, FromJSON)
 import Data.Time
 import Data.Pool
 import Data.Monoid ((<>))
+import Data.Maybe (fromMaybe)
 
 import Debug.Trace
 
 import Database.RethinkDB.NoClash hiding (table)
 import qualified Database.RethinkDB as R
+
+import Control.Applicative
 
 import GHC.Generics
 
@@ -26,14 +29,23 @@ data Subscription = Subscription {
   id :: Text,
   userId :: Text,
   sourceId :: Text,
-  added :: UTCTime
-  -- TODO store progress here
+  added :: UTCTime,
+  subscribed :: Bool,
+  readChapters :: [ReadChapter]
+} deriving (Show, Generic)
+
+data ReadChapter = ReadChapter {
+  chapterId :: Text,
+  time :: UTCTime
 } deriving (Show, Generic)
 
 instance FromJSON Subscription
 instance ToJSON Subscription
 instance FromDatum Subscription
 instance ToDatum Subscription
+
+instance FromJSON ReadChapter
+instance ToJSON ReadChapter
 
 table = R.table "subscriptions"
 
@@ -42,22 +54,35 @@ userIndex = Index userField
 
 sourceField = "sourceId" :: Text
 
---getAll userIndex [expr id] # 
+-- I only want things I'm actually subscribed to
 booksByUser :: Pool RethinkDBHandle -> Text -> IO [Source]
-booksByUser h id = runPool h $ table # eqJoin sourceField (Source.table) (Index "id") # R.zip # orderBy [asc "id"]
+booksByUser h id = runPool h $ table
+  # eqJoin sourceField (Source.table) (Index "id")
+  # R.zip # orderBy [asc "id"]
 
 subsByUser :: Pool RethinkDBHandle -> Text -> IO [Subscription]
 subsByUser h id = runPool h $ table # getAll userIndex [expr id] # orderBy [asc "id"]
 
+-- save vs add?
+-- post vs put?
 add :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 add h uid sid = do
     time <- getCurrentTime
     let id = subId uid sid
-        sub = Subscription id uid sid time
+        sub = Subscription id uid sid time True []
     runPool h $ table # insert (toDatum sub)
 
-find :: Pool RethinkDBHandle -> Text -> Text -> IO (Maybe Subscription)
-find h uid sid = runPool h $ table # get (expr (subId uid sid))
+save :: Pool RethinkDBHandle -> Text -> Text -> Subscription -> IO ()
+save h uid sid sub = runPool h $ table # get (expr (subId uid sid)) # replace (const $ toDatum sub)
+
+find :: Pool RethinkDBHandle -> Text -> Text -> IO (Subscription)
+find h uid sid = do
+  ms <- runPool h $ table # get (expr (subId uid sid))
+  case ms of
+    Nothing -> do
+      time <- getCurrentTime
+      return $ Subscription (subId uid sid) uid sid time False []
+    Just s -> return s
 
 remove :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 remove h uid sid = runPool h $ table # get (expr (subId uid sid)) # delete

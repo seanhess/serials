@@ -12,8 +12,11 @@ port="3001"
 
 # NOTE: the rethinkdb container must be started by hand?
 
+# Save the contents of cron.conf
+cron=`cat conf/cron.conf`
+
 # download it
-ssh root@dev.orbit.al << END
+ssh -t -t root@dev.orbit.al << END
 echo "== REMOTE ============"
 set -e
 
@@ -27,6 +30,11 @@ docker stop $name
 echo "-- rm --------------"
 docker rm $name
 
+# install the cron file, but... I don't have it...
+echo "-- cron ------------"
+echo "$cron" > /etc/cron.d/serials
+echo "$cron"
+
 # run the application with the database linked
 echo "-- run --------------"
 docker run -it -d  \
@@ -35,6 +43,8 @@ docker run -it -d  \
   --link rethinkdb:rethinkdb \
   -p $port:$port \
   $image
+
+exit 0
 END
 
 # this may be exiting cron!

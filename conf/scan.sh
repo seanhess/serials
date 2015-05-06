@@ -1,3 +1,4 @@
 #!/bin/bash
 
-/opt/serials/dist/build/serials/serials scan >> /var/log/serials.log 2>&1
+/root/.cabal/bin/serials scan >> /var/log/serials.log 2>&1
+

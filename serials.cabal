@@ -6,7 +6,7 @@ version:             0.1.0.1
 synopsis:            serials
 description:         serials
 license:             MIT
-license-file:        README.md
+license-file:        LICENSE
 author:              Sean Hess
 maintainer:          Sean Hess
 -- copyright:

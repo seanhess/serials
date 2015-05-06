@@ -1,4 +1,4 @@
 #!/bin/bash
 
-/root/.cabal/bin/serials scan >> /var/log/serials.log 2>&1
+/opt/serials/.cabal-sandbox/bin/serials scan >> /var/log/serials.log 2>&1
 

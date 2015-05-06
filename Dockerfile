@@ -6,8 +6,9 @@ WORKDIR /opt/serials
 RUN apt-get update && apt-get install -y libpcre3 libpcre3-dev libcurl4-openssl-dev cron vim rsyslog
 
 # Add New Dependencies
-ADD ./serials.cabal ./cabal.config /opt/serials/
-RUN cabal update && \
+ADD ./serials.cabal ./cabal.config LICENSE /opt/serials/
+RUN cabal sandbox init && \
+    cabal update && \
     cabal install --only-dependencies
 
 # install config files and scripts
@@ -21,5 +22,5 @@ RUN cabal install
 # see bin/build
 ADD ./web    /opt/serials/web
 
-CMD ["/root/.cabal/bin/serials api"]
+CMD [".cabal-sandbox/bin/serials api"]
 

@@ -3,63 +3,14 @@ set -e
 
 ####################################################
 
-name="serials"
-server="root@45.55.235.171"
-port="80"
+server="root@serials.orbit.al"
 
 ###################################################
 
 # download it
 ssh -t -t $server << END
-echo "== REMOTE ============"
-set -e
-cd /opt/$name
-
-# compile application
-echo "-- cabal ----------------"
-cabal sandbox init
-cabal update 
-cabal install --only-dependencies
-cabal install
-
-# install upstart script
-echo "-- cron ----------------"
-cp ./conf/cron.conf /etc/cron.d/serials
-
-# run the application with the database linked
-echo "-- run --------------"
-cp ./conf/serials.upstart.conf /etc/init/serials.conf
-
-if ( status serials | grep start ); then
-  echo "- restarting"
-  restart serials
-else
-  echo "- starting"
-  start serials
-fi
-
+cd /opt/serials
+bash bin/remote.sh
 exit 0
-
 END
 
-# install the cron file, but... I don't have it...
-# echo "-- cron ------------"
-# echo "$cron" > /etc/cron.d/serials
-# echo "$cron"
-
-
-# this may be exiting cron!
-# exit 0
-
-# TODO private docker registry. Actually get it to work!
-# https://docs.docker.com/registry/deploying/
-
-# TODO automatic rethinkdb running?
-
-# Must be run once on the server
-#docker run -it -d  \
-  #--name rethinkdb \
-  #--restart=always \
-  #-p 8080:8080   \
-  #-v /data:/data \
-  #rethinkdb:1.16

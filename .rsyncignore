@@ -5,5 +5,11 @@ log/*
 dist
 .vagrant
 .cabal-sandbox
+cabal.sandbox.config
 node_modules
-
+web/build/*hot-update*
+npm-debug.log
+.vagrant/
+.vagrant
+rethinkdb_data
+.lvimrc

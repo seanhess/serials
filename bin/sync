@@ -1,0 +1,6 @@
+#!/bin/bash
+
+server="root@45.55.235.171"
+name="serials"
+
+rsync -rav -e ssh --delete --exclude-from .rsyncignore . $server:/opt/$name

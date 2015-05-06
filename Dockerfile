@@ -13,6 +13,7 @@ RUN cabal sandbox init && \
 
 # install config files and scripts
 ADD ./conf/  /opt/serials/conf/
+RUN crontab ./conf/cron.conf
 
 ## Install Haskell Application
 ADD ./server /opt/serials/server
@@ -22,5 +23,5 @@ RUN cabal install
 # see bin/build
 ADD ./web    /opt/serials/web
 
-CMD [".cabal-sandbox/bin/serials","api"]
-
+#CMD [".cabal-sandbox/bin/serials","api"]
+CMD ["/bin/bash", "./conf/run.sh"]

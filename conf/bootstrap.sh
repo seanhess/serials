@@ -38,3 +38,4 @@ cd /vagrant
 cabal sandbox init
 cabal update
 cabal install --only-dependencies
+

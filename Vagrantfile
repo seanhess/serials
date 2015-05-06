@@ -13,9 +13,9 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/trusty64"
-  config.vm.provision :shell, path: "bin/bootstrap.sh"
-  config.vm.network "forwarded_port", guest: 8080, host: 8080
-  config.vm.network "forwarded_port", guest: 3001, host: 3001
+  config.vm.provision :shell, path: "conf/bootstrap.sh"
+  config.vm.network "forwarded_port", guest: 8080, host: 18080
+  config.vm.network "forwarded_port", guest: 3001, host: 13001
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs

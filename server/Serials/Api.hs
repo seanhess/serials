@@ -69,8 +69,9 @@ type API =
   :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
 
   :<|> "users" :> Capture "id" Text :> "subs" :> Get [Subscription]
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get Subscription
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get (Maybe Subscription)
   :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> ReqBody Subscription :> Put ()
+  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Post ()
   :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete
 
   :<|> "signup" :> ReqBody UserSignup :> Post AuthUser
@@ -127,7 +128,7 @@ server h =
   :<|> chapterGet  :<|> chapterPut
   :<|> userGet
   :<|> userBooksGet
-  :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubDel
+  :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
   :<|> signup :<|> login :<|> authCurrent
   :<|> betaSignup
   :<|> proxy
@@ -159,7 +160,7 @@ server h =
   userSubsGet uid    = liftIO $ Subscription.subsByUser h uid
   userSubGet uid sid = liftIO $ Subscription.find h uid sid
   userSubPut uid sid sub = liftIO $ Subscription.save h uid sid sub
-  --userSubPost uid sid = liftIO $ Subscription.add h uid sid
+  userSubPost uid sid = liftIO $ Subscription.add h uid sid
   userSubDel uid sid = liftIO $ Subscription.remove h uid sid
 
   signup u = liftE $ User.insert h u

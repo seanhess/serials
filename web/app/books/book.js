@@ -8,15 +8,53 @@ import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
 import {Users} from '../model/user'
-import {findSubscription, saveSubscription} from '../model/subscription'
+import {findSubscription, setSubscribed, SubChapter} from '../model/subscription'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
-import {last, groupBy, values} from 'lodash'
+import {last, groupBy, values, curry, dropWhile, takeWhile, tail} from 'lodash'
 
 function loadSubscription(params) {
   return Users.auth().then((user) => findSubscription(user.id, params.id))
+}
+
+type ChapterAndRead = {
+  chapter: Chapter;
+  read: boolean;
+}
+
+var toChapterAndRead = curry(function(subs:?{[id:string]:SubChapter}, chapter:Chapter):ChapterAndRead {
+  return {
+    chapter: chapter,
+    read: !!subs && subs[chapter.id] && subs[chapter.id].read
+  }
+})
+
+function lastReadChapter(chapters:Array<ChapterAndRead>):?ChapterAndRead {
+  return chapters.reduce(function(last, current) {
+    if (current.read) {
+      return current
+    }
+    return last
+  }, null)
+}
+
+// where's span when I need it!
+function readUnread(chapters:Array<ChapterAndRead>) {
+  var last = lastReadChapter(chapters)
+
+  var read = takeWhile(chapters, function(c) {
+    return c != last
+  })
+
+  if (last) read.push(last)
+
+  var unread = tail(dropWhile(chapters, function(c) {
+    return c != last
+  }))
+
+  return {read, unread}
 }
 
 export class Book extends React.Component {
@@ -31,21 +69,15 @@ export class Book extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = {subscription: null}
+    this.state = {subscription: null, showRead: false}
   }
 
   toggleSubscribe() {
-
-    var sub = this.state.subscription
-    if (!sub) {
-      // TODO: get them to log in
-      return
-    }
-
-    sub.subscribed = !sub.subscribed
-
-    return saveSubscription(sub)
-    .then(() => this.reloadSubscription())
+    var hasSubscription = !!this.state.subscription
+    var sourceId = this.props.params.id
+    return Users.auth()
+    .then((user) => setSubscribed(user.id, sourceId, !hasSubscription))
+    .then(this.reloadSubscription.bind(this))
   }
 
   reloadSubscription() {
@@ -57,16 +89,29 @@ export class Book extends React.Component {
     this.setState({subscription: props.subscription})
   }
 
+  showRead() {
+    this.setState({showRead: true})
+  }
+
   render() {
-    var subscription = this.state.subscription
+    var sub = this.state.subscription
 
     var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
     var lastChapter = last(chapters) || {}
     var shown = chapters.filter(showChapter)
+    var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
 
-    // group them by arcs?
-    var row = (c) => <Chapter chapter={c} key={c.id} />
+    var row = (cs) => <Chapter chapter={cs.chapter} read={cs.read} key={cs.chapter.id} />
+
+    // split into two groups, those less than the last chapter read, and those greater than it
+    var {read, unread} = readUnread(chaptersAndSubs)
+
+    var readContent = <a onClick={this.showRead.bind(this)} style={ReadStyle}>Show {read.length} read chapters</a>
+
+    if (this.state.showRead) {
+      readContent = read.map(row)
+    }
 
     return <div>
       <h3> </h3>
@@ -83,13 +128,17 @@ export class Book extends React.Component {
       </div>
 
       <div style={{clear: 'both'}}>
-        {this.renderSubscribe(subscription)}
+        {this.renderSubscribe(sub)}
       </div>
 
       <hr />
 
       <div style={{marginTop: 10}}>
-        {shown.map(row)}
+        {readContent}
+      </div>
+
+      <div style={{marginTop: 10}}>
+        {unread.map(row)}
       </div>
 
       <hr />
@@ -99,7 +148,7 @@ export class Book extends React.Component {
   }
 
   renderSubscribe(subscription) {
-    var hasSubscription = subscription && subscription.subscribed
+    var hasSubscription = !!subscription
     var className = "expand"
     var text = "Subscribe"
     if (hasSubscription) {
@@ -123,6 +172,10 @@ export function statusColor(status:SourceStatus):string {
   }
 }
 
+var ReadStyle = {
+  color:"#AAA"
+}
+
 export class Chapter extends React.Component {
   render() {
     var chapter:Chapter = this.props.chapter
@@ -139,7 +192,13 @@ export class Chapter extends React.Component {
   }
 
   renderLink(chapter:Chapter) {
-    return <Link to="chapter" params={{id: chapter.id}}>
+    var style = {}
+
+    if (this.props.read) {
+      style = ReadStyle
+    }
+
+    return <Link to="chapter" params={{id: chapter.id}} style={style}>
       {chapter.content.linkText}
     </Link>
   }

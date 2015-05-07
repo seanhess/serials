@@ -5,6 +5,7 @@ import Promise from 'bluebird'
 import {Get, Post, Put, Del, url} from '../api'
 import {getLocalStorage, updateLocalStorage} from '../helpers'
 import {EventEmitter} from 'events'
+import {Subscription, findSubscription} from './subscription'
 
 // UserModel //////////////////////////////////////
 
@@ -102,8 +103,14 @@ export class UserModel {
     this._auth = null
     this.currentUser = null
   }
+
 }
 
+
 export var Users = new UserModel()
+
+export function loadSubscription(sourceId:string):Promise<Subscription> {
+  return Users.auth().then((user) => findSubscription(user.id, sourceId))
+}
 
 

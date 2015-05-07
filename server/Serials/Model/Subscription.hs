@@ -11,6 +11,8 @@ import Data.Time
 import Data.Pool
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe)
+import qualified Data.HashMap.Strict as HashMap
+import Data.HashMap.Strict (HashMap)
 
 import Debug.Trace
 
@@ -30,13 +32,12 @@ data Subscription = Subscription {
   userId :: Text,
   sourceId :: Text,
   added :: UTCTime,
-  subscribed :: Bool,
-  readChapters :: [ReadChapter]
+  chapters :: HashMap Text SubChapter
 } deriving (Show, Generic)
 
-data ReadChapter = ReadChapter {
+data SubChapter = SubChapter {
   chapterId :: Text,
-  time :: UTCTime
+  read :: Bool
 } deriving (Show, Generic)
 
 instance FromJSON Subscription
@@ -44,8 +45,8 @@ instance ToJSON Subscription
 instance FromDatum Subscription
 instance ToDatum Subscription
 
-instance FromJSON ReadChapter
-instance ToJSON ReadChapter
+instance FromJSON SubChapter
+instance ToJSON SubChapter
 
 table = R.table "subscriptions"
 
@@ -63,26 +64,18 @@ booksByUser h id = runPool h $ table
 subsByUser :: Pool RethinkDBHandle -> Text -> IO [Subscription]
 subsByUser h id = runPool h $ table # getAll userIndex [expr id] # orderBy [asc "id"]
 
--- save vs add?
--- post vs put?
 add :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 add h uid sid = do
     time <- getCurrentTime
     let id = subId uid sid
-        sub = Subscription id uid sid time True []
+        sub = Subscription id uid sid time HashMap.empty
     runPool h $ table # insert (toDatum sub)
 
 save :: Pool RethinkDBHandle -> Text -> Text -> Subscription -> IO ()
 save h uid sid sub = runPool h $ table # get (expr (subId uid sid)) # replace (const $ toDatum sub)
 
-find :: Pool RethinkDBHandle -> Text -> Text -> IO (Subscription)
-find h uid sid = do
-  ms <- runPool h $ table # get (expr (subId uid sid))
-  case ms of
-    Nothing -> do
-      time <- getCurrentTime
-      return $ Subscription (subId uid sid) uid sid time False []
-    Just s -> return s
+find :: Pool RethinkDBHandle -> Text -> Text -> IO (Maybe Subscription)
+find h uid sid = runPool h $ table # get (expr (subId uid sid))
 
 remove :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 remove h uid sid = runPool h $ table # get (expr (subId uid sid)) # delete

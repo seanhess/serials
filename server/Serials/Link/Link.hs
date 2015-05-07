@@ -58,7 +58,7 @@ contentText (Title txt) = txt
     b <- parseURIReference $ unpack $ strip base
     p <- parseURIReference $ clean $ unpack $ strip path
     return $ pack $ show $ p `relativeTo` b
-    where clean = escapeURIString (`elem` "[]")
+    where clean = id -- escapeURIString (`elem` "[]")
 
 infixr 6 </>
 

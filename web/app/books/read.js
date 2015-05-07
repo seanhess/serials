@@ -2,9 +2,10 @@
 
 import React from 'react'
 import {chapterProxyURL, findChapter} from '../model/chapter'
-import {findSubscription} from '../model/subscription'
+import {loadSubscription} from '../model/user'
+import {saveSubscription} from '../model/subscription'
 
-var MARK_READ_INTERVAL = 60*1000
+var MARK_READ_INTERVAL = 5*1000
 
 export class Read extends React.Component {
 
@@ -16,19 +17,32 @@ export class Read extends React.Component {
 
     return {
       chapter: pchap,
-      //subscription: 
-      //content: pchap.then(proxyHTML)
+      subscription: pchap.then(c => loadSubscription(c.sourceId))
     }
   }
 
   componentDidMount() {
     // if they read for at least 1 minute, mark it as read
     this.timer = setTimeout(() => {
+      this.markAsRead()
     }, MARK_READ_INTERVAL)
   }
 
+
   componentWillUnmount() {
     clearTimeout(this.timer)
+  }
+
+  markAsRead() {
+    var sub = this.props.subscription
+    if (!sub) return
+
+    sub.chapters[this.props.chapter.id] = {
+      chapterId: this.props.chapter.id,
+      read: true
+    }
+
+    saveSubscription(sub)
   }
 
   render() {

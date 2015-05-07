@@ -5,7 +5,7 @@ import {chapterProxyURL, findChapter} from '../model/chapter'
 import {loadSubscription} from '../model/user'
 import {saveSubscription} from '../model/subscription'
 
-var MARK_READ_INTERVAL = 5*1000
+var MARK_READ_INTERVAL = 30*1000
 
 export class Read extends React.Component {
 

@@ -7,7 +7,6 @@ pwd
 
 # compile application
 echo "-- cabal ----------------"
-echo $PATH
 cabal sandbox init
 cabal update
 cabal install --only-dependencies

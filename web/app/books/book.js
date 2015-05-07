@@ -44,11 +44,13 @@ function lastReadChapter(chapters:Array<ChapterAndRead>):?ChapterAndRead {
 function readUnread(chapters:Array<ChapterAndRead>) {
   var last = lastReadChapter(chapters)
 
+  if (!last) {
+    return {read: [], unread: chapters}
+  }
+
   var read = takeWhile(chapters, function(c) {
     return c != last
-  })
-
-  if (last) read.push(last)
+  }).concat([last])
 
   var unread = tail(dropWhile(chapters, function(c) {
     return c != last
@@ -107,10 +109,13 @@ export class Book extends React.Component {
     // split into two groups, those less than the last chapter read, and those greater than it
     var {read, unread} = readUnread(chaptersAndSubs)
 
-    var readContent = <a onClick={this.showRead.bind(this)} style={ReadStyle}>Show {read.length} read chapters</a>
-
+    var readContent = ""
+    
     if (this.state.showRead) {
       readContent = read.map(row)
+    }
+    else if (read.length) {
+      readContent = <a onClick={this.showRead.bind(this)} style={ReadStyle}>Show {read.length} read chapters</a>
     }
 
     return <div>

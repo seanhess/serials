@@ -66,7 +66,6 @@ skipSource source = do
 
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
-  putStrLn $ "[SCAN] " <> scanShowSource source
 
   content <- scanSource source
   time <- getCurrentTime
@@ -80,8 +79,8 @@ importSource h source = do
       ups = map snd $ filter (isMergeType Updated) merged
       scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
 
-  putStr $ "     new " <> show new
-  putStr $ "  updated " <> show ups
+  mapM (log " updated ") ups
+  mapM (log "     new ") new
 
   checkErr $ Chapter.saveAll h new
   checkErr $ Chapter.saveAll h ups
@@ -89,11 +88,10 @@ importSource h source = do
   -- this means it actually completed, so go last?
   checkErr $ Source.updateLastScan h sid scan
 
-  putStrLn $ "  DONE "
-
   where
     sid = Source.id source
     idEqual a b = Chapter.id a == Chapter.id b
+    log msg c = putStrLn $ msg <> (show $ Source.name source) <> " " <> show c
 
 scanShowSource :: Source -> String
 scanShowSource s = show (Source.id s) <> " " <> show (Source.status s) <> " " <> show (Source.name s)
@@ -101,13 +99,16 @@ scanShowSource s = show (Source.id s) <> " " <> show (Source.status s) <> " " <>
 importAllSources :: Pool RethinkDBHandle -> IO ()
 importAllSources h = do
     time <- getCurrentTime
-    putStrLn $ "Started: " <> show time
+    putStr $ show time <> " | "
     hSetBuffering stdout LineBuffering
     sources <- Source.list h
-    putStrLn $ "sources: " <> (show $ length sources)
     let active = filter Source.isActive sources
         inactive = filter (not . Source.isActive) sources
-    mapM_ (skipSource) inactive
+    --mapM_ (skipSource) inactive
+    putStr $ (show $ length active) <> "/" <> (show $ length sources) <> " sources"
+    putStrLn ""
+
+    -- importSource can return some information
     mapM_ (importSource h) active
 
     -- for now, don't do it in parallel

@@ -46,9 +46,8 @@ mainApi = do
 
 mainScan :: [String] -> IO ()
 mainScan ids = do
-    putStrLn "-- SERIALS SCAN --------------"
+    putStr "[SCAN] | "
     db <- lookupDb
-    putStrLn $ "DB: " <> show db
     p <- connectDbPool db
     case ids of
       [] -> importAllSources p

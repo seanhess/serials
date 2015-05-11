@@ -8,7 +8,7 @@ import Prelude hiding (id)
 import Control.Applicative
 
 import Data.Aeson (ToJSON, FromJSON, Value(..), toJSON, parseJSON, object, (.=), (.:), (.:?), gToJSON)
-import Data.Text (Text, unpack, pack)
+import Data.Text (Text, unpack, pack, toLower)
 import Data.ByteString.UTF8 (fromString, toString)
 import qualified Data.ByteString.Char8 as C
 import Data.Maybe (catMaybes, fromJust)
@@ -88,7 +88,7 @@ insert h u = do
     if pass == (U.passwordConfirmation u)
       then do
         hashPass <- liftIO . hashPasswordUsingPolicy customHashPolicy . fromString $ unpack pass
-        isEmail <- findByEmail h $ U.email u
+        isEmail <- findByEmail h $ toLower $ U.email u
         created <- liftIO getCurrentTime
         let user' = User {
           id = pack ""

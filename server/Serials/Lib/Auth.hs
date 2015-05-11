@@ -8,7 +8,7 @@
 module Serials.Lib.Auth where
 
 import Prelude hiding (id)
-import Data.Text (Text, pack)
+import Data.Text (Text, pack, toLower)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
@@ -74,7 +74,7 @@ checkAuthToken h token = do
 
 userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text AuthUser)
 userLogin h u = do
-  users <- User.findByEmail h $ email u
+  users <- User.findByEmail h $ toLower $ email u
   case headMay users of
     Nothing -> return $ Left "Invalid email address"
     Just user -> do

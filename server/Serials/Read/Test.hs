@@ -4,8 +4,10 @@ module Serials.Read.Test where
 
 import Prelude hiding (writeFile)
 
+import Control.Applicative
+
 import Debug.Trace
-import Data.Text (Text, splitOn, intersperse, intercalate)
+import Data.Text (Text, splitOn, intersperse, intercalate, unpack, pack)
 import Data.Text.IO (writeFile)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Lazy (fromStrict)
@@ -13,11 +15,13 @@ import Data.Monoid
 
 import Network.Wai
 import Network.HTTP.Types
+import Network.URI
 
 import Serials.Link.Import
 import Serials.Link.Link
 
 import Text.HTML.TagSoup
+import Text.Regex.PCRE
 
 
 data Page = Page {
@@ -58,11 +62,30 @@ fixTagURLs base (TagOpen name as) = TagOpen name $ concat $ map fixAttURLs as
     fixAttURLs ("href", url) = [("href", urlFromBase base url), ("target", "_parent")]
     fixAttURLs ("src",  url) = [("src",  urlFromBase base url)]
     fixAttURLs ("action",  url) = [("action", urlFromBase base url)]
-    -- fanfiction does some wierd stuff here
-    --fixAttURLs ("onClick",  url) = ("onClick",  base </> url)
+
+    fixAttURLs ("onClick",  action) = [("onClick", replaceFanficLocation base action)]
+    fixAttURLs ("onChange",  action) = [("onChange", replaceFanficLocation base action)]
+
     fixAttURLs att = [att]
 
 fixTagURLs _ tag = tag
+
+--"self.location='/woot'" =~ "^self.location='/w(.*)" :: [[String]]
+replaceFanficLocation :: Text -> Text -> Text
+replaceFanficLocation base action =
+  case matches of
+    ((start:url:[]):[]) -> "self.parent.location='" <> pack ("http://" <> domain <> url)
+    _                   -> action
+
+  where
+
+  (Just domain) = do
+    uri <- parseURIReference $ unpack $ base
+    auth <- uriAuthority uri
+    return $ uriRegName auth
+
+  matches = unpack action =~ regex :: [[String]]
+  regex = "^self.location\\s*=\\s*'(.*)" :: String
 
 -- combine the urls, but don't parse the stuff after "?"
 -- just throw it back on there

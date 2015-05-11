@@ -56,9 +56,8 @@ contentText (Title txt) = txt
 (</>) :: URL -> URL -> URL
 (</>) base path = fromMaybe path $ do
     b <- parseURIReference $ unpack $ strip base
-    p <- parseURIReference $ clean $ unpack $ strip path
+    p <- parseURIReference $ unpack $ strip path
     return $ pack $ show $ p `relativeTo` b
-    where clean = id -- escapeURIString (`elem` "[]")
 
 infixr 6 </>
 

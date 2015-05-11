@@ -5,7 +5,7 @@ module Serials.Read.Test where
 import Prelude hiding (writeFile)
 
 import Debug.Trace
-import Data.Text (Text)
+import Data.Text (Text, splitOn, intersperse, intercalate)
 import Data.Text.IO (writeFile)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Lazy (fromStrict)
@@ -55,18 +55,22 @@ proxyURL base = do
 fixTagURLs :: Text -> Tag Text -> Tag Text
 fixTagURLs base (TagOpen name as) = TagOpen name $ concat $ map fixAttURLs as
   where
-    fixAttURLs ("href", url) = [("href", base </> url), ("target", "_parent")]
-    fixAttURLs ("src",  url) = [("src",  base </> url)]
-    fixAttURLs ("action",  url) = [("action",  base </> url)]
+    fixAttURLs ("href", url) = [("href", urlFromBase base url), ("target", "_parent")]
+    fixAttURLs ("src",  url) = [("src",  urlFromBase base url)]
+    fixAttURLs ("action",  url) = [("action", urlFromBase base url)]
     -- fanfiction does some wierd stuff here
     --fixAttURLs ("onClick",  url) = ("onClick",  base </> url)
     fixAttURLs att = [att]
 
 fixTagURLs _ tag = tag
 
--- I'm proxying the whole damn thing. 
--- I can read the id off the url somehow?
--- yeah it's int he paths
+-- combine the urls, but don't parse the stuff after "?"
+-- just throw it back on there
+urlFromBase :: Text -> Text -> Text
+urlFromBase base url = intercalate "?" ((base </> path) : rest)
+  where
+  (path:rest) = splitOn "?" url
+
 proxyApp :: Application
 proxyApp req respond = do
   let paths = pathInfo req

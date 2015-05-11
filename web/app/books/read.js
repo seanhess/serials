@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import {chapterProxyURL, findChapter} from '../model/chapter'
+import {chapterContentURL, proxyContent, proxyURL, findChapter} from '../model/chapter'
 import {loadSubscription} from '../model/user'
 import {saveSubscription} from '../model/subscription'
 
@@ -13,11 +13,12 @@ export class Read extends React.Component {
 
   static load(params) {
     // interesting... I need to do two in order
-    var pchap = findChapter(params.id)
+    var p = findChapter(params.id)
 
     return {
-      chapter: pchap,
-      subscription: pchap.then(c => loadSubscription(c.sourceId))
+      chapter: p,
+      subscription: p.then(c => loadSubscription(c.sourceId))
+      //content: p.then(c => proxyContent(chapterContentURL(c)))
     }
   }
 
@@ -45,13 +46,19 @@ export class Read extends React.Component {
     saveSubscription(sub)
   }
 
+  //contentInnerHTML() {
+    //return {__html: this.props.content}
+  //}
+
   render() {
 
     if (!this.props.chapter) {
       return <div/>
     }
 
-    var url = chapterProxyURL(this.props.chapter)
+    // maybe it would be better to make a second application
+    // and inject our source code
+    console.log("TEST", this.props.content)
 
     var frameStyle = {
       border: 0,
@@ -64,10 +71,11 @@ export class Read extends React.Component {
       height: '100%'
     }
 
-    return <div>
-      <iframe src={url} style={frameStyle}>
-        Your browser doesn't support iFrames.
-      </iframe>
-    </div>
+    //return <div dangerouslySetInnerHTML={this.contentInnerHTML()} />
+
+    var url = proxyURL(chapterContentURL(this.props.chapter))
+    return <iframe src={url} style={frameStyle}>
+      Your browser doesn't support iFrames.
+    </iframe>
   }
 }

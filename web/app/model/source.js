@@ -20,7 +20,7 @@ Status.All = [Status.Active, Status.Disabled, Status.Complete, Status.Abandoned]
 
 export type Source = {
   id: string;
-  importSettings: any;
+  importSettings: ImportSettings;
   name: string;
   author: string;
   url: string;
@@ -36,6 +36,27 @@ export type Scan = {
   new: Array<string>;
   updated: Array<string>;
 }
+
+export type ImportSettings = MenuSettings | TOCSettings;
+type URL = string;
+
+
+export var Menu = "MenuSettings"
+export var TOC = "TOCSettings"
+
+export type MenuSettings = {
+  tag: "MenuSettings";
+  menuBase: URL;
+  menuOpen: string;
+}
+
+export type TOCSettings = {
+  tag: "TOCSettings";
+  tocSelector: string;
+  titleSelector: string;
+}
+
+
 
 
 export var SourceModel = {
@@ -59,9 +80,6 @@ export var SourceModel = {
 }
 
 
-export var Menu = "MenuSettings"
-export var TOC = "TOCSettings"
-
 
 export function emptySource():Source {
   return {
@@ -72,9 +90,32 @@ export function emptySource():Source {
     imageUrl: "",
     status: Status.Active,
     imageMissingTitle: false,
-    importSettings: {
-      tag: TOC,
-    }
+    importSettings: emptyImportSettings(TOC)
+  }
+}
+
+export function emptyImportSettings(type:string):ImportSettings {
+  if (type == Menu) {
+    return emptyMenuSettings()
+  }
+  else {
+    return emptyTOCSettings()
+  }
+}
+
+function emptyTOCSettings():TOCSettings {
+  return {
+    tag: TOC,
+    tocSelector: "",
+    titleSelector: ""
+  }
+}
+
+function emptyMenuSettings():MenuSettings {
+  return {
+    tag: Menu,
+    menuBase: "",
+    menuOpen: "",
   }
 }
 

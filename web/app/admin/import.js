@@ -12,7 +12,7 @@
   //deriving (Show, Eq, Generic)
 
 var React = require('react')
-var {Menu, TOC} = require('../model/source')
+var {Menu, TOC, emptyImportSettings} = require('../model/source')
 var {makeUpdate} = require('../data/update')
 
 
@@ -78,7 +78,8 @@ export class ImportSettings extends React.Component {
 
   changeSettingsType(e) {
     var settingsType = e.target.value
-    this.props.onUpdate({tag: settingsType})
+    var settings = emptyImportSettings(settingsType)
+    this.props.onUpdate(settings)
   }
 
   render() {

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Serials.Proxy.Test where
+module Serials.Read.Test where
 
 import Prelude hiding (writeFile)
 
@@ -20,6 +20,11 @@ import Serials.Link.Link
 import Text.HTML.TagSoup
 
 
+data Page = Page {
+  pageHead :: [Tag Text],
+  pageBody :: [Tag Text]
+} deriving (Show, Eq)
+
 -- download a page
 -- replace all links
 -- output it
@@ -29,12 +34,10 @@ proxyURL base = do
     body <- downloadBody base
     let tags = parseTags body
         out = renderTags $ map (fixTagURLs base) tags
-    --writeFile "/Users/seanhess/Downloads/test.html" out
-    -- replace all href="/
-    -- parse the uris and such yo
-    --putStrLn "TEST"
     return out
 
+--baseTag :: Text
+--baseTag = "<base target=\"_parent\" />"
 
 --testFriendship = test "http://www.fimfiction.net/story/62074/2/friendship-is-optimal/1-opportunity"
 --testHpmor = test "http://hpmor.com/chapter/21"
@@ -48,23 +51,32 @@ proxyURL base = do
 -- then I could know they had finished reading if they hit next...
 -- that sounds super fancy...
 
+-- I want to be able to add a new one in the case of href
 fixTagURLs :: Text -> Tag Text -> Tag Text
-fixTagURLs base (TagOpen name as) = TagOpen name $ map fixAttURLs as
+fixTagURLs base (TagOpen name as) = TagOpen name $ concat $ map fixAttURLs as
   where
-    fixAttURLs ("href", url) = ("href", base </> url)
-    fixAttURLs ("src",  url) = ("src",  base </> url)
-    fixAttURLs ("action",  url) = ("action",  base </> url)
+    fixAttURLs ("href", url) = [("href", base </> url), ("target", "_parent")]
+    fixAttURLs ("src",  url) = [("src",  base </> url)]
+    fixAttURLs ("action",  url) = [("action",  base </> url)]
     -- fanfiction does some wierd stuff here
     --fixAttURLs ("onClick",  url) = ("onClick",  base </> url)
-    fixAttURLs att = att
+    fixAttURLs att = [att]
 
 fixTagURLs _ tag = tag
 
+-- I'm proxying the whole damn thing. 
+-- I can read the id off the url somehow?
+-- yeah it's int he paths
 proxyApp :: Application
 proxyApp req respond = do
   let paths = pathInfo req
       url  = head paths
   out <- proxyURL url
   respond $ responseLBS status200 [("Content-Type", "text/html")] $ encodeUtf8 $ fromStrict out
+
+--proxyChapter :: Text -> Application
+--proxyChapter id req res = do
+  --let mc = Chapter.find h id
+
 
 

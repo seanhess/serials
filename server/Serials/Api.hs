@@ -41,7 +41,7 @@ import Serials.Lib.Auth (UserLogin, WithAuthToken, checkAuthToken, TokenLookup, 
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
-import Serials.Proxy.Test (proxyApp)
+import Serials.Read.Test (proxyApp)
 
 import Servant
 
@@ -80,6 +80,7 @@ type API =
 
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
 
+  -- :<|> "read" :> Capture "id" Text :> Raw
   :<|> "proxy" :> Raw
 
   -- We need to have this prefixed for the time being because of how HasServer instances work in 0.2

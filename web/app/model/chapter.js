@@ -20,13 +20,13 @@ export type Chapter = {
 export type Content = ContentLink | ContentTitle;
 
 export type ContentLink = {
-  tag: string;
+  tag: "Link";
   linkURL: string;
   linkText: string;
 }
 
 export type ContentTitle = {
-  tag: string;
+  tag: "Title";
   titleText: string;
 }
 
@@ -62,6 +62,12 @@ export var ChapterModel = {
     return Del(url('sources', id, 'chapters'))
   }
 }
+
+export function chapterContentURL(chapter:Chapter):string {
+  var content:ContentLink = (chapter.content : any)
+  return content.linkURL
+}
+
 
 export function emptyChapter(sourceId:string, link:Content = emptyLink()):Chapter {
   return {
@@ -103,9 +109,8 @@ export function proxyURL(remoteUrl:string):string {
   return url('proxy', encodeURIComponent(remoteUrl))
 }
 
-export function chapterProxyURL(chapter:Chapter):string {
-  var content:ContentLink = (chapter.content : any)
-  return proxyURL(content.linkURL)
+export function proxyContent(remoteUrl:string):Promise<string> {
+  return Get(url('proxy', encodeURIComponent(remoteUrl)))
 }
 
 export function findChapter(id:string):Promise<Chapter> {

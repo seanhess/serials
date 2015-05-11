@@ -1,21 +1,15 @@
 // @flow
 import React from 'react'
-import _ from 'lodash'
 
 var EMAIL = "serials@orbit.al"
 
 import {makeUpdate} from '../data/update'
+import {Alerts} from '../model/alert'
 
 // TODO: should put this somewhere more common
 var validateEmail = function(email) {
     var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
     return re.test(email);
-}
-
-type State = {
-  betaSignup?: {email: string};
-  message?: ?string;
-  error?: ?string;
 }
 
 export class SuggestBook extends React.Component {

@@ -4,6 +4,7 @@ import {RouteHandler} from 'react-router'
 
 import {FormSection} from '../comp'
 import {Users} from '../model/user'
+import {Alerts} from '../model/alert'
 import {makeUpdate} from '../data/update'
 
 var emptyLogin = function() {
@@ -44,9 +45,13 @@ export class Login extends React.Component {
     .then((user) => {
       console.log("Logged in", user)
       if (user) {
+        Alerts.update({message: 'You have successfully logged in', type: 'success'})
         this.setState({login: emptyLogin()})
         window.location.hash = "/"
       }
+    })
+    .catch(() => {
+        Alerts.update({message: 'Invalid email address or password', type: 'error'})
     })
   }
 

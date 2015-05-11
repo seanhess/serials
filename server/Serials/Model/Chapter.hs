@@ -89,6 +89,9 @@ init h = do
 urlId :: Text -> Text
 urlId u = filter isAlphaNum $ drop 5 $ u
 
+remove :: Pool RethinkDBHandle -> Text -> IO ()
+remove h id = runPool h $ table # get (expr id) # delete
+
 --withId :: Chapter -> Chapter
 --withId c = c { chapterId = Just $ urlId c }
 

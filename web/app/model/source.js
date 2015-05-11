@@ -53,10 +53,6 @@ export var SourceModel = {
     return Post(url('sources'), source)
   },
 
-  del(id:string) {
-    return Del(url('sources', id))
-  },
-
   save(id:string, source:Source) {
     return Put(url('sources', id), source)
   }

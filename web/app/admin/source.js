@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 import Router from 'react-router'
 
 import {SourceModel, emptySource, emptyScan, Status} from '../model/source'
-import {ChapterModel} from '../model/chapter'
+import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {toDateString} from '../helpers'
 import {Chapters} from './chapters'
 import {ImportSettings} from './import'
@@ -64,8 +64,13 @@ export class Source extends React.Component {
     })
   }
 
-  onClearChapter(chapter) {
+  onClearChapter(chapter:Chapter) {
     ChapterModel.clear(chapter)
+    .then(this.reloadChapters.bind(this))
+  }
+
+  onDeleteChapter(chapter:Chapter) {
+    ChapterModel.delete(chapter.id)
     .then(this.reloadChapters.bind(this))
   }
 
@@ -104,6 +109,16 @@ export class Source extends React.Component {
     var source = this.state.source
     source.importSettings = settings
     this.setState({source: source})
+  }
+
+  addNewLink() {
+    var chapter = emptyChapter(this.state.source.id)
+    ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
+  }
+
+  addNewTitle() {
+    var chapter = emptyChapter(this.state.source.id, emptyTitle())
+    ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
   }
 
   render() {
@@ -195,17 +210,26 @@ export class Source extends React.Component {
         </ul>
       </div>
 
+      <div className="right">
+        <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
+        <span> </span>
+        <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
+      </div>
+
       <div>
         <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
         <span> </span>
         <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
       </div>
 
-      <Chapters chapters={chapters} source={source} 
+
+      <Chapters chapters={chapters} source={source}
         onSaveChapter={this.onSaveChapter.bind(this)}
         onClearChapter={this.onClearChapter.bind(this)}
+        onDeleteChapter={this.onDeleteChapter.bind(this)}
         onHiddenChange={this.onHiddenChapter.bind(this)}
       />
+
     </div>
 
   }

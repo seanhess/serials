@@ -4,7 +4,7 @@ import React from 'react'
 import url from 'url'
 import {cloneDeep} from 'lodash'
 import {toDateString} from '../helpers'
-import {makeUpdate} from '../data/update'
+import {makeUpdate, number} from '../data/update'
 import {isLink, emptyChapter, Chapter} from '../model/chapter'
 
 export class Chapters extends React.Component {
@@ -17,6 +17,7 @@ export class Chapters extends React.Component {
       <ChapterRow chapter={c}
         onSaveChapter={this.props.onSaveChapter}
         onClearChapter={this.props.onClearChapter}
+        onDeleteChapter={this.props.onDeleteChapter}
         onHiddenChange={this.props.onHiddenChange}
       />
     )
@@ -101,6 +102,12 @@ export class ChapterRow extends React.Component {
     this.props.onClearChapter(chapter)
   }
 
+  delete() {
+    var chapter = this.props.chapter
+    this.setState({editing: null})
+    this.props.onDeleteChapter(chapter)
+  }
+
   edit() {
     this.setState({editing: cloneDeep(this.props.chapter)})
   }
@@ -118,7 +125,7 @@ export class ChapterRow extends React.Component {
 
   renderEdit() {
 
-    var chapter:any = this.state.editing || emptyChapter()
+    var chapter:any = this.state.editing || emptyChapter("")
 
     var update = makeUpdate(chapter, (v) => {
       this.setState({editing: v})
@@ -146,7 +153,7 @@ export class ChapterRow extends React.Component {
           <div className="columns small-2">
             <label>Number</label>
             <input type="number" value={chapter.number}
-              onChange={update((c, v) => c.number = v)}
+              onChange={update((c, v) => c.number = v, number)}
             />
           </div>
           <div className="columns small-10">
@@ -161,10 +168,14 @@ export class ChapterRow extends React.Component {
             onChange={update((c, v) => c.content.linkURL = v)}
           />
         </div>
+        <div className="right">
+          <button className="secondary" onClick={this.delete.bind(this)}>Delete</button>
+        </div>
         <div>
           <button onClick={this.save.bind(this)}>Save</button>
           <span> </span>
           <button className="secondary" onClick={this.clear.bind(this)}>Revert to Scan</button>
+          <span> </span>
         </div>
       </td>
     </tr>

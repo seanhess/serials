@@ -1,5 +1,7 @@
 // @flow
 
+import {compose} from 'lodash'
+
 // Generate a change handler that takes setter functions
 // it'll look like this
 // > update((c, v) => c.something = v)
@@ -31,3 +33,5 @@ export function checked(e:any):Boolean {
 export function value(e:any):any {
   return e.target.value
 }
+
+export var number:(e:any)=>void = compose(parseInt, value)

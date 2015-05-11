@@ -56,7 +56,6 @@ type API =
 
   :<|> "sources" :> Capture "id" Text :> Get Source
   :<|> "sources" :> Capture "id" Text :> ReqBody Source :> Put ()
-  :<|> "sources" :> Capture "id" Text :> Delete
 
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Get [Chapter]
   :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
@@ -64,6 +63,7 @@ type API =
 
   :<|> "chapters" :> Capture "id" Text :> Get Chapter
   :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
+  :<|> "chapters" :> Capture "id" Text :> Delete
 
   :<|> "users" :> Capture "id" Text :> Get SecureUser
   :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
@@ -123,9 +123,9 @@ server :: Pool RethinkDBHandle -> Server API
 server h =
 
   sourcesGetAll :<|> sourcesPost
-  :<|> sourcesGet :<|> sourcesPut :<|> sourcesDel
+  :<|> sourcesGet :<|> sourcesPut
   :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
-  :<|> chapterGet  :<|> chapterPut
+  :<|> chapterGet  :<|> chapterPut :<|> chapterDel
   :<|> userGet
   :<|> userBooksGet
   :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
@@ -144,7 +144,6 @@ server h =
 
   sourcesGet id   = liftE  $ Source.find h id
   sourcesPut id s = liftIO $ Source.save h id s
-  sourcesDel id   = liftIO $ Source.remove h id
 
   chaptersGet id = liftIO $ Chapter.bySource h id
   chaptersDel id = liftIO $ Chapter.deleteBySource h id
@@ -152,6 +151,7 @@ server h =
 
   chapterGet id   = liftE $ Chapter.find h id
   chapterPut id c = liftE $ Chapter.save h c
+  chapterDel id   = liftIO $ Chapter.remove h id
 
   userGet id   = liftE $ secure <$> User.find h id
 

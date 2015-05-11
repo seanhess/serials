@@ -70,7 +70,7 @@ importSource h source = do
   content <- scanSource source
   time <- getCurrentTime
 
-  let scannedChapters = map (uncurry $ linkToChapter sid time) (zip [1..] content)
+  let scannedChapters = map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
 
   edits <- chapterMap <$> Chapter.bySource h sid
 

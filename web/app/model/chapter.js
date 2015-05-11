@@ -1,6 +1,7 @@
 // @flow
 
 import {Get, Post, Put, Del, url} from '../api'
+import shortid from 'shortid'
 
 
 // ChapterModel /////////////////////////////////////
@@ -8,11 +9,15 @@ import {Get, Post, Put, Del, url} from '../api'
 
 export type Chapter = {
   id: string;
+  sourceId: string;
+  added: Date;
+  number: number;
   edited: bool;
-  name: string;
-  content: ContentLink | ContentTitle;
+  content: Content;
   hidden: bool;
 }
+
+export type Content = ContentLink | ContentTitle;
 
 export type ContentLink = {
   tag: string;
@@ -49,22 +54,42 @@ export var ChapterModel = {
     return Put(url('chapters', chapter.id), chapter)
   },
 
+  delete(id:string) {
+    return Del(url('chapters', id))
+  },
+
   deleteBySource(id:string) {
     return Del(url('sources', id, 'chapters'))
-  },
+  }
 }
 
-export function emptyChapter():Chapter {
+export function emptyChapter(sourceId:string, link:Content = emptyLink()):Chapter {
   return {
-    id: "",
+    id: shortid.generate(),
+    sourceId: sourceId,
     edited: false,
     name: "",
     number: 0,
-    content: {tag: "", titleText: ""},
+    added: new Date(),
+    content: link,
     hidden: false
   }
 }
 
+export function emptyLink():ContentLink {
+  return {
+    tag: "Link",
+    linkURL: "",
+    linkText: ""
+  }
+}
+
+export function emptyTitle():ContentTitle {
+  return {
+    tag: "Title",
+    titleText: ""
+  }
+}
 
 export function showChapter(chapter:Chapter):bool {
   return !chapter.hidden

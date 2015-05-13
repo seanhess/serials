@@ -35,8 +35,6 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    // if it hasn't kicked off a check auth yet, do it now
-    Users.auth()
   }
 
   render() {
@@ -67,10 +65,11 @@ var routes = (
   <Route handler={App} path="/">
     <Redirect from="/" to="books" />
     <Route name="pages" handler={Main}>
-      <Route name='login' handler={Login}/>
       <Route name='signup' handler={Signup}/>
       <Route name="about" handler={About}/>
     </Route>
+
+    <Route name='login' handler={Login}/>
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
@@ -103,12 +102,26 @@ Router.run(routes, function(Handler, state) {
   lastState = state
   lastData = {}
 
-  // render once without any data
-  render()
+  checkLoginRedirect().then(function() {
+    // render once without any data
+    render()
 
-  // render again every time any of the promises resolve
-  loadAll(state.routes, state.params, render)
+    // render again every time any of the promises resolve
+    loadAll(state.routes, state.params, render)
+  })
 })
+
+function checkLoginRedirect() {
+  return Users.auth().then(function(user) {
+    if (!user && lastState.path !== "/login") {
+      console.log("CAUGHT YOU!")
+      window.location.hash = "/login"
+      return false
+    }
+
+    return true
+  })
+}
 
 function render(data = lastData) {
   lastData = data

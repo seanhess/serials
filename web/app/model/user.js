@@ -38,8 +38,11 @@ export class UserModel {
 
   currentUser: ?User;
 
+  hasAuth:boolean;
+
   constructor() {
     this.currentUser = null
+    this.hasAuth = false
     this.events = new EventEmitter()
   }
 
@@ -77,6 +80,10 @@ export class UserModel {
     .then(u => this._updateAuth(u))
   }
 
+  isLoggedIn():boolean {
+    return !!this.currentUser
+  }
+
 
   //// Changes //////////////////////////////
   bind(f:Function) {
@@ -95,13 +102,16 @@ export class UserModel {
 
   _updateAuth(user:User):Promise<User> {
     this.currentUser = user
+    this.hasAuth = true
     this.events.emit('change', this)
+    this._auth = Promise.resolve(user)
     return user
   }
 
   _clearAuth():void {
     this._auth = null
     this.currentUser = null
+    this.hasAuth = true
   }
 
 }

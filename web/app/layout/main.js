@@ -42,7 +42,9 @@ var NavBar = {
 export class Header extends React.Component {
 
   logout() {
-    Users.logout()
+    Users.logout().then(function() {
+      window.location.hash = "/login"
+    })
   }
 
   renderCurrentUser() {

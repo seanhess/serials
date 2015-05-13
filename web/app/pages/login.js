@@ -37,8 +37,8 @@ export class Login extends React.Component {
       this.setState({login: v})
     })
 
-    return <div>
-      <FormSection title="Login">
+    return <div style={{padding: 25}}>
+      <FormSection title="Serials Login">
         <form onSubmit={this.onSubmit.bind(this)}>
           <label>Email</label>
           <input type="text"

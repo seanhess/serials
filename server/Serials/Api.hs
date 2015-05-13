@@ -51,6 +51,7 @@ import qualified Database.RethinkDB as R
 -- if you use (Maybe a) with liftIO it will return null instead of a 404
 -- this is intentional for some routes
 type API =
+
        "sources" :> Get [Source]
   :<|> "sources" :> ReqBody Source :> Post Text
 

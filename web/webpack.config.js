@@ -5,7 +5,7 @@ module.exports = {
     app:  [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
-      './index.js',
+      './app.js',
     ]
   },
 
@@ -21,8 +21,8 @@ module.exports = {
 
   module: {
     loaders: [
-      { test: /\.js/, 
-        exclude: /node_modules/, 
+      { test: /\.js/,
+        exclude: /node_modules/,
         loaders: ["react-hot", "jsx-loader", "babel-loader"]
       }
     ]

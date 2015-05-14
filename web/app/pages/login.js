@@ -19,6 +19,12 @@ export class Login extends React.Component {
     this.state = {login: emptyLogin()}
   }
 
+  componentWillMount() {
+    if (Users.isLoggedIn()) {
+      window.location.hash = "/"
+    }
+  }
+
   onSubmit(e:any) {
     e.preventDefault()
     var login = this.state.login

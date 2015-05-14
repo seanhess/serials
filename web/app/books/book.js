@@ -7,7 +7,7 @@ import Promise from 'bluebird'
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
-import {Users} from '../model/user'
+import {Users, loadSubscription} from '../model/user'
 import {findSubscription, setSubscribed, SubChapter, Subscription} from '../model/subscription'
 import {Cover} from'../cover'
 
@@ -15,10 +15,6 @@ import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail} from 'lodash'
 import {Colors} from '../style'
-
-function loadSubscription(params) {
-  return Users.auth().then((user) => findSubscription(user.id, params.id))
-}
 
 type ChapterAndRead = {
   chapter: Chapter;
@@ -66,7 +62,7 @@ export class Book extends React.Component {
     return {
       source: SourceModel.find(params.id),
       chapters: ChapterModel.findBySource(params.id),
-      subscription: loadSubscription(params)
+      subscription: loadSubscription(params.id)
     }
   }
 
@@ -78,13 +74,12 @@ export class Book extends React.Component {
   toggleSubscribe() {
     var hasSubscription = !!this.state.subscription
     var sourceId = this.props.params.id
-    return Users.auth()
-    .then((user) => setSubscribed(user.id, sourceId, !hasSubscription))
+    setSubscribed(Users.currentUserId(), sourceId, !hasSubscription)
     .then(this.reloadSubscription.bind(this))
   }
 
   reloadSubscription() {
-    return loadSubscription(this.props.params)
+    return loadSubscription(this.props.params.id)
     .then((sub) => this.setState({subscription: sub}))
   }
 

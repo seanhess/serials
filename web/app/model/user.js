@@ -33,28 +33,20 @@ export type Signup = {
 
 // methods for logging in and out
 // also currently logged in state
+declare var SETTINGS;
+
 export class UserModel {
 
   currentUser: ?User;
 
-  hasAuth:boolean;
-
   events: EventEmitter;
 
   constructor() {
-    this.currentUser = null
-    this.hasAuth = false
+    this.currentUser = SETTINGS.user
     this.events = new EventEmitter()
   }
 
   //// Auth ////////////////////////////////
-  auth():Promise<User> {
-    if (this._auth) {
-      return this._auth
-    }
-    this._auth = this._checkAuth()
-    return this._auth
-  }
 
   login(login:Login) {
     return Put(url('auth'), login)
@@ -80,33 +72,25 @@ export class UserModel {
     return !!this.currentUser
   }
 
+  currentUserId():string {
+    if (!this.currentUser) return ""
+    return this.currentUser.id
+  }
+
 
   //// Changes //////////////////////////////
   bind(f:Function) {
     this.events.on('change', f)
   }
 
-  // private
-  _auth: ?Promise<User>;
-
-  _checkAuth() {
-    console.log("CHECK AUTH: should only be called once")
-    return Get(url('auth'))
-    .then(u => this._updateAuth(u))
-  }
-
   _updateAuth(user:User):Promise<User> {
     this.currentUser = user
-    this.hasAuth = true
     this.events.emit('change', this)
-    this._auth = Promise.resolve(user)
     return user
   }
 
   _clearAuth():void {
-    this._auth = null
     this.currentUser = null
-    this.hasAuth = true
   }
 
 }
@@ -115,7 +99,7 @@ export class UserModel {
 export var Users = new UserModel()
 
 export function loadSubscription(sourceId:string):Promise<Subscription> {
-  return Users.auth().then((user) => findSubscription(user.id, sourceId))
+  return findSubscription(Users.currentUserId(), sourceId)
 }
 
 

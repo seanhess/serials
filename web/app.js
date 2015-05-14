@@ -30,6 +30,9 @@ import {updateLocalStorage} from './app/helpers'
 
 import {background} from './app/style'
 
+declare var SETTINGS;
+console.log("SETTINGS", SETTINGS)
+
 class App extends React.Component {
 
   constructor(props) {
@@ -90,6 +93,7 @@ var routes = (
     <Route name="user" handler={Main}>
       <Route name="library" path=":id/library" handler={Library}/>
     </Route>
+
     <NotFoundRoute handler={NotFound} />
   </Route>
 )
@@ -104,26 +108,24 @@ Router.run(routes, function(Handler, state) {
   lastState = state
   lastData = {}
 
-  checkLoginRedirect().then(function() {
-    // render once without any data
-    render()
+  // render once without any data
+  render()
 
-    // render again every time any of the promises resolve
-    loadAll(state.routes, state.params, render)
-  })
+  // render again every time any of the promises resolve
+  loadAll(state.routes, state.params, render)
 })
 
-function checkLoginRedirect() {
-  return Users.auth().then(function(user) {
-    if (!user && lastState.path !== "/login") {
-      console.log("CAUGHT YOU!")
-      window.location.hash = "/login"
-      return false
-    }
+//function checkLoginRedirect() {
+  //return Users.auth().then(function(user) {
+    //if (!user && lastState.path !== "/login") {
+      //console.log("CAUGHT YOU!")
+      //window.location.hash = "/login"
+      //return false
+    //}
 
-    return true
-  })
-}
+    //return true
+  //})
+//}
 
 function render(data = lastData) {
   lastData = data

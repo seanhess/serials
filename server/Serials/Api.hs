@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -14,6 +15,8 @@ import Data.Aeson
 import Data.Monoid
 import Data.Proxy
 import Data.Text (Text, toUpper, unpack, pack)
+import qualified Data.Text.Lazy.Encoding as TLE
+import qualified Data.Text.Lazy as TL
 import Data.Maybe (fromJust)
 import Data.Pool
 import qualified Data.ByteString.Lazy.Char8 as BL
@@ -237,27 +240,27 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> beta
   -- what happens on login
 
   current :: Maybe Text -> Handler SecureUser
-  current mc = liftE $ secure <$> checkCurrentAuth h (parseToken mc)
+  current mc = liftE $ checkAuth h mc
 
   beta :: BetaSignup -> Handler Text
   beta b = liftIO $ BetaSignup.insert h b
 
 
 
-  addAuthHeader :: AuthUser -> Headers CookieHeader AuthUser
-  addAuthHeader auth = addHeader ("token=" <> User.token auth <> "; path=/; HttpOnly;") auth
+addAuthHeader :: AuthUser -> Headers CookieHeader AuthUser
+addAuthHeader auth = addHeader ("token=" <> User.token auth <> "; path=/; HttpOnly;") auth
 
-  clearAuthHeader :: Headers CookieHeader ()
-  clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()
+clearAuthHeader :: Headers CookieHeader ()
+clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()
 
-  parseToken :: Maybe Text -> Maybe Text
-  parseToken mc = do
-    cookie <- mc
-    token <- lookup "token" $ parseCookiesText $ encodeUtf8 cookie
-    return $ token
+parseToken :: Maybe Text -> Maybe Text
+parseToken mc = do
+  cookie <- mc
+  token <- lookup "token" $ parseCookiesText $ encodeUtf8 cookie
+  return $ token
 
-
-
+checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
+checkAuth h mc = secure <$> checkCurrentAuth h (parseToken mc)
 
 
 
@@ -276,6 +279,9 @@ type API =
   -- :<|> "admin" :> AuthProtected :> AdminAPI
   :<|> "admin" :> AdminAPI
 
+  :<|> "settings"    :> Header "Cookie" Text :> Get AppSettings
+  :<|> "settings.js" :> Header "Cookie" Text :> Servant.Get '[PlainText] Text
+
   :<|> Raw
 
 
@@ -290,15 +296,37 @@ server h =
    :<|> proxyApp
    :<|> adminServer h
    -- :<|> (checkAuthToken h, adminServer h)
+
+   :<|> liftIO . settings
+   :<|> settingsText
    :<|> serveDirectory "web"
 
   where
 
+    settingsText :: Maybe Text -> Handler Text
+    settingsText mc = liftIO $ do
+      s <- settings mc
+      let json = TL.toStrict $ TLE.decodeUtf8 $ encode s :: Text
+      return $ "var SETTINGS=" <> (json)
+
+    settings :: Maybe Text -> IO AppSettings
+    settings mc = do
+      user <- checkAuth h mc
+      return $ AppSettings "Serials" "0.2" user "http://localhost:3001"
+
+    printVar :: ToJSON a => Text -> a -> Text
+    printVar key a = ""
+
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 
+data AppSettings = AppSettings {
+  appName :: Text,
+  version :: Text,
+  user :: Maybe SecureUser,
+  endpoint :: Text
+} deriving (Show, Generic)
 
-
-
+instance ToJSON AppSettings
 
 
 

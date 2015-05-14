@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Serials.Lib.JWT (
-  subject
-  , signedJwtWebToken
-  , verifyJwt
-  ) where
+  subject,
+  signedJwtWebToken,
+  verifyJwt
+) where
 
 import Prelude hiding (exp, id)
 import Data.Time.Clock
@@ -50,9 +50,8 @@ expiredAt = exp . claimSet
 intDateToNominalDT :: Maybe IntDate -> NominalDiffTime
 intDateToNominalDT = secondsSinceEpoch . fromJust
 
-subject :: Maybe (JWT a) -> Maybe StringOrURI
-subject (Just j) = sub $ claimSet j
-subject Nothing = Nothing
+subject :: JWT a -> Maybe StringOrURI
+subject = sub . claimSet
 
 signedJwtWebToken :: Text -> IO JSON
 signedJwtWebToken id = do

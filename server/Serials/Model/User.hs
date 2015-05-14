@@ -58,9 +58,9 @@ instance ToJSON SecureUser where
 
 -- Used for signup/login to pass back user and token
 data AuthUser = AuthUser {
-  user :: SecureUser
-  , token :: JSON
-  } deriving (Show, Generic)
+  user :: SecureUser,
+  token :: JSON
+} deriving (Show, Generic)
 
 instance FromJSON AuthUser
 instance ToJSON AuthUser

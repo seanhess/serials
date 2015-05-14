@@ -8,22 +8,29 @@
 module Serials.Lib.Auth where
 
 import Prelude hiding (id)
+
+import Crypto.BCrypt (validatePassword)
+import Control.Applicative ((<$>))
+
 import Data.Text (Text, pack, toLower)
+import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
-import Safe (headMay)
 import Data.Pool (Pool)
+import Data.Aeson (FromJSON, ToJSON)
+
 import Database.RethinkDB.NoClash (RethinkDBHandle)
-import Crypto.BCrypt (validatePassword)
+
+import GHC.Generics
 import Network.HTTP.Types
 import Network.Wai
+
+import Safe (headMay)
 import Servant
 import Servant.Server.Internal
-import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics
+
 import Web.JWT (JSON)
-import qualified Data.Text as T
 
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), AuthUser(..), SecureUser(..))
@@ -37,37 +44,43 @@ data UserLogin = UserLogin {
 instance FromJSON UserLogin
 instance ToJSON UserLogin
 
-type TokenLookup = ByteString -> IO Bool
+type TokenLookup = Text -> IO Bool
 
-data WithAuthToken
+data AuthProtected
 
-instance HasServer api => HasServer (WithAuthToken :> api) where
-    type Server (WithAuthToken :> api) = (TokenLookup, Server api)
+data Connected a = Connected (Pool RethinkDBHandle) a
 
-    route Proxy (tokenLookup, serv) request respond = case lookup "Authorization" (requestHeaders request) of
-      Nothing -> respond . succeedWith $ responseLBS status401 [] ""
-      Just x  -> do
-        let auth = getAuthToken x
-        cookie <- tokenLookup auth
-        if cookie
-          then route (Proxy :: Proxy api) serv request respond
-          else respond . succeedWith $ responseLBS status403 [] ""
+ --how could you give it the connection pool?
+instance HasServer rest => HasServer (AuthProtected :> rest) where
+  type ServerT (AuthProtected :> rest) m = (TokenLookup, ServerT rest m)
 
-getAuthToken :: ByteString -> ByteString
-getAuthToken token = encodeUtf8 . last $ T.split (==' ') $ decodeUtf8 token
+  route Proxy (tokenLookup, a) request respond =
+    case lookup "Authorization" (requestHeaders request) of
+      Nothing -> respond . succeedWith $ responseLBS status401 [] "Missing auth header."
+      Just v  -> do
+        let auth = getAuthToken $ decodeUtf8 v
+        granted <- tokenLookup auth
+        if granted
+          then route (Proxy :: Proxy rest) a request respond
+          else respond . succeedWith $ responseLBS status403 [] "Invalid auth token."
+
+getAuthToken :: Text -> Text
+getAuthToken token = last $ T.split (==' ') $ token
 
 checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
-checkCurrentAuth h token = case token of
+checkCurrentAuth h mjwt = case mjwt of
   Nothing -> return Nothing
-  Just t -> do
-    tok <- verifyJwt t
-    case tok of
+  Just jwt -> do
+    mt <- verifyJwt jwt
+    case mt of
       Nothing -> return Nothing
-      Just to -> User.find h $ pack $ show $ fromJust $ subject tok
+      Just t  -> do
+        let sub = subject t
+        User.find h $ pack $ show sub
 
 checkAuthToken :: Pool RethinkDBHandle -> TokenLookup
 checkAuthToken h token = do
-  tok <- verifyJwt $ decodeUtf8 token
+  tok <- verifyJwt token
   case tok of
     Nothing -> return False
     Just x -> return True

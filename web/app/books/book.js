@@ -14,6 +14,7 @@ import {Cover} from'../cover'
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail} from 'lodash'
+import {Colors} from '../style'
 
 function loadSubscription(params) {
   return Users.auth().then((user) => findSubscription(user.id, params.id))
@@ -170,7 +171,8 @@ export function statusColor(status:SourceStatus):string {
     return "#009800"
   }
   else if (status === Status.Complete) {
-    return "#207DE5"
+    //return "#207DE5"
+    return Colors.dark
   }
   else {
     return "#888"

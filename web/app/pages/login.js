@@ -37,23 +37,26 @@ export class Login extends React.Component {
       this.setState({login: v})
     })
 
-    return <div style={{padding: 25}}>
-      <FormSection title="Serials Login">
-        <form onSubmit={this.onSubmit.bind(this)}>
-          <label>Email</label>
-          <input type="text"
-            value={login.email}
-            onChange={update((s, v) => s.email = v)}
-          />
-          <label>Password</label>
-          <input type="password"
-            value={login.password}
-            onChange={update((s, v) => s.password = v)}
-          />
+    return <div style={{padding: 25}} className="row small-12 columns">
 
-          <button>Submit</button>
-        </form>
-      </FormSection>
+      <div style={{textAlign: 'center', height: 200}}>
+        <img src="img/serials-logo-dark.png" style={{height: '100%'}}/>
+      </div>
+
+      <form onSubmit={this.onSubmit.bind(this)}>
+        <label>Email</label>
+        <input type="text"
+          value={login.email}
+          onChange={update((s, v) => s.email = v)}
+        />
+        <label>Password</label>
+        <input type="password"
+          value={login.password}
+          onChange={update((s, v) => s.password = v)}
+        />
+
+        <button>Submit</button>
+      </form>
     </div>
   }
 }

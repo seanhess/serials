@@ -19,6 +19,8 @@ import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
 import Data.Pool (Pool)
 import Data.Aeson (FromJSON, ToJSON)
+import Debug.Trace
+import Data.Monoid ((<>))
 
 import Database.RethinkDB.NoClash (RethinkDBHandle)
 
@@ -71,12 +73,14 @@ checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
 checkCurrentAuth h mjwt = case mjwt of
   Nothing -> return Nothing
   Just jwt -> do
-    mt <- verifyJwt jwt
-    case mt of
+    mt <- verifyJwt jwt -- IO
+    case mt of -- Maybe
       Nothing -> return Nothing
       Just t  -> do
-        let sub = subject t
-        User.find h $ pack $ show sub
+        case subject t of -- Maybe
+          Nothing -> return Nothing
+          Just s  -> do
+            User.find h $ pack $ show s
 
 checkAuthToken :: Pool RethinkDBHandle -> TokenLookup
 checkAuthToken h token = do

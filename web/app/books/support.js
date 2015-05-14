@@ -63,18 +63,18 @@ export class BetaSignupView extends React.Component {
     var message = this.renderMessage(this.state.message, '#008000')
     var error = this.renderMessage(this.state.error, '#ff0000')
 
-    return <div>
+    return <div className="row">
       {error}
       {message}
-      <div className='small-10 left'>
+      <div className='small-12 medium-10 column'>
         <input type="text"
           placeholder='Give us your email for beta access'
           value={betaSignup.email}
           onChange={update((s, v) => s.email = v)}
         />
       </div>
-      <div className='small-1 small-offset-1 right'>
-        <button className='tiny' onClick={this.onClick.bind(this)}>Submit</button>
+      <div className='small-12 medium-2 column'>
+        <button className='expand' onClick={this.onClick.bind(this)}>Submit</button>
       </div>
     </div>
   }
@@ -84,7 +84,6 @@ export class SuggestBook extends React.Component {
   render() {
     return <div>
       <p>Can't find a book? Email us at <EmailLink/> and we will add it.</p>
-      <BetaSignupView />
     </div>
   }
 }
@@ -93,7 +92,6 @@ export class SomethingWrong extends React.Component {
   render() {
     return <div>
       <p>See something wrong? Email us at <EmailLink/> and we will fix it.</p>
-      <BetaSignupView />
     </div>
   }
 }

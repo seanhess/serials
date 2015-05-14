@@ -17,7 +17,6 @@ export class About extends React.Component {
       <hr/>
 
       <p>Have a suggestion? Want to be notified when we launch? Email us at <EmailLink /></p>
-      <BetaSignupView />
 
       <hr />
 

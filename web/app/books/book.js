@@ -158,7 +158,7 @@ export class Book extends React.Component {
     var text = "Subscribe"
     if (hasSubscription) {
       className += " secondary"
-      text = "Unsubscribe"
+      text = "Subscribed!"
     }
 
     return <button className={className} onClick={this.toggleSubscribe.bind(this)}>{text}</button>

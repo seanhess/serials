@@ -1,0 +1,25 @@
+/* This contains useful classes and defaults. Use Javascript for everything else */
+
+body {
+  color: #333;
+  background-color: #F8FBFB;
+  font-family: 'Helvetica Neue' , Helvetica, Arial, sans-serif; font-weight: normal;
+}
+
+a, a:visited {
+  color: #F15D58;
+}
+
+a:active, a:hover {
+  color: #D05045;
+}
+
+button, .button, a.button {
+  background-color: #F15D58;
+  border-color: #D05045;
+  color: white;
+}
+
+button:hover, .button:hover {
+  background-color: #D05045;
+}

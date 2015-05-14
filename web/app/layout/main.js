@@ -6,23 +6,24 @@ import React from 'react'
 import {RouteHandler, Link} from 'react-router'
 import {assign} from 'lodash'
 import {Users} from '../model/user'
+import {background, Colors} from '../style'
 
 export class MainContainer extends React.Component {
   render():React.Element {
-    return <div className="row columns small-12">
+    return <div className="row columns small-12" style={background}>
       {this.props.children}
     </div>
   }
 }
 
 var TitleStyle = {
-  color: 'white',
+  color: Colors.white,
   fontSize: '18px',
   margin: 0,
 }
 
 var LinkStyle = {
-  color: 'white',
+  color: Colors.white,
   fontSize: '14px',
   margin: 14,
   display: 'inline-block'
@@ -34,7 +35,8 @@ var CenterText = {
 }
 
 var NavBar = {
-  backgroundColor: '#333',
+  //backgroundColor: '#333',
+  backgroundColor: Colors.dark,
   height: 47,
   position: 'relative'
 }
@@ -83,7 +85,12 @@ export class Header extends React.Component {
         <Link style={adminStyle} to="sources">Admin</Link>
         {this.renderCurrentUser()}
       </div>
-      <div style={CenterText}><Link to="books" style={TitleStyle}>Serials</Link></div>
+      <div style={CenterText}>
+        <Link to="books" style={TitleStyle}>
+          <img src="img/serials-icon-white.png" style={{height: 30, marginRight: 5}}/>
+          <span style={{fontWeight: 'bold'}}>serials</span>
+        </Link>
+      </div>
     </nav>
   }
 }

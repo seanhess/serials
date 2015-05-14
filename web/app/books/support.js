@@ -14,9 +14,9 @@ var validateEmail = function(email) {
 }
 
 type State = {
-  betaSignup?: {email: string},
-  message?: ?string,
-  error?: ?string
+  betaSignup?: {email: string};
+  message?: ?string;
+  error?: ?string;
 }
 
 export class BetaSignupView extends React.Component {

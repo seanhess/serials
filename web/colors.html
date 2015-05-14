@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+
+  <style>
+
+    /* 
+      USE BOY COY: 
+        red: #F15D58... secondary: #DC5550
+        dark: #333 ... secondary: #414042
+        brown: #A68F58
+        light: #DCDDCD
+
+        paper yellow?: #FFFAB5, paper line: #F6E5AD
+
+        red -> dark
+        light -> red
+        light -> dark
+        white on dark
+
+        kickstarter almost white: #F8FBFB
+    */
+
+    body {
+      color: #333;
+      font-family: "Helvectica Neue", Helvectica;
+    }
+
+    .color {
+      width: 200px;
+      height: 200px;
+      display: inline-block;
+      padding: 15px;
+      position: relative;
+      margin-right: -2px;
+      margin-left: -2px;
+    }
+
+    .secondary {
+      width: 100px;
+      height: 100px;
+      display: block;
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      padding: 10px;
+    }
+  </style>
+
+  </head>
+
+  <body>
+    <div>
+      <div class="color" style="background-color: #F15D58">
+        <span>#F15D58 highlight</span>
+        <div class="secondary" style="background-color: #DC5550"> #DC5550 </div>
+      </div>
+
+      <div class="color" style="background-color: #333; color: white;">
+        <span>#333 dark, text</span>
+        <div class="secondary" style="background-color: #414042"> #414042 </div>
+      </div>
+      <div class="color" style="background-color: #F8FBFB">
+        <span>#F8FBFB off white</span>
+        <div class="secondary" style="background-color: #FFF; border: solid 1px #DDD"> white </div>
+      </div>
+      <div class="color" style="background-color: #DCDDCD"> #DCDDCD </div>
+    </div>
+  </body>
+</html>

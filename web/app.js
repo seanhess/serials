@@ -28,6 +28,8 @@ import {Users} from './app/model/user'
 
 import {updateLocalStorage} from './app/helpers'
 
+import {background} from './app/style'
+
 class App extends React.Component {
 
   constructor(props) {
@@ -44,7 +46,9 @@ class App extends React.Component {
       return <div><NotFound /></div>
     }
 
-    return <div>
+    console.log("TEST", background)
+
+    return <div style={background}>
       <RouteHandler {...this.props} />
     </div>
   }

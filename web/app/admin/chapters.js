@@ -8,7 +8,7 @@ import {makeUpdate, number} from '../data/update'
 import {isLink, emptyChapter, Chapter} from '../model/chapter'
 
 export class Chapters extends React.Component {
-  render() {
+  render():?React.Element {
     var chapters = this.props.chapters || []
     var onUpdate = this.props.onUpdate
     //var source = this.props.source
@@ -38,7 +38,7 @@ export class Chapters extends React.Component {
 }
 
 export class LinkContent extends React.Component {
-  render() {
+  render():?React.Element {
     var content = this.props.content
     return <div>
       <span>{content.linkText}</span>
@@ -49,14 +49,14 @@ export class LinkContent extends React.Component {
 }
 
 export class TitleContent extends React.Component {
-  render() {
+  render():?React.Element {
     var content = this.props.content
     return <div>{content.titleText}</div>
   }
 }
 
 export class Content extends React.Component {
-  render() {
+  render():?React.Element {
     var content = this.props.content
     var inner = ""
     if (content.tag == "Link") {
@@ -72,12 +72,12 @@ export class Content extends React.Component {
 
 export class ChapterRow extends React.Component {
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {editing: null}
   }
 
-  render() {
+  render():?React.Element {
     var content;
     if (this.state.editing) {
       content = this.renderEdit()
@@ -86,14 +86,6 @@ export class ChapterRow extends React.Component {
       content = this.renderView()
     }
     return content
-  }
-
-  update(f) {
-    return (e) => {
-      var chapter = this.state.editing
-      f(chapter, e.target.value)
-      this.setState({editing: chapter})
-    }
   }
 
   clear() {
@@ -123,7 +115,7 @@ export class ChapterRow extends React.Component {
     this.props.onSaveChapter(chapter)
   }
 
-  renderEdit() {
+  renderEdit():?React.Element {
 
     var chapter:any = this.state.editing || emptyChapter("")
 
@@ -181,7 +173,7 @@ export class ChapterRow extends React.Component {
     </tr>
   }
 
-  renderView() {
+  renderView():?React.Element {
     var chapter = this.props.chapter
 
 

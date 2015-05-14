@@ -40,6 +40,8 @@ export class UserModel {
 
   hasAuth:boolean;
 
+  events: EventEmitter;
+
   constructor() {
     this.currentUser = null
     this.hasAuth = false

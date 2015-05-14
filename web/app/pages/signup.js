@@ -17,7 +17,7 @@ var emptySignup = function() {
 
 export class Signup extends React.Component {
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {signup: emptySignup()}
   }
@@ -34,7 +34,7 @@ export class Signup extends React.Component {
     })
   }
 
-  render() {
+  render():React.Element {
     var signup = this.state.signup
     var update = makeUpdate(signup, (v) => {
       this.setState({signup: v})

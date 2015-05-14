@@ -8,7 +8,7 @@ var {MainContainer, Header} = require('../layout/main')
 var {AdminModel} = require('../model/admin')
 
 export class Admin extends React.Component {
-  render() {
+  render():?React.Element {
     return <div>
       <Header {...this.props}/>
       <MainContainer>
@@ -24,7 +24,7 @@ export class ImportLog extends React.Component {
     return {text: AdminModel.importLog(params.n)}
   }
 
-  render() {
+  render():?React.Element {
     var numLines = parseInt(this.props.params && this.props.params.n, 10)
     var moreUrl = "#/admin/import-log/" + (numLines+500)
 

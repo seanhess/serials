@@ -35,7 +35,7 @@ export function coverStyle(url:string):Object {
 }
 
 export class Cover extends React.Component {
-  render() {
+  render():React.Element {
     var source:Source = this.props.source || emptySource()
     var showTitle:bool = source.imageMissingTitle
 

@@ -5,7 +5,7 @@ import {EmailLink, BetaSignupView} from '../books/support'
 
 
 export class About extends React.Component {
-  render() {
+  render():React.Element {
     return <div>
       <h2>About Serials</h2>
       <p>Serials aims to be a podcast-like experience for reading serial publications on the web.</p>

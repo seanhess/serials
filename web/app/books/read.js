@@ -50,7 +50,7 @@ export class Read extends React.Component {
     //return {__html: this.props.content}
   //}
 
-  render() {
+  render():React.Element {
 
     if (!this.props.chapter) {
       return <div/>

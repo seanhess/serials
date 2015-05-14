@@ -28,12 +28,12 @@ export class Source extends React.Component {
     }
   }
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {source: emptySource(), scanning: false, chapters: []}
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props:any) {
     this.setState({
       // store them locally so you can refresh them!
       source: props.source || emptySource(),
@@ -52,7 +52,7 @@ export class Source extends React.Component {
     }
   }
 
-  onSaveChapter(chapter) {
+  onSaveChapter(chapter:Chapter) {
     ChapterModel.save(chapter)
     .then(this.reloadChapters.bind(this))
   }
@@ -74,7 +74,7 @@ export class Source extends React.Component {
     .then(this.reloadChapters.bind(this))
   }
 
-  onHiddenChapter(chapter, hidden) {
+  onHiddenChapter(chapter:Chapter, hidden:boolean) {
     ChapterModel.hidden(chapter, hidden)
     .then(this.reloadChapters.bind(this))
   }
@@ -105,7 +105,7 @@ export class Source extends React.Component {
     .then(this.reloadChapters.bind(this))
   }
 
-  onUpdateSettings(settings) {
+  onUpdateSettings(settings:ImportSettings) {
     var source = this.state.source
     source.importSettings = settings
     this.setState({source: source})
@@ -121,7 +121,7 @@ export class Source extends React.Component {
     ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
   }
 
-  render() {
+  render():?React.Element {
     var source:Source = this.state.source || {}
     var chapters = this.state.chapters || []
     var lastScan = source.lastScan || emptyScan()

@@ -8,7 +8,7 @@ import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
 import {Users} from '../model/user'
-import {findSubscription, setSubscribed, SubChapter} from '../model/subscription'
+import {findSubscription, setSubscribed, SubChapter, Subscription} from '../model/subscription'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
@@ -69,7 +69,7 @@ export class Book extends React.Component {
     }
   }
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {subscription: null, showRead: false}
   }
@@ -87,7 +87,7 @@ export class Book extends React.Component {
     .then((sub) => this.setState({subscription: sub}))
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props:any) {
     this.setState({subscription: props.subscription})
   }
 
@@ -95,7 +95,7 @@ export class Book extends React.Component {
     this.setState({showRead: true})
   }
 
-  render() {
+  render():?React.Element {
     var sub = this.state.subscription
 
     var source:Source = this.props.source || emptySource()
@@ -152,7 +152,7 @@ export class Book extends React.Component {
     </div>
   }
 
-  renderSubscribe(subscription) {
+  renderSubscribe(subscription:Subscription):?React.Element {
     var hasSubscription = !!subscription
     var className = "expand"
     var text = "Subscribe"
@@ -182,7 +182,7 @@ var ReadStyle = {
 }
 
 export class Chapter extends React.Component {
-  render() {
+  render():React.Element {
     var chapter:Chapter = this.props.chapter
 
     var content = ""
@@ -208,7 +208,7 @@ export class Chapter extends React.Component {
     </Link>
   }
 
-  renderTitle(chapter) {
+  renderTitle(chapter:Chapter):React.Element {
     return <h5 style={{marginTop: 15, marginBottom: 5}}>{chapter.content.titleText}</h5>
   }
 }

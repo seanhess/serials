@@ -13,15 +13,23 @@ var validateEmail = function(email) {
     return re.test(email);
 }
 
+type State = {
+  betaSignup?: {email: string},
+  message?: ?string,
+  error?: ?string
+}
+
 export class BetaSignupView extends React.Component {
 
-  constructor(props) {
+  _timer: ?number;
+
+  constructor(props:any) {
     super(props)
     this.state = this.emptyState()
     this._timer = null
   }
 
-  emptyState(obj = {}) {
+  emptyState(obj:any = {}):State {
     return _.assign({
       betaSignup: {email: ''},
       message: null,
@@ -45,17 +53,17 @@ export class BetaSignupView extends React.Component {
     }
   }
 
-  clearMessage(message) {
+  clearMessage(message:State) {
     this._timer != null ? clearTimeout(this._timer) : null;
     this._timer = setTimeout(() => {this.setState(message)}, 5000)
   }
 
-  renderMessage(message, color) {
+  renderMessage(message:string, color:string):React.Element {
     if (!message) return null
     return <div style={{color: color}}>{message}</div>
   }
 
-  render() {
+  render():React.Element {
     var betaSignup = this.state.betaSignup
     var update = makeUpdate(betaSignup, (v) => {
       this.setState({betaSignup: v})
@@ -81,7 +89,7 @@ export class BetaSignupView extends React.Component {
 }
 
 export class SuggestBook extends React.Component {
-  render() {
+  render():React.Element {
     return <div>
       <p>Can't find a book? Email us at <EmailLink/> and we will add it.</p>
     </div>
@@ -89,7 +97,7 @@ export class SuggestBook extends React.Component {
 }
 
 export class SomethingWrong extends React.Component {
-  render() {
+  render():React.Element {
     return <div>
       <p>See something wrong? Email us at <EmailLink/> and we will fix it.</p>
     </div>
@@ -97,7 +105,7 @@ export class SomethingWrong extends React.Component {
 }
 
 export class EmailLink extends React.Component {
-  render() {
+  render():React.Element {
     return <a href={EMAIL}>{EMAIL}</a>
   }
 }

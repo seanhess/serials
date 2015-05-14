@@ -3,7 +3,7 @@
 var React = require('react')
 
 export class FormSection extends React.Component {
-  render() {
+  render():React.Element {
 
     var contentStyle = {
       padding: 15,
@@ -29,7 +29,7 @@ export class FormSection extends React.Component {
 }
 
 export class DisabledButton extends React.Component {
-  render() {
+  render():React.Element {
 
     if (this.props.disabled) {
       var text = "Disabled"

@@ -14,12 +14,12 @@ var emptyLogin = function() {
 
 export class Login extends React.Component {
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {login: emptyLogin()}
   }
 
-  onSubmit(e) {
+  onSubmit(e:any) {
     e.preventDefault()
     var login = this.state.login
     Users.login(login)
@@ -31,7 +31,7 @@ export class Login extends React.Component {
     })
   }
 
-  render() {
+  render():React.Element {
     var login = this.state.login
     var update = makeUpdate(login, (v) => {
       this.setState({login: v})

@@ -11,7 +11,7 @@ export class Library extends React.Component {
     return {sources: userBooks(params.id)}
   }
 
-  render() {
+  render():React.Element {
     var sources = this.props.sources
     return <div>
       <h3>My Books</h3>

@@ -3,7 +3,7 @@
 var React = require('react')
 
 export class Scans extends React.Component {
-  render() {
+  render():?React.Element {
     var scans = this.props.scans || []
 
     function row(scan) {

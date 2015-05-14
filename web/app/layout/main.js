@@ -8,7 +8,7 @@ import {assign} from 'lodash'
 import {Users} from '../model/user'
 
 export class MainContainer extends React.Component {
-  render() {
+  render():React.Element {
     return <div className="row columns small-12">
       {this.props.children}
     </div>
@@ -47,7 +47,7 @@ export class Header extends React.Component {
     })
   }
 
-  renderCurrentUser() {
+  renderCurrentUser():React.Element {
     var currentUser = this.props.currentUser;
 
     if (currentUser) {
@@ -66,7 +66,7 @@ export class Header extends React.Component {
     }
   }
 
-  render() {
+  render():React.Element {
 
     var isAdmin = false
     if (this.props.currentUser && this.props.currentUser.admin) {

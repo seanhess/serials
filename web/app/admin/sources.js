@@ -13,11 +13,7 @@ export class Sources extends React.Component {
     return {sources: SourceModel.findAll(), version: AdminModel.version()}
   }
 
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
+  render():?React.Element {
     var sources = this.props.sources || []
 
     var sorted = sortBy(sources, s => s.sourceDisabled)

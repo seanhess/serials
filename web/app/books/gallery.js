@@ -18,16 +18,16 @@ export class Gallery extends React.Component {
     return {sources: SourceModel.findAll()}
   }
 
-  constructor(props) {
+  constructor(props:any) {
     super(props)
     this.state = {search: ""}
   }
 
-  search(e) {
+  search(e:any) {
     this.setState({search: e.target.value})
   }
 
-  render() {
+  render():React.Element {
     var sources:Array<Source> = this.props.sources || []
 
     if (this.state.search) {
@@ -50,7 +50,7 @@ export class Gallery extends React.Component {
 
 export class SimpleGallery extends React.Component {
 
-  render() {
+  render():React.Element {
     var sources:Array<Source> = this.props.sources || []
     var row = (s) => <GalleryCover source={s} key={s.id} />
 
@@ -68,7 +68,7 @@ export class SimpleGallery extends React.Component {
 }
 
 export class GalleryCover extends React.Component {
-  render() {
+  render():React.Element {
     var source = this.props.source
     var style = {
       margin: '0px 3px 0px 3px',

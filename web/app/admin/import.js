@@ -18,25 +18,19 @@ var {makeUpdate} = require('../data/update')
 
 export class MenuSettings extends React.Component {
 
-  onChange(field) {
-    return (e) => {
-      var settings = this.props.settings
-      settings[field] = e.target.value
-      this.props.onUpdate(settings)
-    }
-  }
-
-  render() {
+  render():?React.Element {
     var settings = this.props.settings
+
+    var update = makeUpdate(settings, this.props.onUpdate)
 
     return <div>
       <label placeholder="twigserial.wordpress.com/?cat=">Base URL</label>
-      <input type="text" value={settings.menuBase} onChange={this.onChange("menuBase")} />
+      <input type="text" value={settings.menuBase} onChange={update((s, v) => s.menuBase = v)} />
 
       <div className="row">
         <div className="small-12 columns">
           <label placeholder="#chap_select">Open Selector</label>
-          <input type="text" value={settings.menuOpen} onChange={this.onChange("menuOpen")} />
+          <input type="text" value={settings.menuOpen} onChange={update((s, v) => s.menuOpen = v)} />
         </div>
       </div>
     </div>
@@ -45,7 +39,7 @@ export class MenuSettings extends React.Component {
 
 export class TOCSettings extends React.Component {
 
-  render() {
+  render():?React.Element {
     var settings = this.props.settings
     var update = makeUpdate(settings, (value) => {
       this.props.onUpdate(value)
@@ -76,13 +70,13 @@ export class TOCSettings extends React.Component {
 
 export class ImportSettings extends React.Component {
 
-  changeSettingsType(e) {
+  changeSettingsType(e:any) {
     var settingsType = e.target.value
     var settings = emptyImportSettings(settingsType)
     this.props.onUpdate(settings)
   }
 
-  render() {
+  render():?React.Element {
     var settings = this.props.settings || {}
 
     var form;

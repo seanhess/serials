@@ -58,7 +58,6 @@ export class Read extends React.Component {
 
     // maybe it would be better to make a second application
     // and inject our source code
-    console.log("TEST", this.props.content)
 
     var frameStyle = {
       border: 0,

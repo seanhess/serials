@@ -2,8 +2,7 @@
 
 import Promise from 'bluebird'
 
-import {Get, Post, Put, Del, url} from '../api'
-import {getLocalStorage, updateLocalStorage} from '../helpers'
+import {Get, Post, Put, Delete, url} from '../api'
 import {EventEmitter} from 'events'
 import {Subscription, findSubscription} from './subscription'
 
@@ -58,17 +57,13 @@ export class UserModel {
   }
 
   login(login:Login) {
-    return Post(url('login'), login)
-    .then((obj) => {
-      updateLocalStorage('userToken', obj.token)
-      return obj.user
-    })
-    .then(u => this._updateAuth(u))
+    return Put(url('auth'), login)
+    .then(obj  => obj.user)
+    .then(user => this._updateAuth(user))
   }
 
   logout() {
-    updateLocalStorage('userToken', null)
-    return Promise.resolve(null)
+    return Delete(url('auth'))
     .then(() => this._clearAuth())
     .then(u => this._updateAuth(u))
   }
@@ -76,7 +71,6 @@ export class UserModel {
   signup(signup:Signup) {
     return Post(url('signup'), signup)
     .then((obj) => {
-      updateLocalStorage('userToken', obj.token)
       return obj.user
     })
     .then(u => this._updateAuth(u))
@@ -97,8 +91,7 @@ export class UserModel {
 
   _checkAuth() {
     console.log("CHECK AUTH: should only be called once")
-    var token = getLocalStorage('userToken')
-    return Get(url('auth/current?token=' + token))
+    return Get(url('auth'))
     .then(u => this._updateAuth(u))
   }
 

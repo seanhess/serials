@@ -69,6 +69,9 @@ instance HasServer rest => HasServer (AuthProtected :> rest) where
 getAuthToken :: Text -> Text
 getAuthToken token = last $ T.split (==' ') $ token
 
+-- TODO is this secure at all? It's only checking that the user is hashed into the JWT
+-- but it isn't really checking it against the database, is it?
+-- I should read a tutorial
 checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
 checkCurrentAuth h mjwt = case mjwt of
   Nothing -> return Nothing

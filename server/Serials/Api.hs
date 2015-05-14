@@ -13,10 +13,12 @@ import Control.Monad.Trans.Either
 import Data.Aeson
 import Data.Monoid
 import Data.Proxy
-import Data.Text (Text, toUpper, unpack)
+import Data.Text (Text, toUpper, unpack, pack)
 import Data.Maybe (fromJust)
 import Data.Pool
-import Data.ByteString.Lazy.Char8 (pack)
+import qualified Data.ByteString.Lazy.Char8 as BL
+import Data.ByteString (ByteString)
+import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 
 import GHC.Generics
 
@@ -50,6 +52,8 @@ import qualified Servant
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
 import qualified Database.RethinkDB as R
 
+import Web.Cookie
+
 -- if you use (Maybe a) with liftIO it will return null instead of a 404
 -- this is intentional for some routes
 
@@ -65,9 +69,9 @@ type Handler a = EitherT ServantErr IO a
 
 -- Chapters ---------------------------------------------------
 type ChaptersAPI =
-       "chapters" :> Capture "id" Text :> Get Chapter
-  :<|> "chapters" :> Capture "id" Text :> ReqBody Chapter :> Put ()
-  :<|> "chapters" :> Capture "id" Text :> Delete ()
+       Capture "id" Text :> Get Chapter
+  :<|> Capture "id" Text :> ReqBody Chapter :> Put ()
+  :<|> Capture "id" Text :> Delete ()
 
 chaptersServer :: Pool RethinkDBHandle -> Server ChaptersAPI
 chaptersServer h =
@@ -89,15 +93,15 @@ chaptersServer h =
 -- Sources -----------------------------------------------------
 
 type SourcesAPI =
-       "sources" :> Get [Source]
-  :<|> "sources" :> ReqBody Source :> Post Text
+       Get [Source]
+  :<|> ReqBody Source :> Post Text
 
-  :<|> "sources" :> Capture "id" Text :> Get Source
-  :<|> "sources" :> Capture "id" Text :> ReqBody Source :> Put ()
+  :<|> Capture "id" Text :> Get Source
+  :<|> Capture "id" Text :> ReqBody Source :> Put ()
 
-  :<|> "sources" :> Capture "id" Text :> "chapters" :> Get [Chapter]
-  :<|> "sources" :> Capture "id" Text :> "chapters" :> Post ()
-  :<|> "sources" :> Capture "id" Text :> "chapters" :> Delete ()
+  :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
+  :<|> Capture "id" Text :> "chapters" :> Post ()
+  :<|> Capture "id" Text :> "chapters" :> Delete ()
 
 sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
 sourcesServer h =
@@ -134,17 +138,20 @@ sourcesServer h =
 -- Admin -------------------------------------------------------
 
 type AdminAPI =
-       "admin" :> "private" :> Get String -- example to see a few routes in here. Remove when we add more.
-  :<|> "admin" :> "import-log" :> Capture "n" Int :> Get Admin.Log
+       "private" :> Get String -- example to see a few routes in here. Remove when we add more.
+  :<|> "import-log" :> Capture "n" Int :> Get Admin.Log
+  :<|> "test" :> Get Text
 
 adminServer :: Pool RethinkDBHandle -> Server AdminAPI
-adminServer h = getPrivate :<|> importLog
+adminServer h = getPrivate :<|> importLog :<|> test
 
   where
 
   getPrivate = return "Serials Private Route"
 
   importLog n = liftIO $ Admin.importLog n
+  test = return "UMMM"
+
 
   --checkAuth = checkAuthToken h
 
@@ -157,14 +164,14 @@ adminServer h = getPrivate :<|> importLog
 
 type UsersAPI =
 
-       "users" :> Capture "id" Text :> Get SecureUser
-  :<|> "users" :> Capture "id" Text :> "books" :> Get [Source]
+       Capture "id" Text :> Get SecureUser
+  :<|> Capture "id" Text :> "books" :> Get [Source]
 
-  :<|> "users" :> Capture "id" Text :> "subs" :> Get [Subscription]
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Get (Maybe Subscription)
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> ReqBody Subscription :> Put ()
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Post ()
-  :<|> "users" :> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete ()
+  :<|> Capture "id" Text :> "subs" :> Get [Subscription]
+  :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Get (Maybe Subscription)
+  :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> ReqBody Subscription :> Put ()
+  :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Post ()
+  :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete ()
 
 usersServer :: Pool RethinkDBHandle -> Server UsersAPI
 usersServer h =
@@ -197,6 +204,60 @@ usersServer h =
   userSubDel uid sid = liftIO $ Subscription.remove h uid sid
 
 
+-- Auth -----------------------------------------------------
+
+type CookieHeader = '[Header "Set-Cookie" Text]
+
+type AuthAPI =
+
+       Header "Cookie" Text :> Get SecureUser
+  :<|> Delete (Headers CookieHeader ())
+  :<|> ReqBody UserLogin :> Put (Headers CookieHeader AuthUser)
+
+  -- this is more like POST users
+  :<|> "signup"  :> ReqBody UserSignup :> Post AuthUser
+  :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
+
+authServer :: Pool RethinkDBHandle -> Server AuthAPI
+authServer h = current :<|> logout :<|> login :<|> signup :<|> beta
+
+  where
+
+  signup :: UserSignup -> Handler AuthUser
+  signup u = liftE $ User.insert h u
+
+  login :: UserLogin -> Handler (Headers CookieHeader AuthUser)
+  login u = liftE $ do
+    eu <- userLogin h u
+    return $ fmap addAuthHeader eu
+
+  logout :: Handler (Headers CookieHeader ())
+  logout = return clearAuthHeader
+  -- also, expire the previous token?
+  -- what happens on login
+
+  current :: Maybe Text -> Handler SecureUser
+  current mc = liftE $ secure <$> checkCurrentAuth h (parseToken mc)
+
+  beta :: BetaSignup -> Handler Text
+  beta b = liftIO $ BetaSignup.insert h b
+
+
+
+  addAuthHeader :: AuthUser -> Headers CookieHeader AuthUser
+  addAuthHeader auth = addHeader ("token=" <> User.token auth <> "; path=/; HttpOnly;") auth
+
+  clearAuthHeader :: Headers CookieHeader ()
+  clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()
+
+  parseToken :: Maybe Text -> Maybe Text
+  parseToken mc = do
+    cookie <- mc
+    token <- lookup "token" $ parseCookiesText $ encodeUtf8 cookie
+    return $ token
+
+
+
 
 
 
@@ -205,19 +266,15 @@ usersServer h =
 
 type API =
 
-       SourcesAPI
-  :<|> ChaptersAPI
-  :<|> UsersAPI
-
-  :<|> "signup" :> ReqBody UserSignup :> Post AuthUser
-  :<|> "login" :> ReqBody UserLogin :> Post AuthUser
-  :<|> "auth" :> "current" :> QueryParam "token" Text :> Get SecureUser
-
-  :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
+       "sources"  :> SourcesAPI
+  :<|> "chapters" :> ChaptersAPI
+  :<|> "users"    :> UsersAPI
+  :<|> "auth"     :> AuthAPI
 
   :<|> "proxy" :> Raw
 
-  :<|>AuthProtected :> AdminAPI
+  -- :<|> "admin" :> AuthProtected :> AdminAPI
+  :<|> "admin" :> AdminAPI
 
   :<|> Raw
 
@@ -228,30 +285,16 @@ server h =
         sourcesServer h
    :<|> chaptersServer h
    :<|> usersServer h
+   :<|> authServer h
 
-   :<|> signup :<|> login :<|> authCurrent
-
-   :<|> betaSignup
    :<|> proxyApp
-   :<|> (checkAuthToken h, adminServer h)
+   :<|> adminServer h
+   -- :<|> (checkAuthToken h, adminServer h)
    :<|> serveDirectory "web"
 
   where
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
-
-  signup :: UserSignup -> Handler AuthUser
-  signup u = liftE $ User.insert h u
-
-  login :: UserLogin -> Handler AuthUser
-  login u = liftE $ userLogin h u
-
-  authCurrent :: Maybe Text -> Handler SecureUser
-  authCurrent mt = liftE $ secure <$> checkCurrentAuth h mt
-
-  betaSignup :: BetaSignup -> Handler Text
-  betaSignup b = liftIO $ BetaSignup.insert h b
-
 
 
 
@@ -307,7 +350,7 @@ instance ToStatus Maybe where
   toStatus (Just v) = Right v
 
 instance Show a => ToStatus (Either a) where
-  toStatus (Left e) = Left $ err500 { errBody = "Server Error: " <> pack (show e) }
+  toStatus (Left e) = Left $ err500 { errBody = "Server Error: " <> BL.pack (show e) }
   toStatus (Right v) = Right v
 
 liftE :: ToStatus a => IO (a v) -> EitherT ServantErr IO v

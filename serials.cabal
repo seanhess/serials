@@ -64,5 +64,6 @@ executable serials
     string-conversions,
     bcrypt,
     random,
-    jwt
+    jwt,
+    cookie
 

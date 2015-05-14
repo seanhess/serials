@@ -46,9 +46,7 @@ class App extends React.Component {
       return <div><NotFound /></div>
     }
 
-    console.log("TEST", background)
-
-    return <div style={background}>
+    return <div>
       <RouteHandler {...this.props} />
     </div>
   }

@@ -24,6 +24,8 @@ export function Del(url:string) {
   return api("delete", url)
 }
 
+export var Delete = Del
+
 export function Post(url:string, body:Object) {
   return api("post", url, body)
 }

@@ -55,10 +55,6 @@ intDateToNominalDT = secondsSinceEpoch . fromJust
 subject :: JWT a -> Maybe StringOrURI
 subject = sub . claimSet
 
---fromList [
-            --("admin", toJSON True)
-          --]
-
 defaultClaims :: Text -> Map Text Value -> IO JWTClaimsSet
 defaultClaims id unc = do
   iat <- currentTime

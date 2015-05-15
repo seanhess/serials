@@ -51,6 +51,7 @@ import Serials.Read.Test (proxyApp)
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 import qualified Servant
+import Serials.Lib.ServantCookie
 
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
 import qualified Database.RethinkDB as R
@@ -206,9 +207,11 @@ usersServer h =
 
 -- Auth -----------------------------------------------------
 
+type AuthToken = Cookie "token" Text
+
 type AuthAPI =
 
-       Header "Cookie" Text :> Get SecureUser
+       AuthToken :> Get SecureUser
   :<|> Delete (Headers CookieHeader ())
   :<|> ReqBody UserLogin :> Put (Headers CookieHeader AuthUser)
 
@@ -216,7 +219,7 @@ type AuthAPI =
   :<|> "signup"  :> ReqBody UserSignup :> Post AuthUser
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
 
-  :<|> "jwt"     :> Header "Cookie" Text :> Get (Maybe JWTClaimsSet)
+  :<|> "jwt"     :> AuthToken :> Get (Maybe JWTClaimsSet)
 
 
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
@@ -232,18 +235,17 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> beta :<|> jwt
     eu <- userLogin h u
     return $ fmap addAuthHeader eu
 
+  -- TODO expire the users' token
   logout :: Handler (Headers CookieHeader ())
   logout = return clearAuthHeader
-  -- also, expire the previous token?
-  -- what happens on login
 
   current :: Maybe Text -> Handler SecureUser
-  current mc = liftE $ checkAuth h mc
+  current mt = liftE $ checkAuth h mt
 
   beta :: BetaSignup -> Handler Text
   beta b = liftIO $ BetaSignup.insert h b
 
-  jwt mc = liftIO $ case parseToken mc of
+  jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
     Just t  -> verifyClaims t
 
@@ -263,8 +265,8 @@ type API =
 
   :<|> "admin" :> AuthProtected :> AdminAPI
 
-  :<|> "settings"    :> Header "Cookie" Text :> Get AppSettings
-  :<|> "settings.js" :> Header "Cookie" Text :> Servant.Get '[PlainText] Text
+  :<|> "settings"    :> AuthToken :> Get AppSettings
+  :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
 
   :<|> Raw
 

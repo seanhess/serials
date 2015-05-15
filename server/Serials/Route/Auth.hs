@@ -131,4 +131,4 @@ parseToken mc = do
   return $ token
 
 checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
-checkAuth h mc = secure <$> checkCurrentAuth h (parseToken mc)
+checkAuth h mt = secure <$> checkCurrentAuth h mt

@@ -15,6 +15,7 @@ import Data.Maybe (catMaybes, fromJust)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Pool
 import Data.Time
+import Data.Map.Lazy (fromList)
 
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (mzero)
@@ -31,6 +32,8 @@ import Serials.Model.UserSignup (UserSignup)
 import qualified Serials.Model.UserSignup as U
 import Serials.Model.Lib.Crud
 import Serials.Lib.JWT
+
+import Web.JWT (JWTClaimsSet)
 
 data User = User {
   id :: Text,
@@ -91,20 +94,20 @@ insert h u = do
         isEmail <- findByEmail h $ toLower $ U.email u
         created <- liftIO getCurrentTime
         let user' = User {
-          id = pack ""
-          , firstName = U.firstName u
-          , lastName = U.lastName u
-          , email = U.email u
-          , hashedPassword = Just . pack $ toString $ fromJust hashPass
-          , admin = False
-          , created = created
+          id             = pack "",
+          firstName      = U.firstName u,
+          lastName       = U.lastName u,
+          email          = U.email u,
+          hashedPassword = Just . pack $ toString $ fromJust hashPass,
+          admin          = False,
+          created        = created
         }
         case headMay isEmail of
           Nothing -> do
             r <- runPool h $ table # create user'
             let user = user' {id = generatedKey r}
-            jwtToken <- signedJwtWebToken $ id user
-            return . Right $ AuthUser (SecureUser user) jwtToken
+            jwt <- userJWT user
+            return . Right $ AuthUser (SecureUser user) jwt
           Just _-> return $ Left "User already exists with that email"
     else return $ Left "Password and Password Confirmation do not match"
 
@@ -115,4 +118,11 @@ init h = do
 
 customHashPolicy :: HashingPolicy
 customHashPolicy = HashingPolicy 10 (C.pack "$2b$")
+
+userJWT :: User -> IO JSON
+userJWT user = signClaims <$> userClaims user
+
+userClaims :: User -> IO JWTClaimsSet
+userClaims user = defaultClaims (id user) $ fromList [adminClaim]
+  where adminClaim = ("admin", toJSON $ admin user)
 

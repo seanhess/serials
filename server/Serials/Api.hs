@@ -43,7 +43,7 @@ import qualified Serials.Model.User as User
 import qualified Serials.Model.BetaSignup as BetaSignup
 import qualified Serials.Model.Subscription as Subscription
 import Serials.Model.App
-import Serials.Lib.Auth (UserLogin, AuthProtected, checkAuthToken, userLogin, checkCurrentAuth, Connected(..))
+import Serials.Route.Auth
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
@@ -55,7 +55,8 @@ import qualified Servant
 import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBError, Datum)
 import qualified Database.RethinkDB as R
 
-import Web.Cookie
+import Web.JWT (JWTClaimsSet)
+
 
 -- if you use (Maybe a) with liftIO it will return null instead of a 404
 -- this is intentional for some routes
@@ -143,20 +144,16 @@ sourcesServer h =
 type AdminAPI =
        "private" :> Get String -- example to see a few routes in here. Remove when we add more.
   :<|> "import-log" :> Capture "n" Int :> Get Admin.Log
-  :<|> "test" :> Get Text
 
 adminServer :: Pool RethinkDBHandle -> Server AdminAPI
-adminServer h = getPrivate :<|> importLog :<|> test
+adminServer h = getPrivate :<|> importLog
 
   where
 
   getPrivate = return "Serials Private Route"
 
   importLog n = liftIO $ Admin.importLog n
-  test = return "UMMM"
 
-
-  --checkAuth = checkAuthToken h
 
 
 
@@ -209,8 +206,6 @@ usersServer h =
 
 -- Auth -----------------------------------------------------
 
-type CookieHeader = '[Header "Set-Cookie" Text]
-
 type AuthAPI =
 
        Header "Cookie" Text :> Get SecureUser
@@ -221,8 +216,11 @@ type AuthAPI =
   :<|> "signup"  :> ReqBody UserSignup :> Post AuthUser
   :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
 
+  :<|> "jwt"     :> Header "Cookie" Text :> Get (Maybe JWTClaimsSet)
+
+
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
-authServer h = current :<|> logout :<|> login :<|> signup :<|> beta
+authServer h = current :<|> logout :<|> login :<|> signup :<|> beta :<|> jwt
 
   where
 
@@ -245,22 +243,9 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> beta
   beta :: BetaSignup -> Handler Text
   beta b = liftIO $ BetaSignup.insert h b
 
-
-
-addAuthHeader :: AuthUser -> Headers CookieHeader AuthUser
-addAuthHeader auth = addHeader ("token=" <> User.token auth <> "; path=/; HttpOnly;") auth
-
-clearAuthHeader :: Headers CookieHeader ()
-clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()
-
-parseToken :: Maybe Text -> Maybe Text
-parseToken mc = do
-  cookie <- mc
-  token <- lookup "token" $ parseCookiesText $ encodeUtf8 cookie
-  return $ token
-
-checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
-checkAuth h mc = secure <$> checkCurrentAuth h (parseToken mc)
+  jwt mc = liftIO $ case parseToken mc of
+    Nothing -> return Nothing
+    Just t  -> verifyClaims t
 
 
 
@@ -276,8 +261,7 @@ type API =
 
   :<|> "proxy" :> Raw
 
-  -- :<|> "admin" :> AuthProtected :> AdminAPI
-  :<|> "admin" :> AdminAPI
+  :<|> "admin" :> AuthProtected :> AdminAPI
 
   :<|> "settings"    :> Header "Cookie" Text :> Get AppSettings
   :<|> "settings.js" :> Header "Cookie" Text :> Servant.Get '[PlainText] Text
@@ -294,8 +278,7 @@ server h =
    :<|> authServer h
 
    :<|> proxyApp
-   :<|> adminServer h
-   -- :<|> (checkAuthToken h, adminServer h)
+   :<|> protected hasClaimAdmin (adminServer h)
 
    :<|> liftIO . settings
    :<|> settingsText

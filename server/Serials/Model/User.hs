@@ -27,6 +27,7 @@ import Database.RethinkDB.NoClash hiding (table, Object, toJSON)
 
 import Serials.Model.Lib.Crud
 import Serials.Lib.JWT
+import Serials.Lib.Mail
 
 import Web.JWT (JWTClaimsSet)
 
@@ -79,7 +80,6 @@ insert h u = do
     r <- runPool h $ table # create u
     let user = u {id = generatedKey r}
     return $ user
-
 
 init :: Pool RethinkDBHandle -> IO ()
 init h = do

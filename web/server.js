@@ -7,6 +7,7 @@ new WebpackDevServer(webpack(config), {
   hot: true,
   historyApiFallback: true,
   stats: { colors: true },
+  contentBase: {target: "http://localhost:3001"}
 }).listen(3000, 'localhost', function (err, result) {
 
   if (err) {

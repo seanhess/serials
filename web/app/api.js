@@ -44,10 +44,9 @@ function error(err) {
 
 // ------------------------------------------------
 
+// this could theoretically be configured by settings, but it might be easier to do
+// with a proxy anyway
 var API_ENDPOINT = ""
-if (window.location.host == "localhost:3000") {
-  API_ENDPOINT = "http://localhost:3001"
-}
 
 export function url(...paths:Array<string>):string {
   // I need to join the API with the path

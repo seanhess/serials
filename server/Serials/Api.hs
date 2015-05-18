@@ -35,12 +35,12 @@ import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), AuthUser, SecureUser, secure)
 import Serials.Model.UserSignup (UserSignup)
-import Serials.Model.BetaSignup (BetaSignup(..))
+import Serials.Model.Invite (Invite(..), Email)
 import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
-import qualified Serials.Model.BetaSignup as BetaSignup
+import qualified Serials.Model.Invite as Invite
 import qualified Serials.Model.Subscription as Subscription
 import Serials.Model.App
 import Serials.Route.Auth
@@ -180,6 +180,7 @@ usersServer h =
    :<|> userBooksGet
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
+
   where
 
   userGet :: Text -> Handler SecureUser
@@ -217,13 +218,11 @@ type AuthAPI =
 
   -- this is more like POST users
   :<|> "signup"  :> ReqBody UserSignup :> Post AuthUser
-  :<|> "beta-signup" :> ReqBody BetaSignup :> Post Text
-
   :<|> "jwt"     :> AuthToken :> Get (Maybe JWTClaimsSet)
 
 
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
-authServer h = current :<|> logout :<|> login :<|> signup :<|> beta :<|> jwt
+authServer h = current :<|> logout :<|> login :<|> signup :<|> jwt
 
   where
 
@@ -242,12 +241,28 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> beta :<|> jwt
   current :: Maybe Text -> Handler SecureUser
   current mt = liftE $ checkAuth h mt
 
-  beta :: BetaSignup -> Handler Text
-  beta b = liftIO $ BetaSignup.insert h b
-
   jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
     Just t  -> verifyClaims t
+
+
+
+-- Invites ----------------------------------------
+
+type InvitesAPI =
+       Get [Invite]
+  :<|> ReqBody Email :> Post ()
+
+invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
+invitesServer h = list :<|> add
+
+  where
+
+  add :: Email -> Handler ()
+  add e = liftIO $ Invite.addEmail h e
+
+  list :: Handler [Invite]
+  list = liftIO $ Invite.all h
 
 
 
@@ -260,6 +275,7 @@ type API =
   :<|> "chapters" :> ChaptersAPI
   :<|> "users"    :> UsersAPI
   :<|> "auth"     :> AuthAPI
+  :<|> "invites"  :> InvitesAPI
 
   :<|> "proxy" :> Raw
 
@@ -278,6 +294,7 @@ server h =
    :<|> chaptersServer h
    :<|> usersServer h
    :<|> authServer h
+   :<|> invitesServer h
 
    :<|> proxyApp
    :<|> protected hasClaimAdmin (adminServer h)
@@ -333,7 +350,7 @@ runApi port p = do
   Source.init p
   Chapter.init p
   User.init p
-  BetaSignup.init p
+  Invite.init p
   Subscription.init p
   putStrLn $ "Starting..."
   run port $ stack $ serve api (server p)

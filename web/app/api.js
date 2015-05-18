@@ -4,12 +4,15 @@ var path:any = require('path')
 import {getLocalStorage} from './helpers'
 
 export var api = function(method:string, url:string, data?:Object) {
-  var defaultConfig = {
+  var config = {
     method: method,
     url: url,
     data: data,
   }
-  var config = addAuthHeader(defaultConfig)
+
+  config.headers = {
+    "Content-Type": "application/json"
+  }
 
   return axios(config)
   .then(toData, error)
@@ -51,13 +54,6 @@ var API_ENDPOINT = ""
 export function url(...paths:Array<string>):string {
   // I need to join the API with the path
   return API_ENDPOINT+'/'+path.join(...paths)
-}
-
-var addAuthHeader = function(config:object):object {
-  var token = getLocalStorage('userToken')
-
-  if (token) return _.assign(config, {headers: {'Authorization': 'Token ' + token}})
-  else return config
 }
 
 // webpack can set this for us, can't it?

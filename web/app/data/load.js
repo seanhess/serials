@@ -2,6 +2,7 @@
 
 import {map, flatten} from 'lodash'
 import Promise from 'bluebird'
+import React from 'react'
 
 type Route = {
   handler: {
@@ -37,4 +38,39 @@ export function loadAll(routes:Array<Route>, params:any, onData:(data:any)=>void
 
 function throwError(err) {
   throw err
+}
+
+// store the last one :)
+var lastHandler:any
+var lastState:any
+var lastData:any
+var innerRender:any
+
+export function run(ren:Function):Function {
+
+  innerRender = ren
+
+  return function(Handler, state) {
+    lastHandler = Handler
+    lastState = state
+    lastData = {}
+
+    // render once without any data
+    render()
+
+    // render again every time any of the promises resolve
+    loadAll(state.routes, state.params, render)
+  }
+}
+
+export function render(data:any = lastData) {
+  lastData = data
+  var Handler = lastHandler
+  var state = lastState
+  innerRender(Handler, state, data)
+}
+
+// global reload
+export function reloadHandler() {
+  loadAll(lastState.routes, lastState.params, render)
 }

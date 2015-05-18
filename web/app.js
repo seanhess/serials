@@ -8,13 +8,16 @@ window.React = React
 import Router from 'react-router'
 import {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect, Link} from 'react-router'
 
-import {loadAll} from './app/data/load'
+import {loadAll, run, render} from './app/data/load'
 
-import {Admin, ImportLog} from './app/admin/admin'
+import {Admin, ImportLog, AdminDashboard} from './app/admin/admin'
 import {Sources} from './app/admin/sources'
 import {Source} from './app/admin/source'
+import {Invites} from './app/admin/invites'
+
 import {Main} from './app/books/main'
 import {MainContainer, Header} from './app/layout/main'
+import {NotFound} from './app/layout/notFound'
 import {Gallery} from './app/books/gallery'
 import {Library} from './app/books/library'
 import {Book} from './app/books/book'
@@ -55,26 +58,16 @@ class App extends React.Component {
   }
 }
 
-class NotFound extends React.Component {
-  render() {
-    return <div>
-      <Header />
-      <MainContainer>
-        <div><Link to="books">Home</Link></div>
-      </MainContainer>
-    </div>
-  }
-}
-
 var routes = (
   <Route handler={App} path="/">
     <Redirect from="/" to="books" />
+
     <Route name="pages" handler={Main}>
-      <Route name='signup' handler={Signup}/>
       <Route name="about" handler={About}/>
     </Route>
 
     <Route name='login' handler={Login}/>
+    <Route name='signup' path="signup/:beta" handler={Signup}/>
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
@@ -86,7 +79,9 @@ var routes = (
     </Route>
 
     <Route name="admin" handler={Admin}>
+      <DefaultRoute handler={AdminDashboard}/>
       <Route name="sources" handler={Sources}/>
+      <Route name="invites" handler={Invites}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
       <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
     </Route>
@@ -103,17 +98,15 @@ var lastHandler:any
 var lastState:any
 var lastData:any
 
-Router.run(routes, function(Handler, state) {
-  lastHandler = Handler
-  lastState = state
-  lastData = {}
-
-  // render once without any data
-  render()
-
-  // render again every time any of the promises resolve
-  loadAll(state.routes, state.params, render)
-})
+Router.run(routes, run(function(Handler, state, data) {
+  React.render(
+    <Handler 
+      {...data} 
+      currentUser={Users.currentUser}
+      params={state.params} 
+      pathname={state.pathname}
+    />, document.body)
+}))
 
 //function checkLoginRedirect() {
   //return Users.auth().then(function(user) {
@@ -126,19 +119,5 @@ Router.run(routes, function(Handler, state) {
     //return true
   //})
 //}
-
-function render(data = lastData) {
-  lastData = data
-  var Handler = lastHandler
-  var state = lastState
-
-  React.render(
-    <Handler 
-      {...data} 
-      currentUser={Users.currentUser}
-      params={state.params} 
-      pathname={state.pathname}
-    />, document.body)
-}
 
 Users.bind(() => render())

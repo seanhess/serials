@@ -2,7 +2,6 @@
 
 import React from 'react'
 import {SourceModel} from '../model/source'
-import {AdminModel} from '../model/admin'
 import {statusColor} from '../books/book'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'
@@ -10,7 +9,7 @@ import {sortBy} from 'lodash'
 export class Sources extends React.Component {
 
   static load() {
-    return {sources: SourceModel.findAll(), version: AdminModel.version()}
+    return {sources: SourceModel.findAll()}
   }
 
   render():?React.Element {
@@ -43,12 +42,6 @@ export class Sources extends React.Component {
         {sorted.map(renderRow)}
       </table>
 
-      <div>
-        <ul>
-          <li><a href="#/admin/import-log/500">Import Log</a></li>
-          <li>Version: <code style={{fontSize: 'smaller'}}>{this.props.version}</code></li>
-        </ul>
-      </div>
     </div>
   }
 }

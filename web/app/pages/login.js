@@ -1,5 +1,6 @@
 // @flow
 import React from 'react'
+import {RouteHandler} from 'react-router'
 
 import {FormSection} from '../comp'
 import {Users} from '../model/user'
@@ -9,6 +10,17 @@ var emptyLogin = function() {
   return {
     email: '',
     password: ''
+  }
+}
+
+export class LogoPage extends React.Component {
+  render():React.Element {
+    return <div style={{padding: 25}} className="row small-12 columns">
+      <div style={{textAlign: 'center', height: 200}}>
+        <img src="img/serials-logo-dark.png" style={{height: '100%'}}/>
+      </div>
+      {this.props.children}
+    </div>
   }
 }
 
@@ -43,12 +55,7 @@ export class Login extends React.Component {
       this.setState({login: v})
     })
 
-    return <div style={{padding: 25}} className="row small-12 columns">
-
-      <div style={{textAlign: 'center', height: 200}}>
-        <img src="img/serials-logo-dark.png" style={{height: '100%'}}/>
-      </div>
-
+    return <LogoPage>
       <form onSubmit={this.onSubmit.bind(this)}>
         <label>Email</label>
         <input type="text"
@@ -61,9 +68,9 @@ export class Login extends React.Component {
           onChange={update((s, v) => s.password = v)}
         />
 
-        <button>Submit</button>
+        <button>Login</button>
       </form>
-    </div>
+    </LogoPage>
   }
 }
 

@@ -64,7 +64,6 @@ export class Header extends React.Component {
     else {
       return <div style={{display: 'inline-block'}}>
         <Link style={LinkStyle} to='login'>Login</Link>
-        <Link style={LinkStyle} to='signup'>Signup</Link>
       </div>
     }
   }
@@ -83,7 +82,7 @@ export class Header extends React.Component {
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
         <Link style={LinkStyle} to="about">About</Link>
-        <Link style={adminStyle} to="sources">Admin</Link>
+        <Link style={adminStyle} to="admin">Admin</Link>
         {this.renderCurrentUser()}
       </div>
       <div style={CenterText}>

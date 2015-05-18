@@ -29,10 +29,10 @@ type Email = Text
 
 data Invite = Invite {
   id :: Text,
-  -- not necessarily the same email they end up signing up with
-  -- but we only want to add each email once
   email :: Email,
-  code :: Text
+  code :: Text,
+  -- when they sign up they are here
+  userId :: Maybe Text
 } deriving (Show, Generic, Eq)
 
 instance FromJSON Invite
@@ -44,7 +44,7 @@ invite :: Email -> IO Invite
 invite e = do
   code <- generateCode
   let id = emailId e
-  return $ Invite id id code
+  return $ Invite id id code Nothing
 
 ----------------------------------------------o
 
@@ -68,6 +68,9 @@ find :: Pool RethinkDBHandle -> Text -> IO (Maybe Invite)
 find h code = do
     is <- runPool h $ table # getAll codeIndex [expr code]
     return $ headMay is
+
+markUsed :: Pool RethinkDBHandle -> Text -> Text -> IO ()
+markUsed h code userId = runPool h $ table # getAll codeIndex [expr code] # update (const ["userId" := expr userId])
 
 init :: Pool RethinkDBHandle -> IO ()
 init h = do

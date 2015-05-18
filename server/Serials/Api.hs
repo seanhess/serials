@@ -34,7 +34,6 @@ import Network.Wai.Middleware.AddHeaders
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
-import Serials.Model.UserSignup (UserSignup)
 import Serials.Model.Invite (Invite(..), Email)
 import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
@@ -43,11 +42,14 @@ import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import qualified Serials.Model.Subscription as Subscription
 import Serials.Model.App
-import Serials.Route.Auth
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
+
+import Serials.Route.Auth
+import Serials.Route.UserSignup (UserSignup)
+import qualified Serials.Route.UserSignup as UserSignup
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 import qualified Servant
@@ -188,9 +190,7 @@ usersServer h =
 
   signup :: UserSignup -> Handler (Headers CookieHeader SecureUser)
   signup s = do
-    u <- liftErrText err400 $ liftIO $ User.insert h s
-    -- TODO add invite information to user
-    -- TODO mark the invite as user
+    u <- liftErrText err400 $ liftIO $ UserSignup.signup h s
     addAuth u
 
   userGet :: Text -> Handler SecureUser
@@ -198,7 +198,6 @@ usersServer h =
 
   userBooksGet :: Text -> Handler [Source]
   userBooksGet uid = liftIO $ Subscription.booksByUser h uid
-
 
   userSubsGet :: Text -> Handler [Subscription]
   userSubsGet uid = liftIO $ Subscription.subsByUser h uid

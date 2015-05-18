@@ -98,8 +98,8 @@ hasClaimAdmin cs = case Map.lookup "admin" $ unregisteredClaims cs of
 
 userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text User)
 userLogin h u = do
-  users <- User.findByEmail h $ toLower $ email u
-  case headMay users of
+  mu <- User.findByEmail h $ toLower $ email u
+  case mu of
     Nothing -> return $ Left "Invalid email address"
     Just user -> do
       let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user

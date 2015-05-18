@@ -3,6 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import {invitesAll, invitesAdd} from '../model/invite'
+import {userApiURL} from '../model/user'
 import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
 
@@ -45,12 +46,14 @@ export class InvitesList extends React.Component {
       <tr>
         <th>Email</th>
         <th>Code</th>
+        <th>User</th>
       </tr>
 
       {this.props.invites.map((invite) => {
         return <tr>
           <td>{invite.email}</td>
           <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
+          <td><a href={userApiURL(invite.userId)}>{invite.userId}</a></td>
         </tr>
       })}
     </table>

@@ -40,7 +40,10 @@ export class SignupPage extends React.Component {
       content = ""
     }
     else if (!this.props.invite) {
-      content = <InvalidCode />
+      content = <InvalidCode message="We couldn't find your beta code!"/>
+    }
+    else if (this.props.invite.userId) {
+      content = <InvalidCode message="This beta code has already been used"/>
     }
     else {
       content = <SignupForm invite={this.props.invite} onSignup={this.onSignup.bind(this)}/>
@@ -123,6 +126,6 @@ export class SignupForm extends React.Component {
 
 export class InvalidCode extends React.Component {
   render():React.Element {
-    return <p style={{margin: 50}}>We couldn't find your beta code! Please contact support at <EmailLink /></p>
+    return <p style={{margin: 50}}><span>{this.props.message}</span>. Please contact support at <EmailLink /></p>
   }
 }

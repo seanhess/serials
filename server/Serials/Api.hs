@@ -252,9 +252,10 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> jwt
 type InvitesAPI =
        Get [Invite]
   :<|> ReqBody Email :> Post ()
+  :<|> Capture "id" Text :> Get Invite
 
 invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
-invitesServer h = list :<|> add
+invitesServer h = list :<|> add :<|> find
 
   where
 
@@ -263,6 +264,9 @@ invitesServer h = list :<|> add
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h
+
+  find :: Text -> Handler Invite
+  find code = liftE $ Invite.find h code
 
 
 

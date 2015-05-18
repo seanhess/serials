@@ -11,7 +11,7 @@ type Route = {
 }
 
 export function loadAll(routes:Array<Route>, params:any, onData:(data:any)=>void) {
-  var data = {};
+  var data = {loaded: false};
 
   routes
     .filter(route => route.handler.load)
@@ -30,6 +30,7 @@ export function loadAll(routes:Array<Route>, params:any, onData:(data:any)=>void
 
         return promise.then(function(d) {
           data[name] = d
+          data.loaded = true
           onData(data)
         }, throwError)
       })
@@ -53,7 +54,7 @@ export function run(ren:Function):Function {
   return function(Handler, state) {
     lastHandler = Handler
     lastState = state
-    lastData = {}
+    lastData = {loaded: false}
 
     // render once without any data
     render()

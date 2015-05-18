@@ -20,3 +20,7 @@ export function invitesAdd(email:string) {
   return Post(url('invites'), JSON.stringify(email))
 }
 
+export function invitesFind(code:string) {
+  console.log("FIND", code)
+  return Get(url('invites', code))
+}

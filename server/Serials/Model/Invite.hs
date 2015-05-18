@@ -13,12 +13,13 @@ import Data.Char (intToDigit, chr)
 import Data.Text (Text, toLower, unpack, pack)
 import Data.Text.Encoding
 import Data.Pool
-import Data.Monoid
+import Data.Monoid ((<>))
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table, Object)
 
+import Safe (headMay)
 import Serials.Model.Lib.Crud
 import System.Random (randomIO, randomRIO)
 
@@ -47,8 +48,8 @@ invite e = do
 
 ----------------------------------------------o
 
-emailIndexName = "email"
-emailIndex = Index emailIndexName
+codeIndexName = "code"
+codeIndex     = Index codeIndexName
 
 table = R.table "invites"
 
@@ -63,10 +64,15 @@ emailId = toLower
 all :: Pool RethinkDBHandle -> IO [Invite]
 all h = runPool h $ table
 
+find :: Pool RethinkDBHandle -> Text -> IO (Maybe Invite)
+find h code = do
+    is <- runPool h $ table # getAll codeIndex [expr code]
+    return $ headMay is
+
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack emailIndexName) (!expr emailIndexName)
+    initDb $ runPool h $ table # indexCreate (unpack codeIndexName) (!expr codeIndexName)
 
 --------------------------------------
 -- code
@@ -82,6 +88,6 @@ intToCode n = pack $ showIntAtBase 36 intCodeToChar n ""
 
 generateCode :: IO Text
 generateCode = do
-  n <- randomRIO (0, maxBound) :: IO Int
+  n <- randomRIO (0, maxBound)
   return $ intToCode n
 

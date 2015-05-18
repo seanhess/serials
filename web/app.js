@@ -67,7 +67,7 @@ var routes = (
     </Route>
 
     <Route name='login' handler={Login}/>
-    <Route name='signup' path="signup/:beta" handler={Signup}/>
+    <Route name='signup' path="signup/:code" handler={Signup}/>
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>

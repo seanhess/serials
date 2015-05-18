@@ -58,6 +58,7 @@ sourceField = "sourceId" :: Text
 -- I only want things I'm actually subscribed to
 booksByUser :: Pool RethinkDBHandle -> Text -> IO [Source]
 booksByUser h id = runPool h $ table
+  # getAll userIndex [expr id]
   # eqJoin sourceField (Source.table) (Index "id")
   # R.zip # orderBy [asc "id"]
 

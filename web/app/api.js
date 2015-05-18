@@ -42,7 +42,8 @@ function toData(res) {
 }
 
 function error(err) {
-  console.error(err)
+  console.error("API", err.status, err.statusText+":", err.data)
+  throw err
 }
 
 // ------------------------------------------------

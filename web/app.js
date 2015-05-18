@@ -24,7 +24,7 @@ import {Book} from './app/books/book'
 import {Read} from './app/books/read'
 import {About} from './app/pages/about'
 import {Login} from './app/pages/login'
-import {Signup} from './app/pages/signup'
+import {SignupPage} from './app/pages/signup'
 
 import {assign} from 'lodash'
 import {Users} from './app/model/user'
@@ -67,7 +67,7 @@ var routes = (
     </Route>
 
     <Route name='login' handler={Login}/>
-    <Route name='signup' path="signup/:code" handler={Signup}/>
+    <Route name='signup' path="signup/:code" handler={SignupPage}/>
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>

@@ -5,29 +5,36 @@ import {FormSection} from '../comp'
 import {Users} from '../model/user'
 import {makeUpdate} from '../data/update'
 import {LogoPage} from './login'
-import {invitesFind} from '../model/admin'
+import {Signup, signup, invitesFind, Invite, emptyInvite} from '../model/invite'
 import {EmailLink} from '../books/support'
 
-var emptySignup = function(email?:string) {
+var emptySignup = function(invite):Signup {
   return {
     firstName: '',
     lastName: '',
-    email: email,
+    email: invite.email,
+    code: invite.code,
     password: '',
     passwordConfirmation: ''
   }
 }
 
-export class Signup extends React.Component {
+
+export class SignupPage extends React.Component {
 
   static load(params) {
     return {invite: invitesFind(params.code)}
   }
 
+  onSignup(s:Signup) {
+    signup(s).then(function(asdf) {
+      // we are signed in, do a full redirect to '/'
+      // which should check auth
+      window.location = '/'
+    })
+  }
+
   render():React.Element {
-    console.log("INVITE", this.props.invite, this.props.loaded)
-
-
     var content = ""
     if (!this.props.loaded) {
       content = ""
@@ -36,7 +43,7 @@ export class Signup extends React.Component {
       content = <InvalidCode />
     }
     else {
-      content = <SignupForm email={this.props.invite.email}/>
+      content = <SignupForm invite={this.props.invite} onSignup={this.onSignup.bind(this)}/>
     }
 
     //var signup = this.state.signup
@@ -50,23 +57,15 @@ export class SignupForm extends React.Component {
 
   constructor(props:any) {
     super(props)
-    this.state = {signup: emptySignup()}
+    this.state = {signup: null}
   }
 
   componentWillMount(props:any) {
-    this.setState({signup: emptySignup(this.props.email)})
+    this.setState({signup: emptySignup(this.props.invite)})
   }
 
   onSubmit() {
-    //var signup = this.state.signup
-    //Users.signup(signup)
-    //.then((user) => {
-      //if (user) {
-        //this.props.setCurrentUser(user)
-        //this.setState({signup: emptySignup()})
-        //window.location.hash = "/"
-      //}
-    //})
+    this.props.onSignup(this.state.signup)
   }
 
   render():React.Element {

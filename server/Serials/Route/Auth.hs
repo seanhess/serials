@@ -19,12 +19,13 @@ import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
 import Data.Pool (Pool)
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON, ToJSON(..))
 import qualified Data.Aeson as Aeson
 import Debug.Trace
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Lazy as Map
+import Data.Map.Lazy (fromList)
 
 import Database.RethinkDB.NoClash (RethinkDBHandle)
 
@@ -37,7 +38,7 @@ import Servant
 import Servant.Server.Internal
 
 import Serials.Lib.JWT
-import Serials.Model.User (User (id, hashedPassword), AuthUser(..), SecureUser(..), secure, userJWT)
+import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
 import qualified Serials.Model.User as User hiding (User())
 
 import Web.JWT (JSON, JWTClaimsSet, claims, unregisteredClaims)
@@ -95,7 +96,7 @@ hasClaimAdmin cs = case Map.lookup "admin" $ unregisteredClaims cs of
                      (Just (Aeson.Bool True)) -> True
                      _ -> False
 
-userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text AuthUser)
+userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text User)
 userLogin h u = do
   users <- User.findByEmail h $ toLower $ email u
   case headMay users of
@@ -103,23 +104,30 @@ userLogin h u = do
     Just user -> do
       let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
       let pass = encodeUtf8 $ password u
-      jwt <- userJWT user
+      -- jwt <- userJWT user
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
-        True -> return $ Right $ AuthUser (SecureUser user) jwt
+        True -> return $ Right user
 
 verifyClaims :: Text -> IO (Maybe JWTClaimsSet)
 verifyClaims t = do
     jwt <- verifyJwt t
     return $ fmap claims jwt
 
+userJWT :: User -> IO Text
+userJWT user = signClaims <$> userClaims user
+
+userClaims :: User -> IO JWTClaimsSet
+userClaims user = defaultClaims (id user) $ fromList [adminClaim]
+  where adminClaim = ("admin", toJSON $ User.admin user)
 
 -- Cookie Auth Stuff  -------------------------------------------
 
+
 type CookieHeader = '[Header "Set-Cookie" Text]
 
-addAuthHeader :: AuthUser -> Headers CookieHeader AuthUser
-addAuthHeader auth = addHeader ("token=" <> User.token auth <> "; path=/; HttpOnly;") auth
+addAuthHeader :: Text -> a -> Headers CookieHeader a
+addAuthHeader token a = addHeader ("token=" <> token <> "; path=/; HttpOnly;") a
 
 clearAuthHeader :: Headers CookieHeader ()
 clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()

@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react'
-import {invitesAll, invitesAdd} from '../model/admin'
+import {Link} from 'react-router'
+import {invitesAll, invitesAdd} from '../model/invite'
 import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
 
@@ -49,7 +50,7 @@ export class InvitesList extends React.Component {
       {this.props.invites.map((invite) => {
         return <tr>
           <td>{invite.email}</td>
-          <td>{invite.code}</td>
+          <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
         </tr>
       })}
     </table>

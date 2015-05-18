@@ -1,7 +1,7 @@
 
 // @flow
 import React from 'react'
-import {EmailLink, BetaSignupView} from '../books/support'
+import {EmailLink} from '../books/support'
 
 
 export class About extends React.Component {

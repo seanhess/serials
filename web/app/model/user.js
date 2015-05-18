@@ -23,14 +23,6 @@ export type Login = {
   password:string;
 }
 
-export type Signup = {
-  firstName:string;
-  lastName:string;
-  email:string;
-  password:string;
-  passwordConfirmation:string;
-}
-
 // methods for logging in and out
 // also currently logged in state
 declare var SETTINGS;
@@ -50,21 +42,12 @@ export class UserModel {
 
   login(login:Login) {
     return Put(url('auth'), login)
-    .then(obj  => obj.user)
     .then(user => this._updateAuth(user))
   }
 
   logout() {
     return Delete(url('auth'))
     .then(() => this._clearAuth())
-    .then(u => this._updateAuth(u))
-  }
-
-  signup(signup:Signup) {
-    return Post(url('signup'), signup)
-    .then((obj) => {
-      return obj.user
-    })
     .then(u => this._updateAuth(u))
   }
 

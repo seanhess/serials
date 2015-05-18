@@ -42,6 +42,7 @@ export class Login extends React.Component {
     var login = this.state.login
     Users.login(login)
     .then((user) => {
+      console.log("Logged in", user)
       if (user) {
         this.setState({login: emptyLogin()})
         window.location.hash = "/"

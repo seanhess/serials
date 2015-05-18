@@ -33,7 +33,7 @@ import Network.Wai.Middleware.AddHeaders
 
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
-import Serials.Model.User (User(..), AuthUser, SecureUser, secure)
+import Serials.Model.User (User(..), SecureUser(..), secure)
 import Serials.Model.UserSignup (UserSignup)
 import Serials.Model.Invite (Invite(..), Email)
 import Serials.Model.Subscription (Subscription(..))
@@ -165,7 +165,9 @@ adminServer h = getPrivate :<|> importLog
 
 type UsersAPI =
 
-       Capture "id" Text :> Get SecureUser
+       ReqBody UserSignup :> Post (Headers CookieHeader SecureUser)
+
+  :<|> Capture "id" Text :> Get SecureUser
   :<|> Capture "id" Text :> "books" :> Get [Source]
 
   :<|> Capture "id" Text :> "subs" :> Get [Subscription]
@@ -176,12 +178,20 @@ type UsersAPI =
 
 usersServer :: Pool RethinkDBHandle -> Server UsersAPI
 usersServer h =
-        userGet
+        signup
+   :<|> userGet
    :<|> userBooksGet
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
 
   where
+
+  signup :: UserSignup -> Handler (Headers CookieHeader SecureUser)
+  signup s = do
+    u <- liftErrText err400 $ liftIO $ User.insert h s
+    -- TODO add invite information to user
+    -- TODO mark the invite as user
+    addAuth u
 
   userGet :: Text -> Handler SecureUser
   userGet id   = liftE $ secure <$> User.find h id
@@ -214,25 +224,24 @@ type AuthAPI =
 
        AuthToken :> Get SecureUser
   :<|> Delete (Headers CookieHeader ())
-  :<|> ReqBody UserLogin :> Put (Headers CookieHeader AuthUser)
+  :<|> ReqBody UserLogin :> Put (Headers CookieHeader SecureUser)
 
-  -- this is more like POST users
-  :<|> "signup"  :> ReqBody UserSignup :> Post AuthUser
   :<|> "jwt"     :> AuthToken :> Get (Maybe JWTClaimsSet)
 
+addAuth :: User -> Handler (Headers CookieHeader SecureUser)
+addAuth u = do
+  token <- liftIO $ userJWT u
+  return $ (addAuthHeader token (SecureUser u))
 
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
-authServer h = current :<|> logout :<|> login :<|> signup :<|> jwt
+authServer h = current :<|> logout :<|> login :<|> jwt
 
   where
 
-  signup :: UserSignup -> Handler AuthUser
-  signup u = liftE $ User.insert h u
-
-  login :: UserLogin -> Handler (Headers CookieHeader AuthUser)
-  login u = liftE $ do
-    eu <- userLogin h u
-    return $ fmap addAuthHeader eu
+  login :: UserLogin -> Handler (Headers CookieHeader SecureUser)
+  login u = do
+    u <- liftErrText err401 $ liftIO $ userLogin h u
+    addAuth u
 
   -- TODO expire the users' token
   logout :: Handler (Headers CookieHeader ())
@@ -244,8 +253,6 @@ authServer h = current :<|> logout :<|> login :<|> signup :<|> jwt
   jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
     Just t  -> verifyClaims t
-
-
 
 -- Invites ----------------------------------------
 
@@ -390,3 +397,20 @@ instance Show a => ToStatus (Either a) where
 liftE :: ToStatus a => IO (a v) -> EitherT ServantErr IO v
 liftE action = EitherT $ toStatus <$> action
 
+
+
+errUnauthorized :: Text -> ServantErr
+errUnauthorized err = err401 { errReasonPhrase = unpack err }
+
+errText :: ServantErr -> Text -> ServantErr
+errText err txt = err { errBody = TLE.encodeUtf8 $ TL.fromStrict txt }
+
+liftErr :: (err -> ServantErr) -> IO (Either err res) -> EitherT ServantErr IO res
+liftErr toErr action = do
+    eres <- liftIO action
+    case eres of
+      Left err -> left (toErr err)
+      Right res -> return res
+
+liftErrText :: ServantErr -> IO (Either Text res) -> EitherT ServantErr IO res
+liftErrText err = liftErr (errText err)

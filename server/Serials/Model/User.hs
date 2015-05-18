@@ -15,7 +15,6 @@ import Data.Maybe (catMaybes, fromJust)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Pool
 import Data.Time
-import Data.Map.Lazy (fromList)
 
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (mzero)
@@ -59,15 +58,6 @@ instance ToJSON SecureUser where
   toJSON (SecureUser user) = Object $ HashMap.delete "hashedPassword" obj
     where (Object obj) = toJSON user
 
--- Used for signup/login to pass back user and token
-data AuthUser = AuthUser {
-  user :: SecureUser,
-  token :: JSON
-} deriving (Show, Generic)
-
-instance FromJSON AuthUser
-instance ToJSON AuthUser
-
 table = R.table "users"
 
 emailIndexName = "email"
@@ -85,7 +75,7 @@ findByEmail h email = runPool h $ table # getAll emailIndex [expr email]
 secure :: (Functor m) => m User -> m SecureUser
 secure = fmap SecureUser
 
-insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text AuthUser)
+insert :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text User)
 insert h u = do
     let pass = U.password u
     if pass == (U.passwordConfirmation u)
@@ -106,8 +96,7 @@ insert h u = do
           Nothing -> do
             r <- runPool h $ table # create user'
             let user = user' {id = generatedKey r}
-            jwt <- userJWT user
-            return . Right $ AuthUser (SecureUser user) jwt
+            return . Right $ user
           Just _-> return $ Left "User already exists with that email"
     else return $ Left "Password and Password Confirmation do not match"
 
@@ -118,11 +107,4 @@ init h = do
 
 customHashPolicy :: HashingPolicy
 customHashPolicy = HashingPolicy 10 (C.pack "$2b$")
-
-userJWT :: User -> IO JSON
-userJWT user = signClaims <$> userClaims user
-
-userClaims :: User -> IO JWTClaimsSet
-userClaims user = defaultClaims (id user) $ fromList [adminClaim]
-  where adminClaim = ("admin", toJSON $ admin user)
 

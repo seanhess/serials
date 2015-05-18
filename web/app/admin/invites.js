@@ -84,7 +84,7 @@ export class BulkInvites extends React.Component {
     var update = e => this.setState({text: e.target.value})
 
     return <div>
-      <div><textarea rows="4" value={this.state.text} onChange={update}></textarea></div>
+      <div><textarea rows="4" value={this.state.text} onChange={update} placeholder="comma or whitespace separated emails"></textarea></div>
       <div><button onClick={this.onClickAdd.bind(this)}>Add Invites</button></div>
     </div>
   }

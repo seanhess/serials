@@ -34,7 +34,7 @@ import {updateLocalStorage} from './app/helpers'
 import {background} from './app/style'
 
 declare var SETTINGS;
-console.log("SETTINGS", SETTINGS)
+//console.log("SETTINGS", SETTINGS)
 
 class App extends React.Component {
 

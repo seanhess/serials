@@ -2,11 +2,7 @@ var webpack = require('webpack')
 
 module.exports = {
   entry: {
-    app:  [
-      'webpack-dev-server/client?http://localhost:3000',
-      'webpack/hot/only-dev-server',
-      './app.js',
-    ]
+    app:  ['./app.js']
   },
 
   output: {
@@ -30,7 +26,6 @@ module.exports = {
 
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
-    new webpack.IgnorePlugin(/vertx/)
+    new webpack.NoErrorsPlugin()
   ]
 };

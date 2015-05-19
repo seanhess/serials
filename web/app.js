@@ -28,8 +28,9 @@ import {SignupPage} from './app/pages/signup'
 
 import {assign} from 'lodash'
 import {Users} from './app/model/user'
+import {Alerts} from './app/model/alert'
 
-import {updateLocalStorage} from './app/helpers'
+import {AlertView} from './app/alert'
 
 import {background} from './app/style'
 
@@ -53,6 +54,7 @@ class App extends React.Component {
     }
 
     return <div>
+      <AlertView {...this.props} />
       <RouteHandler {...this.props} />
     </div>
   }
@@ -100,10 +102,11 @@ var lastData:any
 
 Router.run(routes, run(function(Handler, state, data) {
   React.render(
-    <Handler 
-      {...data} 
+    <Handler
+      {...data}
       currentUser={Users.currentUser}
-      params={state.params} 
+      alert={Alerts.alert}
+      params={state.params}
       pathname={state.pathname}
     />, document.body)
 }))
@@ -121,3 +124,4 @@ Router.run(routes, run(function(Handler, state, data) {
 //}
 
 Users.bind(() => render())
+Alerts.bind(() => render())

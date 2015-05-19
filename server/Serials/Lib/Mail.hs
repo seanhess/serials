@@ -23,11 +23,25 @@ import qualified Serials.Model.User as U
 import Serials.Model.Invite (Invite)
 import qualified Serials.Model.Invite as I
 
+data MailConfig = MailConfig {link :: Text}
+
+defaultMailConfig :: MailConfig
+defaultMailConfig = MailConfig { link = "http://localhost:3001" }
+
+mailConfig :: IO MailConfig
+mailConfig = do
+  env <- (return . fmap pack) =<< lookupEnv "ENV"
+  case env of
+    Nothing -> return defaultMailConfig
+    Just e -> return $ defaultMailConfig { link = "http://serials.orbit.al" }
+
 sendWelcomeEmail :: User -> IO ()
 sendWelcomeEmail u = sendMail (encodeUtf8 $ U.email u) "Welcome to Serials" (welcomeEmail u)
 
 sendInviteEmail :: Invite -> IO ()
-sendInviteEmail i = sendMail (encodeUtf8 $ I.email i) "Invite to join Serials" (inviteEmail i)
+sendInviteEmail i = do
+  c <- mailConfig
+  sendMail (encodeUtf8 $ I.email i) "Invite to join Serials" (inviteEmail i (link c))
 
 sendMail :: ByteString -> Text -> Html -> IO ()
 sendMail toEmail subj msg = do
@@ -55,10 +69,10 @@ welcomeEmail u = do
     H.a H.! A.href "mailto:serials@orbit.al" $ "serials@orbit.al"
   H.hr
 
-inviteEmail :: Invite -> Html
-inviteEmail i = do
+inviteEmail :: Invite -> Text -> Html
+inviteEmail i l = do
   H.h3 "You have been invited to join Serials,"
   H.p $ do
     "Just need to click this link and finishing creating your account: "
-    H.a H.! A.href (textValue $ "http://localhost:3001/#/signup/" <> I.code i) $ "create account"
+    H.a H.! A.href (textValue $ l <> "/#/signup/" <> I.code i) $ "create account"
 

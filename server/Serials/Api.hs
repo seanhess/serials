@@ -260,20 +260,24 @@ type InvitesAPI =
        Get [Invite]
   :<|> ReqBody Email :> Post ()
   :<|> Capture "id" Text :> Get Invite
+  :<|> Capture "id" Text :> "sent" :> Post ()
 
 invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
-invitesServer h = list :<|> add :<|> find
+invitesServer h = list :<|> add :<|> find :<|> send
 
   where
 
   add :: Email -> Handler ()
-  add e = liftIO $ invite h e
+  add e = liftIO $ inviteAddEmail h e
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h
 
   find :: Text -> Handler Invite
   find code = liftE $ Invite.find h code
+
+  send :: Text -> Handler ()
+  send code = liftIO $ inviteSend h code
 
 
 

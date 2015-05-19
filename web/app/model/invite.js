@@ -14,13 +14,15 @@ export type Invite = {
   email: string;
   id: string;
   code: string;
+  userId?: string;
+  sent?: string; // date
 }
 
 export function emptyInvite():Invite {
   return {
     email: "",
     id: "",
-    code: ""
+    code: "",
   }
 }
 
@@ -37,6 +39,11 @@ export function invitesFind(code:string) {
   return Get(url('invites', code))
 }
 
+export function invitesSend(code:string) {
+  return Post(url('invites', code, 'sent'))
+}
+
 export function signup(signup:Signup) {
   return Post(url('users'), signup)
 }
+

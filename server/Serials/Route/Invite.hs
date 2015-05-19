@@ -3,14 +3,28 @@
 module Serials.Route.Invite where
 
 import Data.Pool
+import Data.Time
 import Database.RethinkDB.NoClash
 
-import Serials.Model.Invite
+import qualified Serials.Model.Invite as Invite
+import Serials.Model.Invite (Email, Invite, InviteCode)
 import Serials.Lib.Mail
 
-invite :: Pool RethinkDBHandle -> Email -> IO ()
-invite h e = do
-  inv <- addEmail h e
+inviteAddEmail :: Pool RethinkDBHandle -> Email -> IO ()
+inviteAddEmail h e = do
+  time <- getCurrentTime
+  inv <- Invite.invite e (Just time)
+  Invite.add h inv
   sendInviteEmail inv
-  return ()
+
+inviteSend :: Pool RethinkDBHandle -> InviteCode -> IO ()
+inviteSend h c = do
+  mi <- Invite.find h c
+  case mi of
+    Nothing -> return ()
+    Just i  -> do
+      sendInviteEmail i
+      Invite.markSent h c
+
+
 

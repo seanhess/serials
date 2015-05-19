@@ -85,7 +85,7 @@ export function loadSubscription(sourceId:string):Promise<Subscription> {
   return findSubscription(Users.currentUserId(), sourceId)
 }
 
-export function userApiURL(id:string) {
+export function userApiURL(id:?string) {
   if (!id) return ""
   return url('users', id)
 }

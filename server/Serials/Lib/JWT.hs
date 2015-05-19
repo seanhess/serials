@@ -21,6 +21,8 @@ import Data.Map.Lazy (Map, fromList)
 oneDay :: NominalDiffTime
 oneDay = 24 * 60 * 60
 
+oneYear = 365 * oneDay
+
 addTime :: NominalDiffTime -> UTCTime -> UTCTime
 addTime d t = d `addUTCTime` t
 
@@ -33,10 +35,10 @@ utcTimeToEpochTime = fromIntegral . toSecs
 timeToIntDate :: UTCTime -> Maybe IntDate
 timeToIntDate t = intDate $ utcTimeToEpochTime t
 
-oneDayLater :: IO (Maybe IntDate)
-oneDayLater = do
+timeLater :: NominalDiffTime -> IO (Maybe IntDate)
+timeLater dt = do
     time <- getCurrentTime
-    return . timeToIntDate $ addTime oneDay time
+    return . timeToIntDate $ addTime dt time
 
 currentTime :: IO (Maybe IntDate)
 currentTime = do
@@ -58,7 +60,7 @@ subject = sub . claimSet
 defaultClaims :: Text -> Map Text Value -> IO JWTClaimsSet
 defaultClaims id unc = do
   iat <- currentTime
-  exp <- oneDayLater
+  exp <- timeLater oneYear
   return $ def {
       iss = stringOrURI "Serials",
       iat = iat,

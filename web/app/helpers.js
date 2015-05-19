@@ -13,7 +13,7 @@ export var getLocalStorage = function(key:string):Object {
     return JSON.parse(localStorage.getItem(key))
 }
 
-export function toDateString(str:string):string {
+export function toDateString(str:any):string {
   var date = moment(str)
   return date.calendar()
 }

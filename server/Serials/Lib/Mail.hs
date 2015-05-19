@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Serials.Lib.Mail (
-  sendWelcomeEmail
-  , sendInviteEmail
+  sendWelcomeEmail,
+  sendInviteEmail
 ) where
 
 import System.Environment
@@ -50,7 +50,7 @@ sendMail toEmail subj msg = do
   case apiKey of
     Nothing -> print "You must 'export MANDRILL_API_KEY=\"YOURKEYGOESHERE\"' for sendMail to work"
     Just a -> runMandrill a $ do
-      let from = fromJust $ emailAddress "no-reply@serials.orbit.al"
+      let from = fromJust $ emailAddress "serials@orbit.al"
       let to = fromJust $ emailAddress toEmail
       res <- sendEmail (newHtmlMessage from [to] subj msg)
       case res of

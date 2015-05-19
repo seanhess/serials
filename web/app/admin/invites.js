@@ -2,10 +2,11 @@
 
 import React from 'react'
 import {Link} from 'react-router'
-import {invitesAll, invitesAdd} from '../model/invite'
+import {invitesAll, invitesAdd, invitesSend, Invite} from '../model/invite'
 import {userApiURL} from '../model/user'
 import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
+import {toDateString} from '../helpers'
 
 // should farm them out to other display components
 // should have model functions that do all the lifting
@@ -28,13 +29,19 @@ export class Invites extends React.Component {
     .then(reloadHandler)
   }
 
+  sendInvite(code:string) {
+    console.log("SEND INVITE", code)
+    invitesSend(code)
+    .then(reloadHandler)
+  }
+
   render():React.Element {
 
     var invites = this.props.invites || []
 
     return <div>
       <h2>Invites</h2>
-      <InvitesList invites={invites} />
+      <InvitesList invites={invites} onSend={this.sendInvite.bind(this)}/>
       <BulkInvites onAdd={this.addInvites.bind(this)}/>
     </div>
   }
@@ -47,16 +54,22 @@ export class InvitesList extends React.Component {
         <th>Email</th>
         <th>Code</th>
         <th>User</th>
+        <th>Sent</th>
       </tr>
 
-      {this.props.invites.map((invite) => {
-        return <tr>
-          <td>{invite.email}</td>
-          <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
-          <td><a href={userApiURL(invite.userId)}>{invite.userId}</a></td>
-        </tr>
-      })}
+      {this.props.invites.map(this.renderRow.bind(this))}
     </table>
+  }
+
+  renderRow(invite:Invite):React.Element {
+    return <tr>
+      <td>{invite.email}</td>
+      <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
+      <td><a href={userApiURL(invite.userId)}>{invite.userId}</a></td>
+      <td>
+        <a onClick={this.props.onSend.bind(null, invite.code)}>{toDateString(invite.sent)}</a>
+      </td>
+    </tr>
   }
 }
 

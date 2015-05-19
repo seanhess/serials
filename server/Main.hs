@@ -3,7 +3,7 @@ module Main where
 import Data.Char
 import Data.Maybe (fromMaybe)
 import Data.Monoid
-import Data.Text (pack)
+import Data.Text (pack, Text)
 
 import Control.Applicative
 
@@ -37,24 +37,38 @@ usage = putStrLn $ "Usage: `serials scan` or `serials api`"
 mainApi :: IO ()
 mainApi = do
     putStrLn "-- SERIALS API ----------------"
-    port <- readEnv "PORT" 3001
-    putStrLn $ "PORT: " <> show port
-    db <- lookupDb
-    putStrLn $ "DB: " <> show db
-    p <- connectDbPool db
-    runApi port p
+    env <- readAllEnv
+    print env
+    p <- connectDbPool (db env)
+    runApi (port env) p
 
 mainScan :: [String] -> IO ()
 mainScan ids = do
     putStr "[SCAN] | "
-    db <- lookupDb
-    p <- connectDbPool db
+    env <- readAllEnv
+    print env
+    p <- connectDbPool (db env)
     case ids of
       [] -> importAllSources p
       is -> mapM_ (importSourceId p) (map pack is)
     return ()
 
 --------------------------------------------------------
+
+data Env = Env {
+  port :: Int,
+  db :: (String, Integer),
+  mandrill :: Text
+} deriving (Show)
+
+readAllEnv :: IO Env
+readAllEnv = do
+    port <- readEnv "PORT" 3001
+    db <- lookupDb
+    mm <- lookupEnv "MANDRILL_API_KEY"
+    case mm of
+      Nothing -> error "missing env MANDRILL_API_KEY"
+      Just m  -> return $ Env port db (pack m)
 
 lookupDb :: IO (String, Integer)
 lookupDb = do

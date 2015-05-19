@@ -5,6 +5,14 @@ set -e
 echo "== REMOTE ============"
 pwd
 
+
+echo "-- env -----------------"
+if [ -z "$MANDRILL_API_KEY" ]; then
+    echo "missing env: MANDRILL_API_KEY"
+    exit 1
+fi
+echo "MANDRILL_API_KEY = $MANDRILL_API_KEY"
+
 # compile application
 echo "-- cabal ----------------"
 cabal sandbox init

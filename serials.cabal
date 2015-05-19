@@ -70,5 +70,6 @@ executable serials
     mandrill,
     email-validate,
     blaze-markup,
-    blaze-html
+    blaze-html,
+    iso8601-time
 

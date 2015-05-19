@@ -66,5 +66,9 @@ executable serials
     random,
     jwt,
     cookie,
-    entropy
+    entropy,
+    mandrill,
+    email-validate,
+    blaze-markup,
+    blaze-html
 

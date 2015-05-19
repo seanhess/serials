@@ -80,7 +80,6 @@ insert h u = do
     let user = u {id = generatedKey r}
     return $ user
 
-
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table

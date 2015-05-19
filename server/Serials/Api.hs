@@ -48,6 +48,7 @@ import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
 
 import Serials.Route.Auth
+import Serials.Route.Invite
 import Serials.Route.UserSignup (UserSignup)
 import qualified Serials.Route.UserSignup as UserSignup
 
@@ -266,7 +267,7 @@ invitesServer h = list :<|> add :<|> find
   where
 
   add :: Email -> Handler ()
-  add e = liftIO $ Invite.addEmail h e
+  add e = liftIO $ invite h e
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h

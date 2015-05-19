@@ -13,6 +13,7 @@ import Data.Char (intToDigit, chr)
 import Data.Text (Text, toLower, unpack, pack)
 import Data.Text.Encoding
 import Data.Pool
+import Data.Maybe (fromJust)
 import Data.Monoid ((<>))
 
 import GHC.Generics
@@ -53,10 +54,11 @@ codeIndex     = Index codeIndexName
 
 table = R.table "invites"
 
-addEmail :: Pool RethinkDBHandle -> Email -> IO ()
+addEmail :: Pool RethinkDBHandle -> Email -> IO Invite
 addEmail h e = do
-    inv <- invite e
-    runPool h $ table # insert (toDatum $ inv) :: IO ()
+    i <- invite e
+    r <- runPool h $ table # ex insert [returnChanges] (toDatum $ i)
+    return . fromJust $ writeChangeNew r
 
 emailId :: Text -> Email
 emailId = toLower

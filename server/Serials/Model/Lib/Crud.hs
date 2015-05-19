@@ -3,9 +3,11 @@
 module Serials.Model.Lib.Crud where
 
 import Database.RethinkDB.NoClash
+import Database.RethinkDB.Datum (resultToMaybe)
 import Data.Text (Text, unpack)
 import qualified Data.HashMap.Strict as HM
 import Data.Maybe (fromMaybe)
+import Safe (headMay)
 import Data.Monoid ((<>))
 import Data.Pool
 import Control.Applicative
@@ -15,8 +17,29 @@ import Control.Monad.Trans (liftIO)
 
 -------------------------------------------------
 
+datumToValue :: (FromDatum a) => Maybe Datum -> Maybe a
+datumToValue a = case a of
+    Just r -> resultToMaybe $ fromDatum r
+    Nothing -> Nothing
+
 generatedKey :: WriteResponse -> Text
 generatedKey = head . fromMaybe [""] . writeResponseGeneratedKeys
+
+writeChangeHead :: WriteResponse -> Maybe Change
+writeChangeHead rs = (writeResponseChanges rs) >>= headMay
+
+writeChange :: (FromDatum a) => (Change -> Datum) -> WriteResponse -> Maybe a
+writeChange v rs = case writeChangeHead rs of
+    Just r -> case datumToValue . Just $ v r of
+        Just r' -> Just r'
+        Nothing -> Nothing
+    Nothing -> Nothing
+
+writeChangeNew :: (FromDatum a) => WriteResponse -> Maybe a
+writeChangeNew = writeChange newVal
+
+writeChangeOld :: (FromDatum a) => WriteResponse -> Maybe a
+writeChangeOld = writeChange oldVal
 
 stripId :: Datum -> Datum
 stripId (Object o) = Object $ HM.delete "id" o

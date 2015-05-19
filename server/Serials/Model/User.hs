@@ -27,7 +27,6 @@ import Database.RethinkDB.NoClash hiding (table, Object, toJSON)
 
 import Serials.Model.Lib.Crud
 import Serials.Lib.JWT
-import Serials.Lib.Mail
 
 import Web.JWT (JWTClaimsSet)
 

@@ -21,6 +21,7 @@ import Database.RethinkDB.NoClash hiding (table)
 import qualified Serials.Model.User as User
 import Serials.Model.User (User)
 import qualified Serials.Model.Invite as Invite
+import Serials.Lib.Mail
 
 data UserSignup = UserSignup {
   firstName :: Text,
@@ -58,6 +59,7 @@ signup h u = do
             Just user -> do
               createdUser <- User.insert h user
               Invite.markUsed h (code u) (User.id createdUser)
+              sendWelcomeEmail createdUser
               return $ Right createdUser
 
 newUser :: UserSignup -> IO (Maybe User)

@@ -40,7 +40,7 @@ mainApi = do
     env <- readAllEnv
     print env
     p <- connectDbPool (db env)
-    runApi (port env) p
+    runApi (port env) p env
 
 mainScan :: [String] -> IO ()
 mainScan ids = do
@@ -55,20 +55,15 @@ mainScan ids = do
 
 --------------------------------------------------------
 
-data Env = Env {
-  port :: Int,
-  db :: (String, Integer),
-  mandrill :: Text
-} deriving (Show)
-
 readAllEnv :: IO Env
 readAllEnv = do
     port <- readEnv "PORT" 3001
+    endpoint <- defEnv "ENDPOINT" "http://localhost:3001"
     db <- lookupDb
     mm <- lookupEnv "MANDRILL_API_KEY"
     case mm of
       Nothing -> error "missing env MANDRILL_API_KEY"
-      Just m  -> return $ Env port db (pack m)
+      Just m  -> return $ Env port db (pack m) (pack endpoint)
 
 lookupDb :: IO (String, Integer)
 lookupDb = do
@@ -80,6 +75,11 @@ readEnv :: Read a => String -> a -> IO a
 readEnv name def = do
     mval <- lookupEnv name
     return $ fromMaybe def (read <$> mval)
+
+defEnv :: String -> String -> IO String
+defEnv name def = do
+    mval <- lookupEnv name
+    return $ fromMaybe def mval
 
 -- tcp://234.234.234.2:28016
 readEndpoint :: String -> Maybe (String, Integer)

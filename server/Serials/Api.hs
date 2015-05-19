@@ -302,8 +302,8 @@ type API =
   :<|> Raw
 
 
-server :: Pool RethinkDBHandle -> Server API
-server h =
+server :: Pool RethinkDBHandle -> Env -> Server API
+server h env =
 
         sourcesServer h
    :<|> chaptersServer h
@@ -329,7 +329,7 @@ server h =
     settings :: Maybe Text -> IO AppSettings
     settings mc = do
       user <- checkAuth h mc
-      return $ AppSettings "Serials" "0.2" user "http://localhost:3001"
+      return $ AppSettings "Serials" "0.2" user (envEndpoint env)
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
@@ -359,8 +359,15 @@ api :: Proxy API
 api = Proxy
 
 
-runApi :: Int -> Pool RethinkDBHandle -> IO ()
-runApi port p = do
+data Env = Env {
+  port :: Int,
+  db :: (String, Integer),
+  mandrill :: Text,
+  envEndpoint :: Text
+} deriving (Show)
+
+runApi :: Int -> Pool RethinkDBHandle -> Env -> IO ()
+runApi port p env = do
   createDb p
   Source.init p
   Chapter.init p
@@ -368,7 +375,7 @@ runApi port p = do
   Invite.init p
   Subscription.init p
   putStrLn $ "Starting..."
-  run port $ stack $ serve api (server p)
+  run port $ stack $ serve api (server p env)
   return ()
 
 -- Cors ---------------------------------------------------------

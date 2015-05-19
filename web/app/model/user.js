@@ -33,8 +33,6 @@ export class UserModel {
 
   events: EventEmitter;
 
-  events: EventEmitter;
-
   constructor() {
     this.currentUser = SETTINGS.user
     this.events = new EventEmitter()

@@ -4,7 +4,6 @@ import React from 'react'
 var EMAIL = "serials@orbit.al"
 
 import {makeUpdate} from '../data/update'
-import {Alerts} from '../model/alert'
 
 // TODO: should put this somewhere more common
 var validateEmail = function(email) {

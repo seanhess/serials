@@ -55,6 +55,7 @@ export class Header extends React.Component {
     if (currentUser) {
       return <div style={{display: 'inline-block'}}>
         <Link style={LinkStyle} to="library" params={{id: this.props.currentUser.id}}>My Books</Link>
+        <Link style={LinkStyle} to="profile">Profile</Link>
         <a style={LinkStyle} onClick={this.logout.bind(this)}>Logout</a>
       </div>
 

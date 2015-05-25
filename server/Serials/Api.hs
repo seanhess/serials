@@ -171,6 +171,7 @@ type UsersAPI =
        ReqBody UserSignup :> Post (Headers CookieHeader SecureUser)
 
   :<|> Capture "id" Text :> Get SecureUser
+  :<|> Capture "id" Text :> ReqBody UserSignup :> Put SecureUser
   :<|> Capture "id" Text :> "books" :> Get [Source]
 
   :<|> Capture "id" Text :> "subs" :> Get [Subscription]
@@ -183,6 +184,7 @@ usersServer :: Pool RethinkDBHandle -> Server UsersAPI
 usersServer h =
         signup
    :<|> userGet
+   :<|> userUpdate
    :<|> userBooksGet
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
@@ -195,7 +197,10 @@ usersServer h =
     addAuth u
 
   userGet :: Text -> Handler SecureUser
-  userGet id   = liftE $ secure <$> User.find h id
+  userGet id = liftE $ secure <$> User.find h id
+
+  userUpdate :: Text -> UserSignup -> Handler SecureUser
+  userUpdate id user = liftE $ secure <$> UserSignup.update h id user
 
   userBooksGet :: Text -> Handler [Source]
   userBooksGet uid = liftIO $ Subscription.booksByUser h uid

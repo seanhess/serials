@@ -51,6 +51,11 @@ export class UserModel {
     .then(u => this._updateAuth(u))
   }
 
+  update(user:User) {
+    return Put(url(`users/${user.id}`), user)
+    .then(user => user)
+  }
+
   isLoggedIn():boolean {
     return !!this.currentUser
   }
@@ -89,5 +94,4 @@ export function userApiURL(id:?string) {
   if (!id) return ""
   return url('users', id)
 }
-
 

@@ -5,15 +5,17 @@ module Serials.Route.UserSignup where
 
 import Prelude hiding (id)
 
+import Control.Monad.IO.Class (liftIO)
 import Control.Applicative
 import Crypto.BCrypt (hashPasswordUsingPolicy, HashingPolicy(..))
+import qualified Crypto.BCrypt as Crypto
 
 import Data.Text (Text, pack, unpack, toLower)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Time
 import Data.Pool
-import Data.Maybe (isJust, isNothing)
+import Data.Maybe (isJust, isNothing, fromJust)
 import Data.Either (lefts)
 
 import GHC.Generics
@@ -29,9 +31,10 @@ data UserSignup = UserSignup {
   firstName :: Text,
   lastName :: Text,
   email :: Text,
-  code :: Text,
-  password :: Text,
-  passwordConfirmation :: Text
+  code :: Maybe Text,
+  currentPassword :: Maybe Text,
+  password :: Maybe Text,
+  passwordConfirmation :: Maybe Text
 } deriving (Show, Generic)
 
 instance FromJSON UserSignup
@@ -46,14 +49,38 @@ signup h u = validate (validateSignup h u) $ do
     Nothing -> return $ Left "Could not hash user password"
     Just user -> do
       createdUser <- User.insert h user
-      Invite.markUsed h (code u) (User.id createdUser)
+      Invite.markUsed h (fromJust $ code u) (User.id createdUser)
       sendWelcomeEmail createdUser
       return $ Right createdUser
+
+update :: Pool RethinkDBHandle -> Text -> UserSignup -> IO (Either Text User)
+update h i u = do
+  mu <- User.find h i
+  case currentPassword u of
+    Nothing -> return $ Left "Current password required to make changes"
+    Just cPass -> case mu of
+      Nothing -> return $ Left "Not Found"
+      Just user -> do
+        let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
+        let pass = encodeUtf8 cPass
+        case Crypto.validatePassword hashPass pass of
+          False -> return $ Left "Invalid password"
+          True -> do
+            let usr = updateUser user u
+            updatedUser <- User.replace h i usr
+            return $ Right updatedUser
+
+updateUser :: User -> UserSignup -> User
+updateUser u s = u {
+  User.firstName = firstName s
+  , User.lastName = lastName s
+  , User.email = email s
+  }
 
 newUser :: UserSignup -> IO (Maybe User)
 newUser u = do
   created <- getCurrentTime
-  hashPass <- hashPasswordUsingPolicy customHashPolicy $ encodeUtf8 (password u)
+  hashPass <- hashPasswordUsingPolicy customHashPolicy $ encodeUtf8 (fromJust $ password u)
 
   case hashPass of
     Nothing -> return Nothing
@@ -98,7 +125,7 @@ validateEmail h u = do
 
 validateInvite :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
 validateInvite h u = do
-  mInvite <- Invite.find h (code u)
+  mInvite <- Invite.find h (fromJust $ code u)
   case mInvite of
     Nothing -> return $ Left "Invite not found"
     Just invite ->

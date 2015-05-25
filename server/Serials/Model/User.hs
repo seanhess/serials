@@ -19,16 +19,14 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad (mzero)
 
 import Safe (headMay)
-import Web.JWT (JSON)
+import Web.JWT (JSON, JWTClaimsSet)
 
 import GHC.Generics (from, Generic)
 import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table, Object, toJSON)
+import Database.RethinkDB.NoClash hiding (table, Object, toJSON, replace)
 
 import Serials.Model.Lib.Crud
 import Serials.Lib.JWT
-
-import Web.JWT (JWTClaimsSet)
 
 data User = User {
   id :: Text,
@@ -79,6 +77,11 @@ insert h u = do
     r <- runPool h $ table # create u
     let user = u {id = generatedKey r}
     return $ user
+
+replace :: Pool RethinkDBHandle -> Text -> User -> IO User
+replace h i u = do
+  r <- runPool h $ table # getAll PrimaryKey [expr i] # ex update [returnChanges] (const $ toDatum u)
+  return . fromJust $ writeChangeNew r
 
 init :: Pool RethinkDBHandle -> IO ()
 init h = do

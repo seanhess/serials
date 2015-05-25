@@ -23,6 +23,7 @@ import {Library} from './app/books/library'
 import {Book} from './app/books/book'
 import {Read} from './app/books/read'
 import {About} from './app/pages/about'
+import {Profile} from './app/pages/profile'
 import {Login} from './app/pages/login'
 import {SignupPage} from './app/pages/signup'
 
@@ -66,6 +67,7 @@ var routes = (
 
     <Route name="pages" handler={Main}>
       <Route name="about" handler={About}/>
+      <Route name='profile' handler={Profile}/>
     </Route>
 
     <Route name='login' handler={Login}/>

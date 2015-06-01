@@ -17,7 +17,7 @@ http://serials.orbit.al
 MILESTONES
 ----------
 
-- [x] List of sources. View, Edit, Remove, Add. 
+- [x] List of sources. View, Edit, Remove, Add.
 - [x] Button to do a scan per source. Store the results. Page to view the scan results
 - [x] Store the latest chapter list
 - [x] Manage chapter lists (hide, add chapter)

@@ -53,8 +53,6 @@ readAllEnv = do
     endpoint <- defEnv "ENDPOINT" "http://localhost:3001"
     db <- lookupDb
     mm <- lookupEnv "MANDRILL_API_KEY"
-    print "TEST"
-    print mm
     case mm of
       Nothing -> error "missing env MANDRILL_API_KEY"
       Just m  -> return $ Env port db (pack m) (pack endpoint)

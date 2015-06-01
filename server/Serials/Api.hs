@@ -46,6 +46,7 @@ import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
+import Serials.Lib.Mail (MailConfig(..))
 
 import Serials.Route.Auth
 import Serials.Route.Invite
@@ -262,13 +263,13 @@ type InvitesAPI =
   :<|> Capture "id" Text :> Get Invite
   :<|> Capture "id" Text :> "sent" :> Post ()
 
-invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
-invitesServer h = list :<|> add :<|> find :<|> send
+invitesServer :: Pool RethinkDBHandle -> MailConfig -> Server InvitesAPI
+invitesServer h cfg = list :<|> add :<|> find :<|> send
 
   where
 
   add :: Email -> Handler ()
-  add e = liftIO $ inviteAddEmail h e
+  add e = liftIO $ inviteAddEmail h cfg e
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h
@@ -277,7 +278,7 @@ invitesServer h = list :<|> add :<|> find :<|> send
   find code = liftE $ Invite.find h code
 
   send :: Text -> Handler ()
-  send code = liftIO $ inviteSend h code
+  send code = liftIO $ inviteSend h cfg code
 
 
 
@@ -311,7 +312,7 @@ server h env =
    :<|> chaptersServer h
    :<|> usersServer h
    :<|> authServer h
-   :<|> invitesServer h
+   :<|> invitesServer h mailConfig
 
    :<|> proxyApp
    :<|> protected hasClaimAdmin (adminServer h)
@@ -324,6 +325,8 @@ server h env =
    :<|> serveDirectory "web"
 
   where
+
+    mailConfig = MailConfig (envEndpoint env)
 
     settingsText :: Maybe Text -> Handler Text
     settingsText mc = liftIO $ do

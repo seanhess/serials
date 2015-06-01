@@ -2,7 +2,8 @@
 
 module Serials.Lib.Mail (
   sendWelcomeEmail,
-  sendInviteEmail
+  sendInviteEmail,
+  MailConfig(..)
 ) where
 
 import System.Environment
@@ -28,19 +29,11 @@ data MailConfig = MailConfig {link :: Text}
 defaultMailConfig :: MailConfig
 defaultMailConfig = MailConfig { link = "http://localhost:3001" }
 
-mailConfig :: IO MailConfig
-mailConfig = do
-  env <- (return . fmap pack) =<< lookupEnv "ENV"
-  case env of
-    Nothing -> return defaultMailConfig
-    Just e -> return $ defaultMailConfig { link = "http://serials.orbit.al" }
-
 sendWelcomeEmail :: User -> IO ()
 sendWelcomeEmail u = sendMail (encodeUtf8 $ U.email u) "Welcome to Serials" (welcomeEmail u)
 
-sendInviteEmail :: Invite -> IO ()
-sendInviteEmail i = do
-  c <- mailConfig
+sendInviteEmail :: Invite -> MailConfig -> IO ()
+sendInviteEmail i c = do
   sendMail (encodeUtf8 $ I.email i) "Invite to join Serials" (inviteEmail i (link c))
 
 sendMail :: ByteString -> Text -> Html -> IO ()

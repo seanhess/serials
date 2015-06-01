@@ -7,6 +7,7 @@ import {Link} from 'react-router'
 import {RouteHandler} from 'react-router'
 import {MainContainer, Header} from '../layout/main'
 import {importLog, version} from '../model/admin'
+import {readSettings} from '../model/settings'
 
 export class Admin extends React.Component {
   render():React.Element {
@@ -44,13 +45,30 @@ export class AdminDashboard extends React.Component {
   }
 
   render():React.Element {
+    var settings = readSettings()
     return <div>
       <div>
         <h3>Admin</h3>
+
+        <p>
+          <label>Settings</label>
+          <code style={{fontSize: 'smaller'}}>{settings.appName} {settings.version}</code>
+        </p>
+
+
+        <p>
+          <label>Endpoint</label>
+          <code style={{fontSize: 'smaller'}}>{settings.endpoint}</code>
+        </p>
+
+        <p>
+          <label>Version</label>
+          <code style={{fontSize: 'smaller'}}>{this.props.version}</code>
+        </p>
+
         <div><Link to="sources">Sources</Link></div>
         <div><Link to="invites">Invites</Link></div>
         <div><a href="#/admin/import-log/500">Import Log</a></div>
-        <div>Version: <code style={{fontSize: 'smaller'}}>{this.props.version}</code></div>
       </div>
     </div>
   }

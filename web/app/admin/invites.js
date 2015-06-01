@@ -66,10 +66,22 @@ export class InvitesList extends React.Component {
       <td>{invite.email}</td>
       <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
       <td><a href={userApiURL(invite.userId)}>{invite.userId}</a></td>
-      <td>
-        <a onClick={this.props.onSend.bind(null, invite.code)}>{toDateString(invite.sent)}</a>
-      </td>
+      <td><InvitesSentCell invite={invite} onSend={this.props.onSend}/></td>
     </tr>
+  }
+}
+
+export class InvitesSentCell extends React.Component {
+  render():React.Element {
+    var invite = this.props.invite
+    var sent = toDateString(invite.sent)
+    var content = sent
+
+    if (!invite.userId) {
+      content = <a onClick={this.props.onSend.bind(null, invite.code)}>{sent}</a>
+    }
+
+    return <span>{content}</span>
   }
 }
 

@@ -10,20 +10,20 @@ import qualified Serials.Model.Invite as Invite
 import Serials.Model.Invite (Email, Invite, InviteCode)
 import Serials.Lib.Mail
 
-inviteAddEmail :: Pool RethinkDBHandle -> Email -> IO ()
-inviteAddEmail h e = do
+inviteAddEmail :: Pool RethinkDBHandle -> MailConfig -> Email -> IO ()
+inviteAddEmail h cfg e = do
   time <- getCurrentTime
   inv <- Invite.invite e (Just time)
   Invite.add h inv
-  sendInviteEmail inv
+  sendInviteEmail inv cfg
 
-inviteSend :: Pool RethinkDBHandle -> InviteCode -> IO ()
-inviteSend h c = do
+inviteSend :: Pool RethinkDBHandle -> MailConfig -> InviteCode -> IO ()
+inviteSend h cfg c = do
   mi <- Invite.find h c
   case mi of
     Nothing -> return ()
     Just i  -> do
-      sendInviteEmail i
+      sendInviteEmail i cfg
       Invite.markSent h c
 
 

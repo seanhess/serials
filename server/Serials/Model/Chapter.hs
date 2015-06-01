@@ -69,7 +69,7 @@ find h id = runPool h $ table # get (expr id)
 save :: Pool RethinkDBHandle -> Chapter -> IO (Either RethinkDBError ())
 save h c = do
   res <- runPool h $ table # get (expr (id c)) # replace (const $ toDatum c) :: IO (Either RethinkDBError Datum)
-  case res of 
+  case res of
     Left err -> return $ Left err
     Right d  -> return $ Right ()
 

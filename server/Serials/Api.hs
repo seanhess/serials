@@ -46,7 +46,6 @@ import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
-import Serials.Lib.Mail (MailConfig(..))
 
 import Serials.Route.Auth
 import Serials.Route.Invite
@@ -263,13 +262,13 @@ type InvitesAPI =
   :<|> Capture "id" Text :> Get Invite
   :<|> Capture "id" Text :> "sent" :> Post ()
 
-invitesServer :: Pool RethinkDBHandle -> MailConfig -> Server InvitesAPI
-invitesServer h cfg = list :<|> add :<|> find :<|> send
+invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
+invitesServer h = list :<|> add :<|> find :<|> send
 
   where
 
   add :: Email -> Handler ()
-  add e = liftIO $ inviteAddEmail h cfg e
+  add e = liftIO $ inviteAddEmail h e
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h
@@ -278,7 +277,7 @@ invitesServer h cfg = list :<|> add :<|> find :<|> send
   find code = liftE $ Invite.find h code
 
   send :: Text -> Handler ()
-  send code = liftIO $ inviteSend h cfg code
+  send code = liftIO $ inviteSend h code
 
 
 
@@ -312,7 +311,7 @@ server h env =
    :<|> chaptersServer h
    :<|> usersServer h
    :<|> authServer h
-   :<|> invitesServer h mailConfig
+   :<|> invitesServer h
 
    :<|> proxyApp
    :<|> protected hasClaimAdmin (adminServer h)
@@ -326,8 +325,6 @@ server h env =
 
   where
 
-    mailConfig = MailConfig (envEndpoint env)
-
     settingsText :: Maybe Text -> Handler Text
     settingsText mc = liftIO $ do
       s <- settings mc
@@ -337,7 +334,7 @@ server h env =
     settings :: Maybe Text -> IO AppSettings
     settings mc = do
       user <- checkAuth h mc
-      return $ AppSettings "Serials" "0.2" user (envEndpoint env)
+      return $ AppSettings "Serials" "0.2" user (endpoint env)
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
@@ -350,7 +347,7 @@ data AppSettings = AppSettings {
   appName :: Text,
   version :: Text,
   user :: Maybe SecureUser,
-  endpoint :: Text
+  appEndpoint :: Text
 } deriving (Show, Generic)
 
 instance ToJSON AppSettings
@@ -368,16 +365,9 @@ stack app = heads $ cors' $ app
 api :: Proxy API
 api = Proxy
 
-
-data Env = Env {
-  port :: Int,
-  db :: (String, Integer),
-  mandrill :: Text,
-  envEndpoint :: Text
-} deriving (Show)
-
 runApi :: Int -> Pool RethinkDBHandle -> Env -> IO ()
 runApi port p env = do
+  env <- readAllEnv
   createDb p
   Source.init p
   Chapter.init p

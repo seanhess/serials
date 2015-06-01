@@ -58,7 +58,7 @@ export class AdminDashboard extends React.Component {
 
         <p>
           <label>Endpoint</label>
-          <code style={{fontSize: 'smaller'}}>{settings.endpoint}</code>
+          <code style={{fontSize: 'smaller'}}>{settings.appEndpoint}</code>
         </p>
 
         <p>

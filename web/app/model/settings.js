@@ -7,7 +7,7 @@ export type AppSettings = {
   appName: string;
   user: User;
   version: string;
-  endpoint: string;
+  appEndpoint: string;
 }
 
 export function readSettings():AppSettings {

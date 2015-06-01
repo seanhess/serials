@@ -26,6 +26,8 @@ import GHC.Generics
 import Serials.Model.Lib.Crud
 import qualified Serials.Model.Source as Source
 import Serials.Model.Source (Source(..))
+import qualified Serials.Model.User as User
+import Serials.Model.User (User(..), SecureUser(..))
 
 data Subscription = Subscription {
   id :: Text,
@@ -54,6 +56,7 @@ userField = "userId"
 userIndex = Index userField
 
 sourceField = "sourceId" :: Text
+sourceIndex = Index sourceField
 
 booksByUser :: Pool RethinkDBHandle -> Text -> IO [Source]
 booksByUser h id = runPool h $ table
@@ -63,6 +66,12 @@ booksByUser h id = runPool h $ table
 
 subsByUser :: Pool RethinkDBHandle -> Text -> IO [Subscription]
 subsByUser h id = runPool h $ table # getAll userIndex [expr id] # orderBy [asc "id"]
+
+usersSubscribed :: Pool RethinkDBHandle -> Text -> IO [User]
+usersSubscribed h sourceId = runPool h $ table
+  # getAll sourceIndex [expr sourceId]
+  # eqJoin userField (User.table) (Index "id")
+  # R.zip # orderBy [asc "id"]
 
 add :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 add h uid sid = do
@@ -87,3 +96,4 @@ init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
     initDb $ runPool h $ table # indexCreate (unpack userField) (!expr userField)
+    initDb $ runPool h $ table # indexCreate (unpack sourceField) (!expr sourceField)

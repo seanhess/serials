@@ -30,6 +30,8 @@ import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.Source (Source(..), Status(..))
 import Serials.Model.Scan (Scan(..))
 
+import Serials.Notify
+
 import System.IO
 
 import Data.HashMap.Strict (HashMap, fromList, lookup)
@@ -81,6 +83,9 @@ importSource h source = do
 
   mapM (log " updated ") ups
   mapM (log "     new ") new
+
+  -- TODO notify everyone that has new chapters!
+  notifyChapters h source new
 
   checkErr $ Chapter.saveAll h new
   checkErr $ Chapter.saveAll h ups

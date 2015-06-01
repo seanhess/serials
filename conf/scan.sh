@@ -4,4 +4,5 @@
 # restore parent environment
 # log to a file
 # run the scan
-/usr/bin/env - `cat /opt/serials/env.sh` /opt/serials/.cabal-sandbox/bin/serials scan >> /var/log/serials.log 2>&1
+export RETHINKDB_PORT_28015_TCP=tcp://localhost:28015
+/usr/bin/env - `cat /etc/environment` /opt/serials/.cabal-sandbox/bin/serials scan >> /var/log/serials.log 2>&1

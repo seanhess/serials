@@ -284,6 +284,7 @@ invitesServer h = list :<|> add :<|> find :<|> send
 -- Server ----------------------------------------------------
 
 
+
 type API =
 
        "sources"  :> SourcesAPI
@@ -298,6 +299,7 @@ type API =
 
   :<|> "settings"    :> AuthToken :> Get AppSettings
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
+  :<|> "status" :> Get AppStatus
 
   :<|> Raw
 
@@ -316,6 +318,9 @@ server h env =
 
    :<|> liftIO . settings
    :<|> settingsText
+
+   :<|> status
+
    :<|> serveDirectory "web"
 
   where
@@ -333,6 +338,8 @@ server h env =
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
+
+    status = liftIO $ appStatus h
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 

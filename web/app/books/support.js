@@ -27,6 +27,14 @@ export class SomethingWrong extends React.Component {
   }
 }
 
+export class Suggestion extends React.Component {
+  render():React.Element {
+    return <div>
+      <p>Have a suggestion? Email us at <EmailLink/> and we will work on it.</p>
+    </div>
+  }
+}
+
 export class EmailLink extends React.Component {
   render():React.Element {
     return <a href={EMAIL}>{EMAIL}</a>

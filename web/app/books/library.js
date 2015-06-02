@@ -4,6 +4,7 @@ import React from 'react'
 import {Link} from 'react-router'
 import {userBooks} from '../model/subscription'
 import {SimpleGallery} from './gallery'
+import {Suggestion} from '../books/support'
 
 export class Library extends React.Component {
 
@@ -18,6 +19,7 @@ export class Library extends React.Component {
       <SimpleGallery sources={sources} />
       <hr />
       <p><Link to="books">Discover new books</Link></p>
+      <p><Suggestion /></p>
     </div>
   }
 }

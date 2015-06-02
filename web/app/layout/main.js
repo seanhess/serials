@@ -80,9 +80,17 @@ export class Header extends React.Component {
     })
 
     //<Link style={LinkStyle} to="about">About</Link>
+
+    var signup = ""
+
+    if (!this.props.currentUser) {
+      signup = <a style={LinkStyle} href="/">Sign Up</a>
+    }
+
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
         <a style={LinkStyle} href="/">About</a>
+        {signup}
         <Link style={adminStyle} to="admin">Admin</Link>
         {this.renderCurrentUser()}
       </div>

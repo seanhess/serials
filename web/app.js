@@ -22,7 +22,6 @@ import {Gallery} from './app/books/gallery'
 import {Library} from './app/books/library'
 import {Book} from './app/books/book'
 import {Read} from './app/books/read'
-import {About} from './app/pages/about'
 import {Login} from './app/pages/login'
 import {SignupPage} from './app/pages/signup'
 
@@ -60,10 +59,6 @@ class App extends React.Component {
 var routes = (
   <Route handler={App} path="/">
     <Redirect from="/" to="books" />
-
-    <Route name="pages" handler={Main}>
-      <Route name="about" handler={About}/>
-    </Route>
 
     <Route name='login' handler={Login}/>
     <Route name='signup' path="signup/:code" handler={SignupPage}/>

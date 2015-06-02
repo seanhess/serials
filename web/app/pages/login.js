@@ -1,5 +1,6 @@
 // @flow
 import React from 'react'
+import {Link} from 'react-router'
 import {RouteHandler} from 'react-router'
 
 import {FormSection} from '../comp'
@@ -18,7 +19,7 @@ export class LogoPage extends React.Component {
   render():React.Element {
     return <div style={{padding: 25}} className="row small-12 columns">
       <div style={{textAlign: 'center', height: 200}}>
-        <img src="img/serials-logo-dark.png" style={{height: '100%'}}/>
+        <Link to="books"><img src="img/serials-logo-dark.png" style={{height: '100%'}}/></Link>
       </div>
       {this.props.children}
     </div>

@@ -8,13 +8,13 @@ import Prelude hiding (id)
 import Control.Applicative
 
 import Data.Text (Text, unpack)
-import Data.Aeson (ToJSON, FromJSON)
+import Data.Aeson (ToJSON(..), FromJSON)
 import Data.Pool
 import Data.Time
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table, status)
+import Database.RethinkDB.NoClash hiding (table, status, toJSON)
 
 import Serials.Model.Lib.Crud
 import Serials.Model.Scan
@@ -39,7 +39,6 @@ data Source = Source {
 
 } deriving (Show, Generic)
 
-
 instance FromJSON Status
 instance ToJSON Status
 
@@ -48,6 +47,7 @@ instance ToJSON ImportSettings
 
 instance FromJSON Source
 instance ToJSON Source
+
 instance FromDatum Source
 instance ToDatum Source
 

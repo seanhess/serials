@@ -7,6 +7,7 @@ import Prelude hiding (null)
 import Control.Lens ((^.))
 import Control.Applicative
 
+import Data.Data
 import Data.ByteString.Lazy (ByteString)
 import Data.Maybe (fromMaybe, fromJust)
 import Data.Text (unpack, Text, null)

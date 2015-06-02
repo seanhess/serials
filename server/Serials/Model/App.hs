@@ -9,6 +9,7 @@ import Data.Aeson
 import Data.Pool
 import Data.Text (Text, pack)
 import Data.Maybe
+import Data.Time
 
 import Database.RethinkDB.NoClash
 
@@ -17,6 +18,10 @@ import GHC.Generics
 import Network.URI
 
 import Serials.Model.Lib.Crud
+import qualified Serials.Model.Source as Source
+import Serials.Model.Source (Source)
+import Serials.Model.Scan (Scan)
+import qualified Serials.Model.Scan as Scan
 
 import System.Environment
 
@@ -29,14 +34,34 @@ instance FromJSON AppInfo
 instance ToJSON AppInfo
 
 data AppStatus = AppStatus {
-  health :: Text
+  database :: Bool,
+  scans :: Bool
 } deriving (Generic)
+
 instance ToJSON AppStatus
 
 appStatus :: Pool RethinkDBHandle -> IO AppStatus
 appStatus h = do
+  dbh <- checkDbHealth h
+  sh  <- checkScanHealth h
+  return $ AppStatus dbh sh
+
+health :: Text -> Bool -> Maybe Text
+health msg healthy = if healthy then Just msg else Nothing
+
+------------------------------------------------------
+
+checkDbHealth :: Pool RethinkDBHandle -> IO Bool
+checkDbHealth h = do
   runPool h $ table "sources" # status :: IO (Either RethinkDBError Datum)
-  return $ AppStatus "OK"
+  return $ True
+
+checkScanHealth :: Pool RethinkDBHandle -> IO Bool
+checkScanHealth h = do
+  sources <- Source.list h
+  let scans = map Source.lastScan sources
+  return $ all isJust scans
+  -- get all the sources, make sure all of them have a last import set
 
 --------------------------------------------------------
 

@@ -6,6 +6,7 @@ module Serials.Model.Scan where
 import Data.Time
 import Data.Text
 import Data.Aeson
+import Data.Data
 
 import Database.RethinkDB.NoClash
 

@@ -87,11 +87,17 @@ importSource h source = do
   mapM (log " updated ") ups
   mapM (log "     new ") new
 
-  -- TODO notify everyone that has new chapters!
-  notifyChapters h source new
+  -- TODO download all chapters
+  -- proxy it, getting the text.
+  -- save to the right place
 
+  -- save all 
   checkErr $ Chapter.saveAll h new
   checkErr $ Chapter.saveAll h ups
+
+  -- notify all
+  notifyChapters h source new
+
 
   -- this means it actually completed, so go last?
   checkErr $ Source.updateLastScan h sid scan

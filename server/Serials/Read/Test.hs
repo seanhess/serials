@@ -8,6 +8,7 @@ import Control.Applicative
 
 import Debug.Trace
 import Data.Text (Text, splitOn, intersperse, intercalate, unpack, pack)
+import qualified Data.Text as Text
 import Data.Text.IO (writeFile)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Text.Lazy (fromStrict)
@@ -35,10 +36,10 @@ data Page = Page {
 
 proxyURL :: Text -> IO Text
 proxyURL base = do
-    body <- downloadBody base
-    let tags = parseTags body
-        out = renderTags $ map (fixTagURLs base) tags
-    return out
+  body <- downloadBody base
+  let tags = parseTags body
+  let out = renderTags $ map (fixTagURLs base) tags
+  return out
 
 --baseTag :: Text
 --baseTag = "<base target=\"_parent\" />"

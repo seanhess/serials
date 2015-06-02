@@ -6,7 +6,7 @@ export class AlertView extends React.Component {
 
   constructor(props:any) {
     super(props)
-    this.state = this.props.alert
+    this.state = this.props.alert || {}
   }
 
   componentWillReceiveProps(newProps:any) {
@@ -46,7 +46,7 @@ export class AlertView extends React.Component {
     return <div data-alert className={classes} style={style}>
       <span>{face(this.state.type)}</span>
       <span style={{marginLeft: 20}}>{this.state.message}</span>
-      <a onClick={this.onClick} className="close">×</a>
+      <a href="#" onClick={this.onClick} className="close">×</a>
     </div>
   }
 }

@@ -150,6 +150,13 @@
     <script src="http://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
     <script>
 
+      // Check for urls belonging to the other app
+      if (window.location.hash) {
+        var url = "/app.html" + window.location.hash
+        console.log("WOOT", url)
+        window.location = url
+      }
+
       function addInvite() {
         var $email = $("#email")
         var $button = $("#button")

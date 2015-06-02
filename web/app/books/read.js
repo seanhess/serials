@@ -71,6 +71,7 @@ export class Read extends React.Component {
     }
 
     //return <div dangerouslySetInnerHTML={this.contentInnerHTML()} />
+    //console.log("PROXY", chapterContentURL(this.props.chapter))
 
     var url = proxyURL(chapterContentURL(this.props.chapter))
     return <iframe src={url} style={frameStyle}>

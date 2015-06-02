@@ -47,7 +47,6 @@ mainScan :: [String] -> IO ()
 mainScan ids = do
     putStr "[SCAN] | "
     env <- readAllEnv
-    print env
     p <- connectDbPool (db env)
     case ids of
       [] -> importAllSources p

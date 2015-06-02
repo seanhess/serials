@@ -11,6 +11,13 @@ module.exports = {
     filename: "bundle.js"
   },
 
+  externals: {
+    "react" : "React",
+    "react-router" : "ReactRouter",
+    "lodash" : "_",
+    "moment" : "moment"
+  },
+
   resolve: {
     extensions: ['', '.js']
   },
@@ -19,7 +26,7 @@ module.exports = {
     loaders: [
       { test: /\.js/,
         exclude: /node_modules/,
-        loaders: ["react-hot", "jsx-loader", "babel-loader"]
+        loaders: ["jsx-loader", "babel-loader"]
       }
     ]
   },

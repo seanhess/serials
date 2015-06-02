@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react'
-import Promise from 'bluebird'
 import Router from 'react-router'
 
 import {SourceModel, emptySource, emptyScan, Status} from '../model/source'

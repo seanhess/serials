@@ -1,7 +1,7 @@
 // @flow
 
 import {map, flatten} from 'lodash'
-import Promise from 'bluebird'
+import {Promise} from 'es6-promise'
 import React from 'react'
 
 type Route = {

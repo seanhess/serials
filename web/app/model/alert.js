@@ -1,6 +1,6 @@
 // @flow
 
-import Promise from 'bluebird'
+import {Promise} from 'es6-promise'
 import {EventEmitter} from 'events'
 
 // AlertModel //////////////////////////////////////

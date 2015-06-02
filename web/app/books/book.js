@@ -2,7 +2,6 @@
 
 import React from 'react'
 import {Link} from 'react-router'
-import Promise from 'bluebird'
 
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'

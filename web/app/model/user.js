@@ -1,6 +1,6 @@
 // @flow
 
-import Promise from 'bluebird'
+import {Promise} from 'es6-promise'
 
 import {Get, Post, Put, Delete, url} from '../api'
 import {EventEmitter} from 'events'

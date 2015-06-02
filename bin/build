@@ -22,7 +22,13 @@ flow
 
 echo "
 -- webpack ------------------"
-cd web && webpack -p && cd ..
+
+# make sure we're using the same version of everything
+npm dedupe
+cd web
+# now build
+webpack -p --display-modules --config webpack-production.config.js
+cd ..
 
 #echo "
 #-- docker ------------------"

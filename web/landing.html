@@ -2,13 +2,13 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>serials</title>
+    <title>Serials - Subscribe to Web Fiction</title>
     <meta content="serials" property="og:title">
     <meta content="Follow the best books on the web " property="og:description">
     <meta content="Follow the best books on the web " name="description">
     <meta content="website" property="og:type">
 
-    <link rel="icon" type="image/x-icon" href="MISSING">
+    <!--<link rel="icon" type="image/x-icon" href="MISSING">-->
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -104,6 +104,7 @@
         background-color: #F15D58;
         color: white;
         width: 200px;
+        border: solid 2px #F15D58;
       }
       
       input {
@@ -121,6 +122,10 @@
         background: url(./landing/books.png) no-repeat;
         background-size: 1427px 100%;
         background-position-x: 50%;
+      }
+
+      .disabled {
+        opacity: 0.7;
       }
 
       /* 
@@ -141,25 +146,110 @@
       */
 
     </style>
+
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
+    <script>
+
+      function addInvite() {
+        var $email = $("#email")
+        var $button = $("#button")
+
+        $email.addClass("disabled")
+        $button.addClass("disabled")
+        $email.attr("disabled", true)
+        $button.attr("disabled", true)
+
+        $.ajax("/invites", {
+          method: "POST",
+          contentType: 'application/json',
+          data: JSON.stringify($email.val())
+        })
+        .then(showThankYou, showError)
+      }
+
+      function showThankYou(res) {
+        $("#thank-you").show()
+        $("#subscribe").hide()
+      }
+
+      function showError(err) {
+
+        var $email = $("#email")
+        var $button = $("#button")
+
+        if (err.status == 400) {
+          $("#invalid").css({visibility:"visible"})
+            $email.css({border: "solid 2px #EF5E5C"})
+          console.log("INVALID!")
+
+          $email.removeClass("disabled")
+          $button.removeClass("disabled")
+          $email.attr("disabled", false)
+          $button.attr("disabled", false)
+
+        }
+
+        else {
+          $("#error").show()
+          $("#subscribe").hide()
+        }
+
+      }
+    </script>
+
   </head>
 
   <body>
 
+      <!-- Facebook SDK -->
+      <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3&appId=303944262956409";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
+
+
     <div id="main-banner" class="banner" style="padding-top: 50px; padding-bottom: 50px; color: white">
 
         <div style="position: absolute; top: 20px; right: 20px">
-          <a href="http://serials.orbit.al/#/login" style="color: white; text-decoration: none">Sign In</a>
+          <a href="/#/login" style="color: white; text-decoration: none">Sign In</a>
         </div>
 
         <div style="text-align: center; margin-bottom: 50px">
           <img src="./landing/serials-logo-white.png" alt="logo" style="width: 100px">
         </div>
 
-        <h1>Subscribe to your favorite web books</h1>
-        <p class="form">
-          <input type="text" placeholder="email"/>
-          <button>Get Started</button>
-        </p>
+        <div id="subscribe">
+          <h1>Subscribe to your favorite web fiction</h1>
+          <p class="form">
+            <form method="POST" action="javascript:addInvite()">
+              <input id="email" type="text" name="email" style="border: solid 2px white" placeholder="email"/>
+              <button id="button">Get Started</button>
+            </form>
+          </p>
+          <p id="invalid" style="visibility:hidden">Please enter a valid email address</p>
+        </div>
+
+        <div id="thank-you" style="display:none">
+          <h1>Almost done!</h1>
+          <p class="byline">Check your email to complete the signup process.</p>
+          <p>
+            <!-- facebook button -->
+            <div style="margin-right:20px; position: relative; bottom: 3px" class="fb-share-button" data-href="http://serials.orbit.al" data-layout="button"></div>
+
+            <!-- twitter button -->
+            <a href="https://twitter.com/share" class="twitter-share-button" data-via="serialsapp" data-count="none">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            </p>
+          </div>
+
+        <div id="error" style="display:none">
+          <h1>Something went wrong</h1>
+          <p class="byline">Please contact support at serials@orbit.al</p>
+        </div>
     </div>
 
     <div class="banner" style="background-color: #F15D58; color: #333; padding: 50px; padding-right: 100px; padding-left: 100px">

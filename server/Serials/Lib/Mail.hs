@@ -4,17 +4,19 @@ module Serials.Lib.Mail (
   sendWelcomeEmail,
   sendInviteEmail,
   sendMail,
+  isValidAddress,
   Email(..)
 ) where
 
 import System.Environment
 import Data.Monoid ((<>))
+import Data.Maybe (isJust)
 import Data.ByteString (ByteString)
 import Data.Text (Text, pack)
 import Data.Text.Encoding (encodeUtf8)
 import Data.Maybe (fromJust)
 import Network.API.Mandrill
-import Text.Email.Validate (emailAddress)
+import Text.Email.Validate (emailAddress, isValid)
 import Text.Blaze (textValue)
 import Text.Blaze.Html (Html, toHtml, toMarkup)
 import qualified Text.Blaze.Html5 as H
@@ -31,6 +33,9 @@ data Email = Email {
   emailSubject :: Text,
   emailBody :: Html
 }
+
+isValidAddress :: Text -> Bool
+isValidAddress = isValid . encodeUtf8
 
 sendWelcomeEmail :: User -> IO ()
 sendWelcomeEmail u = sendMail [U.email u] (welcomeEmail u)

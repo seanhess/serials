@@ -43,6 +43,10 @@ export function invitesSend(code:string) {
   return Post(url('invites', code, 'sent'))
 }
 
+export function invitesDelete(code:string) {
+  return Del(url('invites', code))
+}
+
 export function signup(signup:Signup) {
   return Post(url('users'), signup)
 }

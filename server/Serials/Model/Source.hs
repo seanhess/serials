@@ -73,6 +73,9 @@ remove h id = runPool h $ table # get (expr id) # delete
 updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO (Either RethinkDBError WriteResponse)
 updateLastScan h id s = runPool h $ table # get (expr id) # update (const ["lastScan" := (toDatum s)])
 
+clearLastScan :: Pool RethinkDBHandle -> Text -> IO ()
+clearLastScan h id = runPool h $ table # get (expr id) # update (const ["lastScan" := Null])
+
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table

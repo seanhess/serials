@@ -10,12 +10,19 @@ import qualified Serials.Model.Invite as Invite
 import Serials.Model.Invite (Email, Invite, InviteCode)
 import Serials.Lib.Mail hiding (Email)
 
-inviteAddEmail :: Pool RethinkDBHandle -> Email -> IO ()
+import Servant.Server (ServantErr(..), err400)
+
+-- I need to validate the email address
+inviteAddEmail :: Pool RethinkDBHandle -> Email -> IO (Either ServantErr ())
 inviteAddEmail h e = do
-  time <- getCurrentTime
-  inv <- Invite.invite e (Just time)
-  Invite.add h inv
-  sendInviteEmail inv
+  if not $ isValidAddress e
+  then return $ Left $ err400 { errBody = "Invalid Email Address" }
+  else do
+    time <- getCurrentTime
+    inv <- Invite.invite e (Just time)
+    sendInviteEmail inv
+    Invite.add h inv
+    return $ Right ()
 
 inviteSend :: Pool RethinkDBHandle -> InviteCode -> IO ()
 inviteSend h c = do

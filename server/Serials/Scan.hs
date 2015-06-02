@@ -69,6 +69,9 @@ skipSource source = do
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
 
+  -- update last scan saying it started
+  Source.clearLastScan h sid
+
   content <- scanSource source
   time <- getCurrentTime
 

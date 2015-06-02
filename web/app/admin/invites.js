@@ -2,7 +2,7 @@
 
 import React from 'react'
 import {Link} from 'react-router'
-import {invitesAll, invitesAdd, invitesSend, Invite} from '../model/invite'
+import {invitesAll, invitesAdd, invitesSend, invitesDelete, Invite} from '../model/invite'
 import {userApiURL} from '../model/user'
 import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
@@ -30,8 +30,12 @@ export class Invites extends React.Component {
   }
 
   sendInvite(code:string) {
-    console.log("SEND INVITE", code)
     invitesSend(code)
+    .then(reloadHandler)
+  }
+
+  deleteInvite(code:string) {
+    invitesDelete(code)
     .then(reloadHandler)
   }
 
@@ -41,7 +45,10 @@ export class Invites extends React.Component {
 
     return <div>
       <h2>Invites</h2>
-      <InvitesList invites={invites} onSend={this.sendInvite.bind(this)}/>
+      <InvitesList invites={invites}
+        onSend={this.sendInvite.bind(this)}
+        onDelete={this.deleteInvite.bind(this)}
+      />
       <BulkInvites onAdd={this.addInvites.bind(this)}/>
     </div>
   }
@@ -55,6 +62,7 @@ export class InvitesList extends React.Component {
         <th>Code</th>
         <th>User</th>
         <th>Sent</th>
+        <th></th>
       </tr>
 
       {this.props.invites.map(this.renderRow.bind(this))}
@@ -65,23 +73,35 @@ export class InvitesList extends React.Component {
     return <tr>
       <td>{invite.email}</td>
       <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
-      <td><a href={userApiURL(invite.userId)}>{invite.userId}</a></td>
-      <td><InvitesSentCell invite={invite} onSend={this.props.onSend}/></td>
+      <td><UserCell invite={invite} onSend={this.props.onSend}/></td>
+      <td>{toDateString(invite.sent)}</td>
+      <td><a onClick={() => this.props.onDelete(invite.code)}>
+        <span className="fa fa-trash"></span>
+      </a></td>
     </tr>
   }
 }
 
-export class InvitesSentCell extends React.Component {
+class UserCell extends React.Component {
   render():React.Element {
     var invite = this.props.invite
-    var sent = toDateString(invite.sent)
-    var content = sent
 
-    if (!invite.userId) {
-      content = <a onClick={this.props.onSend.bind(null, invite.code)}>{sent}</a>
+    if (invite.userId) {
+      return <a href={userApiURL(invite.userId)}>{invite.userId}</a>
     }
 
-    return <span>{content}</span>
+    else {
+      return <InvitesSend invite={invite} onSend={this.props.onSend}/>
+    }
+  }
+}
+
+export class InvitesSend extends React.Component {
+  render():React.Element {
+    var invite = this.props.invite
+    return <a onClick={this.props.onSend.bind(null, invite.code)}>
+      <span className="fa fa-paper-plane"></span>
+    </a>
   }
 }
 

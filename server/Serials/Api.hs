@@ -259,22 +259,26 @@ authServer h = current :<|> logout :<|> login :<|> jwt
 type InvitesAPI =
        Get [Invite]
   :<|> ReqBody Email :> Post ()
-  :<|> Capture "id" Text :> Get Invite
-  :<|> Capture "id" Text :> "sent" :> Post ()
+  :<|> Capture "code" Text :> Get Invite
+  :<|> Capture "code" Text :> Delete ()
+  :<|> Capture "code" Text :> "sent" :> Post ()
 
 invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
-invitesServer h = list :<|> add :<|> find :<|> send
+invitesServer h = list :<|> add :<|> find :<|> remove :<|> send
 
   where
 
   add :: Email -> Handler ()
-  add e = liftIO $ inviteAddEmail h e
+  add e = EitherT $ inviteAddEmail h e
 
   list :: Handler [Invite]
   list = liftIO $ Invite.all h
 
   find :: Text -> Handler Invite
   find code = liftE $ Invite.find h code
+
+  remove :: Text -> Handler ()
+  remove code = liftIO $ Invite.remove h code
 
   send :: Text -> Handler ()
   send code = liftIO $ inviteSend h code

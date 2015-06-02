@@ -65,6 +65,9 @@ add h inv = do
     r <- runPool h $ table # ex insert [returnChanges] (toDatum $ inv)
     return . fromJust $ writeChangeNew r
 
+remove :: Pool RethinkDBHandle -> Text -> IO ()
+remove h code = runPool h $ table # getAll codeIndex [expr code] # delete
+
 emailId :: Text -> Email
 emailId = toLower
 

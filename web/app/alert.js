@@ -20,7 +20,7 @@ export class AlertView extends React.Component {
 
     this.setState({
       message: message,
-      type: type
+      type: type,
     })
   }
 
@@ -35,8 +35,17 @@ export class AlertView extends React.Component {
 
     var classes = ['alert-box', typeClass(this.state.type)].join(' ')
 
-    return <div data-alert className={classes} style={{position: 'fixed', bottom: 0, width: '100%', margin: 0}}>
-      {this.state.message}
+    var style = {
+      position: 'fixed',
+      bottom: 0,
+      width: '100%',
+      margin: 0,
+      fontSize: 16
+    }
+
+    return <div data-alert className={classes} style={style}>
+      <span>{face(this.state.type)}</span>
+      <span style={{marginLeft: 20}}>{this.state.message}</span>
       <a onClick={this.onClick} className="close">×</a>
     </div>
   }
@@ -47,3 +56,15 @@ function typeClass(type:string):string {
   else return type
 }
 
+// http://wrttn.me/30dbfd/
+function face(type:string):string {
+  if (type === "error")        return "◉︵◉"
+  else if (type === "success") return "(/◔ ◡ ◔)/"
+  // ◕︵◕
+  // ಠ╭╮ಠ
+  // ◉︵◉
+  // ⊙﹏⊙
+  // ⊙_ʘ
+  // ಠ_ಠ
+  else return ""
+}

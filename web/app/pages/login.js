@@ -50,13 +50,13 @@ export class Login extends React.Component {
     .then((user) => {
       console.log("Logged in", user)
       if (user) {
-        Alerts.update({message: 'You have successfully logged in', type: 'success'}, true)
+        Alerts.update("success", 'You have successfully logged in', true)
         this.setState({login: emptyLogin()})
         window.location.hash = "/"
       }
     })
     .catch(() => {
-        Alerts.update({message: 'Invalid email address or password', type: 'error'})
+        Alerts.update("error", 'Invalid email address or password')
     })
   }
 

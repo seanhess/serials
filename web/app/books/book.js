@@ -9,6 +9,7 @@ import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/s
 import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
 import {findSubscription, setSubscribed, SubChapter, Subscription} from '../model/subscription'
+import {Alerts} from '../model/alert'
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
@@ -75,6 +76,14 @@ export class Book extends React.Component {
     var hasSubscription = !!this.state.subscription
     var sourceId = this.props.params.id
     setSubscribed(Users.currentUserId(), sourceId, !hasSubscription)
+    .then(function() {
+      if (!hasSubscription) {
+        Alerts.update("success", "You are subscribed!")
+      }
+      else {
+        Alerts.update("secondary", "You are unsubscribed")
+      }
+    })
     .then(this.reloadSubscription.bind(this))
   }
 
@@ -129,7 +138,7 @@ export class Book extends React.Component {
       </div>
 
       <div style={{clear: 'both'}}>
-        {this.renderSubscribe(sub)}
+        {this.renderSubscribe(sub, source)}
       </div>
 
       <hr />
@@ -148,13 +157,13 @@ export class Book extends React.Component {
     </div>
   }
 
-  renderSubscribe(subscription:Subscription):?React.Element {
+  renderSubscribe(subscription:Subscription, source:Source):?React.Element {
     var hasSubscription = !!subscription
     var className = "expand"
-    var text = "Subscribe"
+    var text = "Subscribe to " + source.name
     if (hasSubscription) {
       className += " secondary"
-      text = "Subscribed!"
+      text = "Subscribed"
     }
 
     return <button className={className} onClick={this.toggleSubscribe.bind(this)}>{text}</button>

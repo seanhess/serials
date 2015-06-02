@@ -10,7 +10,7 @@ a, a:visited {
   color: #F15D58;
 }
 
-a:active, a:hover {
+a:active, a:hover, a:focus {
   color: #D05045;
 }
 
@@ -20,6 +20,7 @@ button, .button, a.button {
   color: white;
 }
 
-button:hover, .button:hover {
+button:hover, .button:hover, button:focus, .button:focus {
   background-color: #D05045;
+  outline: 0;
 }

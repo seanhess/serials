@@ -9,6 +9,8 @@ export type Alert = {
   type: string;
 }
 
+export type AlertType = "success" | "error" | "info" | "secondary"
+
 // methods for alerts
 export class AlertModel {
 
@@ -25,8 +27,8 @@ export class AlertModel {
   }
 
   //// Alert ////////////////////////////////
-  update(alert:Alert, persist:boolean = false):Alert {
-    this.alert = alert
+  update(type:AlertType, message:string, persist:boolean = false):Alert {
+    this.alert = {type, message}
     this.persist = persist
     this.events.emit('change', this)
     return alert

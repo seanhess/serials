@@ -2,6 +2,7 @@
 var axios = require('axios')
 var path:any = require('path')
 import {getLocalStorage} from './helpers'
+import {Alerts} from './model/alert'
 
 export var api = function(method:string, url:string, data?:Object) {
   var config = {
@@ -43,6 +44,10 @@ function toData(res) {
 
 function error(err) {
   console.error("API", err.status, err.statusText+":", err.data)
+  Alerts.update({
+    type: 'error',
+    message: "Something is broken. Please email support at serials@orbit.al and we'll take a look"
+  })
   throw err
 }
 

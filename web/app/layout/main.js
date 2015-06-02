@@ -7,11 +7,16 @@ import {RouteHandler, Link} from 'react-router'
 import {assign} from 'lodash'
 import {Users} from '../model/user'
 import {background, Colors} from '../style'
+import {AlertView} from '../alert'
+import {Alerts} from '../model/alert'
 
 export class MainContainer extends React.Component {
   render():React.Element {
-    return <div className="row columns small-12" style={background}>
-      {this.props.children}
+    return <div>
+      <div className="row columns small-12" style={background}>
+        {this.props.children}
+      </div>
+      <AlertView alert={this.props.alert}/>
     </div>
   }
 }

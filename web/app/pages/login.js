@@ -6,6 +6,7 @@ import {RouteHandler} from 'react-router'
 import {FormSection} from '../comp'
 import {Users} from '../model/user'
 import {Alerts} from '../model/alert'
+import {AlertView} from '../alert'
 import {makeUpdate} from '../data/update'
 
 var emptyLogin = function() {
@@ -17,11 +18,14 @@ var emptyLogin = function() {
 
 export class LogoPage extends React.Component {
   render():React.Element {
-    return <div style={{padding: 25}} className="row small-12 columns">
-      <div style={{textAlign: 'center', height: 200}}>
-        <Link to="books"><img src="img/serials-logo-dark.png" style={{height: '100%'}}/></Link>
+    return <div>
+      <div style={{padding: 25}} className="row small-12 columns">
+        <div style={{textAlign: 'center', height: 200}}>
+          <Link to="books"><img src="img/serials-logo-dark.png" style={{height: '100%'}}/></Link>
+        </div>
+        {this.props.children}
       </div>
-      {this.props.children}
+      <AlertView alert={this.props.alert}/>
     </div>
   }
 }
@@ -46,7 +50,7 @@ export class Login extends React.Component {
     .then((user) => {
       console.log("Logged in", user)
       if (user) {
-        Alerts.update({message: 'You have successfully logged in', type: 'success'})
+        Alerts.update({message: 'You have successfully logged in', type: 'success'}, true)
         this.setState({login: emptyLogin()})
         window.location.hash = "/"
       }
@@ -62,7 +66,7 @@ export class Login extends React.Component {
       this.setState({login: v})
     })
 
-    return <LogoPage>
+    return <LogoPage alert={this.props.alert}>
       <form onSubmit={this.onSubmit.bind(this)}>
         <label>Email</label>
         <input type="text"

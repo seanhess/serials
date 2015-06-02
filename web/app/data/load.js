@@ -47,7 +47,9 @@ var lastState:any
 var lastData:any
 var innerRender:any
 
-export function run(ren:Function):Function {
+function nothing() {}
+
+export function run(ren:Function, onUrlChange:Function = nothing):Function {
 
   innerRender = ren
 
@@ -55,6 +57,8 @@ export function run(ren:Function):Function {
     lastHandler = Handler
     lastState = state
     lastData = {loaded: false}
+
+    onUrlChange(Handler, state)
 
     // render once without any data
     render()

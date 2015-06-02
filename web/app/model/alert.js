@@ -14,6 +14,9 @@ export class AlertModel {
 
   alert: Alert;
 
+  // resist one url change
+  persist: boolean;
+
   events: EventEmitter;
 
   constructor() {
@@ -22,8 +25,9 @@ export class AlertModel {
   }
 
   //// Alert ////////////////////////////////
-  update(alert:Alert):Alert {
+  update(alert:Alert, persist:boolean = false):Alert {
     this.alert = alert
+    this.persist = persist
     this.events.emit('change', this)
     return alert
   }
@@ -32,6 +36,15 @@ export class AlertModel {
     this.alert = this.emptyAlert()
     this.events.emit('change', this)
     return this.alert
+  }
+
+  urlChange():void {
+    if (this.persist) {
+      this.persist = false
+      return
+    }
+
+    this.clear()
   }
 
   emptyAlert():Alert {

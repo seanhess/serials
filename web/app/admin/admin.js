@@ -13,7 +13,7 @@ export class Admin extends React.Component {
   render():React.Element {
     return <div>
       <Header {...this.props}/>
-      <MainContainer>
+      <MainContainer alert={this.props.alert}>
         <RouteHandler {...this.props}/>
       </MainContainer>
     </div>

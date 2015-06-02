@@ -29,8 +29,6 @@ import {assign} from 'lodash'
 import {Users} from './app/model/user'
 import {Alerts} from './app/model/alert'
 
-import {AlertView} from './app/alert'
-
 import {background} from './app/style'
 
 class App extends React.Component {
@@ -40,6 +38,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+
   }
 
   render() {
@@ -50,7 +49,6 @@ class App extends React.Component {
     }
 
     return <div>
-      <AlertView {...this.props} />
       <RouteHandler {...this.props} />
     </div>
   }
@@ -101,19 +99,11 @@ Router.run(routes, run(function(Handler, state, data) {
       params={state.params}
       pathname={state.pathname}
     />, document.body)
-}))
+}, onUrlChange))
 
-//function checkLoginRedirect() {
-  //return Users.auth().then(function(user) {
-    //if (!user && lastState.path !== "/login") {
-      //console.log("CAUGHT YOU!")
-      //window.location.hash = "/login"
-      //return false
-    //}
-
-    //return true
-  //})
-//}
+function onUrlChange(Handler, state) {
+  Alerts.urlChange()
+}
 
 Users.bind(() => render())
 Alerts.bind(() => render())

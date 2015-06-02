@@ -7,6 +7,8 @@ Next Milestone: MVP
 - [x] multiple entry points
 - [x] CDN libraries (externals)
 - [ ] book chapters are way too slow (see pact)
+- [ ] analytics
+- [ ] BUG: signup process
 
 OPTIMIZATIONS
 ---------------------

@@ -30,7 +30,7 @@ export class SignupPage extends React.Component {
     signup(s).then(function(asdf) {
       // we are signed in, do a full redirect to '/'
       // which should check auth
-      window.location = '/'
+      window.location = '/app.html#/books'
     })
   }
 

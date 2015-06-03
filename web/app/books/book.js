@@ -5,7 +5,7 @@ import {Link} from 'react-router'
 
 import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
-import {ChapterModel, showChapter, isLink, proxyURL} from '../model/chapter'
+import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
 import {findSubscription, setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
@@ -31,29 +31,6 @@ var toChapterAndRead = curry(function(subs:?{[id:string]:SubChapter}, chapter:Ch
 function unread(c:ChapterAndRead) {
   return !c.read
 }
-
-//function lastReadChapter(chapters:Array<ChapterAndRead>):?ChapterAndRead {
-  //return chapters.reduce(function(last, current) {
-    //if (current.read) {
-      //return current
-    //}
-    //return last
-  //}, null)
-//}
-
-//function untilLastRead(chapters:Array<ChapterAndRead>, last:?ChapterAndRead):Array<ChapterAndRead> {
-  //if (!last) return []
-  //return takeWhile(chapters, function(c) {
-    //return c != last
-  //}).concat([last])
-//}
-
-//function afterLastRead(chapters:Array<ChapterAndRead>, last:?ChapterAndRead):Array<ChapterAndRead> {
-  //if (!last) return chapters
-  //return tail(dropWhile(chapters, function(c) {
-    //return c != last
-  //}))
-//}
 
 export class Book extends React.Component {
 
@@ -93,18 +70,25 @@ export class Book extends React.Component {
     this.reloadSubscription()
   }
 
-  markAsRead(chapter:Chapter) {
-    // then replace them in place
-    var sub = markAsRead(this.state.subscription, chapter.id, true)
+  markAsReadUnread(chapter:Chapter, read:boolean) {
+    if (!this.state.subscription) return
+    var sub = markAsRead(this.state.subscription, chapter.id, read)
     saveSubscription(sub)
     .then(this.reloadSubscription.bind(this))
   }
 
+  markAsRead(chapter:Chapter) {
+    this.markAsReadUnread(chapter, true)
+  }
+
   markAsUnread(chapter:Chapter) {
-    // then replace them in place
-    var sub = markAsRead(this.state.subscription, chapter.id, false)
-    saveSubscription(sub)
-    .then(this.reloadSubscription.bind(this))
+    this.markAsReadUnread(chapter, false)
+  }
+
+  readChapter(chapter:Chapter) {
+    this.markAsReadUnread(chapter, true)
+    var url = chapterContentURL(chapter)
+    window.location = url
   }
 
   render():?React.Element {
@@ -122,6 +106,7 @@ export class Book extends React.Component {
                         chapter={cs.chapter} 
                         read={cs.read} 
                         key={cs.chapter.id} 
+                        onClick={this.readChapter.bind(this)}
                         onMarkRead={this.markAsRead.bind(this)}
                         onMarkUnread={this.markAsUnread.bind(this)}
                         isCurrent={cs == current}
@@ -216,6 +201,10 @@ export class Chapter extends React.Component {
     }
   }
 
+  onClickChapter() {
+    this.props.onClick(this.props.chapter)
+  }
+
   renderLink(chapter:Chapter):React.Element {
     var readStyle = {color: Colors.highlight}
 
@@ -232,9 +221,9 @@ export class Chapter extends React.Component {
       </div>
 
       <div style={{display: 'table-cell'}}>
-        <Link to="chapter" params={{id: chapter.id}} style={readStyle}>
+        <a onClick={this.onClickChapter.bind(this)} style={readStyle}>
           {chapter.content.linkText}
-        </Link>
+        </a>
       </div>
     </div>
   }

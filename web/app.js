@@ -63,7 +63,7 @@ var routes = (
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
-      <Route name="book" path=":id" handler={Book} />
+      <Route name="book" path=":id" handler={Book} preserveScrollPosition/>
     </Route>
 
     <Route name="chapters" path="chapters">
@@ -77,6 +77,7 @@ var routes = (
       <Route name="source"  path="sources/:id" handler={Source}/>
       <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
     </Route>
+
     <Route name="user" handler={Main}>
       <Route name="library" path=":id/library" handler={Library}/>
     </Route>

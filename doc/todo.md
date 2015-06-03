@@ -12,6 +12,7 @@ Next Milestone: MVP
 - [x] Mention early access on the landing page
 - [x] BUG: signup process
 - [ ] BUG: alert clicks redirect you :( How do I get them clickable?
+- [ ] TEST: mobile read/unread clicks
 
 OPTIMIZATIONS
 ---------------------

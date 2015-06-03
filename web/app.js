@@ -24,6 +24,7 @@ import {Book} from './app/books/book'
 import {Read} from './app/books/read'
 import {Login} from './app/pages/login'
 import {SignupPage} from './app/pages/signup'
+import {About} from './app/pages/about'
 
 import {assign} from 'lodash'
 import {Users} from './app/model/user'
@@ -63,7 +64,11 @@ var routes = (
 
     <Route name="books" path="books" handler={Main}>
       <DefaultRoute handler={Gallery}/>
-      <Route name="book" path=":id" handler={Book} preserveScrollPosition/>
+      <Route name="book" path=":id" handler={Book} />
+    </Route>
+
+    <Route name="pages" path="pages" handler={Main}>
+      <Route name="about" path="about" handler={About} />
     </Route>
 
     <Route name="chapters" path="chapters">

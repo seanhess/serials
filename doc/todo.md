@@ -9,8 +9,8 @@ Next Milestone: MVP
 - [x] book chapters are way too slow (see pact)
 - [ ] analytics
 - [ ] Better emails and copy
-- [x] landing page should redirect to app if you are logged in
 - [ ] Dedicated in-app about page. Not a landing page.
+- [x] landing page should redirect to app if you are logged in
 - [x] Mention early access on the landing page
 - [x] BUG: signup process
 - [x] BUG: alert clicks redirect you How do I get them clickable?

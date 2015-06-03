@@ -85,7 +85,6 @@ export class Header extends React.Component {
       display: (isAdmin) ? 'inline-block' : 'none'
     })
 
-    //<Link style={LinkStyle} to="about">About</Link>
 
     var signup = ""
 
@@ -95,7 +94,7 @@ export class Header extends React.Component {
 
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
-        <a style={LinkStyle} href="/">About</a>
+        <Link to="about" style={LinkStyle}>About</Link>
         {signup}
         <Link style={adminStyle} to="admin">Admin</Link>
         {this.renderCurrentUser()}

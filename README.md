@@ -3,11 +3,18 @@ serials
 
 Serials aims to be a podcast-like experience for reading serial publications on the web. 
 
-Many excellent books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress. 
+Many excellent books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress.
 
 The system will scan sources to create a table of contents for each book. It will notify subscribers, and keep track of their reading progress.
 
 ![Build Status](https://circleci.com/gh/seanhess/serials.svg?&style=shield&circle-token=5b00f3b0fd452b4027e442419d1a1ef381215f26)
+
+Disclaimer
+----------
+
+Neither Orbital Labs or Serials are affiliated with any of the authors, books, art or content. We currently use art under the Fair Use doctrine, but prior to launch we will only use art we have a clear license to.
+
+Please contact [serials@orbit.al](mailto:serials@orbit.al) if we are using anything we don't have rights to and we'll clear it up
 
 Pre-alpha Site
 --------------

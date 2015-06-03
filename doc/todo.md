@@ -6,7 +6,7 @@ Next Milestone: MVP
 - [x] signup flow
 - [x] multiple entry points
 - [x] CDN libraries (externals)
-- [ ] book chapters are way too slow (see pact)
+- [x] book chapters are way too slow (see pact)
 - [ ] analytics
 - [ ] Better emails and copy
 - [x] Mention early access on the landing page

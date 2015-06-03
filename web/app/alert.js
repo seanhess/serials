@@ -1,6 +1,7 @@
 // @flow
 import React from 'react'
 import {Alerts} from './model/alert'
+import {clickable} from './style'
 
 export class AlertView extends React.Component {
 
@@ -46,7 +47,7 @@ export class AlertView extends React.Component {
     return <div data-alert className={classes} style={style}>
       <span>{face(this.state.type)}</span>
       <span style={{marginLeft: 20}}>{this.state.message}</span>
-      <a href="#" onClick={this.onClick} className="close">×</a>
+      <a onClick={this.onClick} className="close" style={clickable}>×</a>
     </div>
   }
 }

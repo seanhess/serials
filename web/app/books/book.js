@@ -14,7 +14,7 @@ import {Cover} from'../cover'
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
-import {Colors} from '../style'
+import {Colors, clickable} from '../style'
 
 type ChapterAndRead = {
   chapter: Chapter;
@@ -221,7 +221,7 @@ export class Chapter extends React.Component {
       </div>
 
       <div style={{display: 'table-cell'}}>
-        <a onClick={this.onClickChapter.bind(this)} style={readStyle}>
+        <a onClick={this.onClickChapter.bind(this)} style={assign({}, readStyle, clickable)}>
           {chapter.content.linkText}
         </a>
       </div>
@@ -265,7 +265,7 @@ class ReadIcon extends React.Component {
 
     var style = assign({}, readStyle, {fontSize: 16, marginLeft: 2, paddingLeft: padding})
 
-    return <a onClick={this.props.onClick}>
+    return <a onClick={this.props.onClick} style={clickable}>
       <span className={icon} style={style}/>
     </a>
   }

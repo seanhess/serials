@@ -17,3 +17,8 @@ export var Colors = {
 export var background = {
   backgroundColor: Colors.offWhite
 }
+
+// required for mobile safari
+export var clickable = {
+  cursor: 'pointer'
+}

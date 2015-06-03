@@ -7,7 +7,7 @@ import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
-import {findSubscription, setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription} from '../model/subscription'
+import {findSubscription, setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
 import {Cover} from'../cover'
 
@@ -49,7 +49,15 @@ export class Book extends React.Component {
   toggleSubscribe() {
     var hasSubscription = !!this.state.subscription
     var sourceId = this.props.params.id
-    setSubscribed(Users.currentUserId(), sourceId, !hasSubscription)
+
+    if (hasSubscription) {
+      this.setState({subscription: null})
+    }
+    else {
+      this.setState({subscription: newSubscription(Users.currentUserId(), sourceId)})
+    }
+
+    return setSubscribed(Users.currentUserId(), sourceId, !hasSubscription)
     .then(function() {
       if (!hasSubscription) {
         Alerts.update("success", "You are subscribed!")
@@ -58,7 +66,6 @@ export class Book extends React.Component {
         Alerts.update("secondary", "You are unsubscribed")
       }
     })
-    .then(this.reloadSubscription.bind(this))
   }
 
   reloadSubscription() {
@@ -73,8 +80,8 @@ export class Book extends React.Component {
   markAsReadUnread(chapter:Chapter, read:boolean) {
     if (!this.state.subscription) return Promise.resolve()
     var sub = markAsRead(this.state.subscription, chapter.id, read)
+    this.setState({subscription:sub})
     return saveSubscription(sub)
-    .then(this.reloadSubscription.bind(this))
   }
 
   markAsRead(chapter:Chapter) {

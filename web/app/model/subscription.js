@@ -15,6 +15,10 @@ export type SubChapter = {
   read: boolean;
 }
 
+export function newSubscription(userId: string, sourceId: string):Subscription {
+  return {userId, sourceId, chapters: {}}
+}
+
 export function userBooks(userId:string):Promise<Array<Source>> {
   return Get(url('users', userId, 'books'))
 }

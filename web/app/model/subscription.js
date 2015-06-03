@@ -1,8 +1,8 @@
 // @flow
 
 import {Get, Post, Put, Del, url} from '../api'
-
 import {Source} from './source'
+import {cloneDeep} from 'lodash'
 
 export type Subscription = {
   userId: string;
@@ -36,6 +36,17 @@ export function setSubscribed(userId:string, sourceId:string, subscribed:boolean
   else {
     return Del(subUrl)
   }
+}
+
+export function markAsRead(subscription:Subscription, chapterId:string, read:boolean):Subscription {
+  var sub = cloneDeep(subscription)
+
+  sub.chapters[chapterId] = {
+    chapterId: chapterId,
+    read: read
+  }
+
+  return sub
 }
 
 // TODO start keeping track of local data here

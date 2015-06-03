@@ -9,7 +9,7 @@ var {SourceModel} = require('../model/source')
 var {Cover} = require('../cover')
 
 import {SuggestBook} from './support'
-import {Source} from '../model/source'
+import {Source, notHidden} from '../model/source'
 import {curry} from 'lodash'
 
 export class Gallery extends React.Component {
@@ -28,7 +28,8 @@ export class Gallery extends React.Component {
   }
 
   render():React.Element {
-    var sources:Array<Source> = this.props.sources || []
+    var sources:Array<Source> = (this.props.sources || [])
+                                .filter(notHidden)
 
     if (this.state.search) {
       var search = this.state.search.toLowerCase()

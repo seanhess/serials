@@ -20,6 +20,8 @@ Next Milestone: MVP
 - [ ] Better emails and copy. (Copy someone else' process)
 - [ ] Remove wildbow properties
 - [ ] Find or commision real art
+- [ ] hello.html
+- [ ] INDEX: redirect to either hello.html or the other app.html prior to loading everything. Redirect from server!
 
 TWEAKS
 ------
@@ -29,4 +31,3 @@ OPTIMIZATIONS
 ---------------------
 - [ ] http2 nginx proxy in front (FOR SPEEEED) SPDY support. In for android and ios safari! It's currently spinning
 - [ ] ssl cert from StartSSL (see email). Hmm. maybe not. They don't support subdomains?
-

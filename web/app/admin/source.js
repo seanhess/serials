@@ -142,34 +142,38 @@ export class Source extends React.Component {
       </div>
 
       <FormSection title="Basic Settings">
+        <label>Name</label>
+        <input type="text"
+          value={source.name}
+          onChange={update((s, v) => s.name = v)}
+        />
+        <label>Author</label>
+        <input type="text"
+          value={source.author}
+          onChange={update((s, v) => s.author = v)}
+        />
+
+        <label>Status</label>
+        <select
+          value={source.status}
+          onChange={update((s, v) => s.status = v)}
+        >
+          <option value={Status.Active}>{Status.Active}</option>
+          <option value={Status.Complete}>{Status.Complete}</option>
+          <option value={Status.Disabled}>{Status.Disabled}</option>
+          <option value={Status.Abandoned}>{Status.Abandoned}</option>
+          <option value={Status.Hidden}>{Status.Hidden}</option>
+        </select>
+      </FormSection>
+
+      <FormSection title="Image Settings">
+
         <div>
           <div style={{float: 'left', width: 170}}>
             <Cover source={source} />
           </div>
 
-          <div style={{marginLeft: 170, minHeight: 305}}>
-            <label>Name</label>
-            <input type="text"
-              value={source.name}
-              onChange={update((s, v) => s.name = v)}
-            />
-            <label>Author</label>
-            <input type="text"
-              value={source.author}
-              onChange={update((s, v) => s.author = v)}
-            />
-
-              <label>Status</label>
-              <select
-                value={source.status}
-                onChange={update((s, v) => s.status = v)}
-              >
-                <option value={Status.Active}>{Status.Active}</option>
-                <option value={Status.Complete}>{Status.Complete}</option>
-                <option value={Status.Disabled}>{Status.Disabled}</option>
-                <option value={Status.Abandoned}>{Status.Abandoned}</option>
-              </select>
-
+          <div style={{marginLeft: 170, minHeight: 250}}>
             <label>URL</label>
             <input type="text"
               value={source.url}

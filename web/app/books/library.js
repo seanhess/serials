@@ -3,6 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import {userBooks} from '../model/subscription'
+import {notHidden} from '../model/source'
 import {SimpleGallery} from './gallery'
 import {Suggestion} from '../books/support'
 
@@ -13,7 +14,9 @@ export class Library extends React.Component {
   }
 
   render():React.Element {
-    var sources = this.props.sources
+    var sources = (this.props.sources || [])
+                    .filter(notHidden)
+
     return <div>
       <h3>My Books</h3>
       <SimpleGallery sources={sources} />

@@ -71,5 +71,6 @@ executable serials
     email-validate,
     blaze-markup,
     blaze-html,
-    iso8601-time
+    iso8601-time,
+    scotty
 

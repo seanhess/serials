@@ -22,6 +22,7 @@ Next Milestone: MVP
 - [ ] Find or commision real art
 - [ ] hello.html
 - [ ] INDEX: redirect to either hello.html or the other app.html prior to loading everything. Redirect from server!
+- [ ] Signup link from main app
 
 TWEAKS
 ------

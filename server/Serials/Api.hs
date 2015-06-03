@@ -60,6 +60,7 @@ import Database.RethinkDB.NoClash (RethinkDBHandle, use, db, connect, RethinkDBE
 import qualified Database.RethinkDB as R
 
 import Web.JWT (JWTClaimsSet)
+import Web.Scotty
 
 
 -- if you use (Maybe a) with liftIO it will return null instead of a 404
@@ -305,6 +306,8 @@ type API =
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
   :<|> "status" :> Get AppStatus
 
+  -- :<|> Get ()
+
   :<|> Raw
 
 
@@ -325,6 +328,8 @@ server h env =
 
    :<|> status
 
+   -- :<|> root
+
    :<|> serveDirectory "web"
 
   where
@@ -344,6 +349,9 @@ server h env =
     printVar key a = ""
 
     status = liftIO $ appStatus h
+
+    root :: Handler ()
+    root = return $ ()
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 

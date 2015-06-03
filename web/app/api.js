@@ -53,6 +53,9 @@ function error(err) {
   if (err.status >= 500) {
     Alerts.update("error", "Something is broken. Please email support at serials@orbit.al and we'll take a look")
   }
+  else if (err.status == 400) {
+    // do nothing
+  }
   else {
     Alerts.update("error", "Error: " + err.data)
   }

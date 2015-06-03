@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
+
+    <!-- Check for urls belonging to the other app -->
+    <script>
+      if (window.location.hash) {
+        var url = "/app.html" + window.location.hash
+        window.location = url
+      }
+    </script>
+
+    <!-- Check to see if logged in -->
+    <script src="settings.js"></script>
+    <script>
+
+      // check to see if logged in
+      if (SETTINGS.user) {
+        window.location = "/app.html"
+      }
+
+      else {
+        // window.location = "/hello.html"
+        // TODO first remove wildbow content from landing page
+        console.log("REDIRECT TO LANDING PAGE")
+      }
+    </script>
   </head>
   <body>
     Coming Soon

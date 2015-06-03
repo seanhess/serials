@@ -29,6 +29,7 @@ import {About} from './app/pages/about'
 import {assign} from 'lodash'
 import {Users} from './app/model/user'
 import {Alerts} from './app/model/alert'
+import {pageview} from './app/model/analytics'
 
 import {background} from './app/style'
 
@@ -83,7 +84,7 @@ var routes = (
       <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
     </Route>
 
-    <Route name="user" handler={Main}>
+    <Route name="users" handler={Main}>
       <Route name="library" path=":id/library" handler={Library}/>
     </Route>
 
@@ -97,7 +98,6 @@ var lastState:any
 var lastData:any
 
 Router.run(routes, run(function(Handler, state, data) {
-  console.log("RENDER", Alerts.alert)
   React.render(
     <Handler
       {...data}
@@ -110,6 +110,7 @@ Router.run(routes, run(function(Handler, state, data) {
 
 function onUrlChange(Handler, state) {
   Alerts.urlChange()
+  pageview(state.path)
 }
 
 Users.bind(() => render())

@@ -13,3 +13,7 @@ export type AppSettings = {
 export function settings():AppSettings {
   return SETTINGS;
 }
+
+export function isProduction():boolean {
+  return SETTINGS.appEndpoint == "http://serials.orbit.al"
+}

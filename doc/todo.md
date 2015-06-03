@@ -14,10 +14,10 @@ Next Milestone: MVP
 - [x] BUG: alert clicks redirect you How do I get them clickable?
 - [x] (small) login page doesn't auto complete
 - [x] (small) login page zooms in when you select the field
+- [x] User sign up date?
+- [x] validate signup data (name and password length)
 - [ ] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
 - [ ] Better emails and copy. (Copy someone else' process)
-- [ ] User sign up date?
-- [ ] validate signup data (name and password length)
 
 OPTIMIZATIONS
 ---------------------

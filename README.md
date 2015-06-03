@@ -17,30 +17,19 @@ http://serials.orbit.al
 MILESTONES
 ----------
 
-- [x] List of sources. View, Edit, Remove, Add.
-- [x] Button to do a scan per source. Store the results. Page to view the scan results
-- [x] Store the latest chapter list
-- [x] Manage chapter lists (hide, add chapter)
-- [x] Automatic scanning
-- [x] User accounts
-- [x] Responsive front-end reading experience
-- [ ] Notifications
-- [ ] Keep track of where you are / queue
-- [ ] Discovery
-- [ ] Launch / optimization / etc
+- [x] Early Access Launch
 
 Contributing
 ------------
 
 Let's talk! Contact me, submit an issue or PR with your proposed changes, or pick up an issue already logged.
 
-* [Issues and Features that need work](https://github.com/seanhess/serials/issues)
-
+* [TODO](./doc/todo.md)
 
 Development
 -----------
 
-* Install [RethinkDB](rethinkdb.com)
+* Install [RethinkDB 1.16](rethinkdb.com)
 * Install GHC 7.8 and Cabal 1.22
 * Install Node and `npm install webpack`
 

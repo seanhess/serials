@@ -7,7 +7,7 @@ import {Link} from 'react-router'
 import {RouteHandler} from 'react-router'
 import {MainContainer, Header} from '../layout/main'
 import {importLog, version} from '../model/admin'
-import {readSettings} from '../model/settings'
+import {settings} from '../model/settings'
 
 export class Admin extends React.Component {
   render():React.Element {
@@ -45,20 +45,20 @@ export class AdminDashboard extends React.Component {
   }
 
   render():React.Element {
-    var settings = readSettings()
+    var sets = settings()
     return <div>
       <div>
         <h3>Admin</h3>
 
         <p>
           <label>Settings</label>
-          <code style={{fontSize: 'smaller'}}>{settings.appName} {settings.version}</code>
+          <code style={{fontSize: 'smaller'}}>{sets.appName} {sets.version}</code>
         </p>
 
 
         <p>
           <label>Endpoint</label>
-          <code style={{fontSize: 'smaller'}}>{settings.appEndpoint}</code>
+          <code style={{fontSize: 'smaller'}}>{sets.appEndpoint}</code>
         </p>
 
         <p>

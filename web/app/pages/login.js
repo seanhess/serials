@@ -50,7 +50,8 @@ export class Login extends React.Component {
     .then((user) => {
       console.log("Logged in", user)
       if (user) {
-        Alerts.update("success", 'You have successfully logged in', true)
+        // we don't need a message on login
+        //Alerts.update("success", 'You have successfully logged in', true)
         this.setState({login: emptyLogin()})
         window.location.hash = "/"
       }

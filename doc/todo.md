@@ -8,7 +8,10 @@ Next Milestone: MVP
 - [x] CDN libraries (externals)
 - [ ] book chapters are way too slow (see pact)
 - [ ] analytics
-- [ ] BUG: signup process
+- [ ] Better emails and copy
+- [x] Mention early access on the landing page
+- [x] BUG: signup process
+- [ ] BUG: alert clicks redirect you :( How do I get them clickable?
 
 OPTIMIZATIONS
 ---------------------

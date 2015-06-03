@@ -72,7 +72,7 @@ emailId :: Text -> Email
 emailId = toLower
 
 all :: Pool RethinkDBHandle -> IO [Invite]
-all h = runPool h $ table
+all h = runPool h $ table # orderBy [asc "id"]
 
 find :: Pool RethinkDBHandle -> InviteCode -> IO (Maybe Invite)
 find h code = do

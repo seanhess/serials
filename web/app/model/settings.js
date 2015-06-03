@@ -10,6 +10,6 @@ export type AppSettings = {
   appEndpoint: string;
 }
 
-export function readSettings():AppSettings {
+export function settings():AppSettings {
   return SETTINGS;
 }

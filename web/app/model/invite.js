@@ -1,5 +1,6 @@
 // @flow
 import {Get, Post, Put, Del, url} from '../api'
+import {User} from './user'
 
 export type Signup = {
   firstName:string;
@@ -47,7 +48,7 @@ export function invitesDelete(code:string) {
   return Del(url('invites', code))
 }
 
-export function signup(signup:Signup) {
+export function signup(signup:Signup):Promise<User> {
   return Post(url('users'), signup)
 }
 

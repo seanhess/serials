@@ -7,6 +7,7 @@ import {makeUpdate} from '../data/update'
 import {LogoPage} from './login'
 import {Signup, signup, invitesFind, Invite, emptyInvite} from '../model/invite'
 import {EmailLink} from '../books/support'
+import {Alerts} from '../model/alert'
 
 var emptySignup = function(invite):Signup {
   return {
@@ -27,10 +28,11 @@ export class SignupPage extends React.Component {
   }
 
   onSignup(s:Signup) {
-    signup(s).then(function(asdf) {
-      // we are signed in, do a full redirect to '/'
-      // which should check auth
-      window.location = '/app.html#/books'
+    signup(s)
+    .then(() => Users.refresh())
+    .then(function() {
+      Alerts.update("success", 'Your account is created. Welcome!', true)
+      window.location.hash = "/"
     })
   }
 
@@ -82,6 +84,9 @@ export class SignupForm extends React.Component {
 
       <p style={{marginTop: 30}}>Welcome to serials! Enter your information to sign up for an account</p>
 
+      <label>Email</label>
+      <p>{signup.email}</p>
+
       <div className="row">
         <div className="small-12 medium-6 columns">
           <label>First Name</label>
@@ -99,11 +104,6 @@ export class SignupForm extends React.Component {
         </div>
       </div>
 
-      <label>Email</label>
-      <input type="text"
-        value={signup.email}
-        onChange={update((s, v) => s.email = v)}
-      />
       <label>Password</label>
       <input type="password"
         value={signup.password}

@@ -103,8 +103,13 @@
       button {
         background-color: #F15D58;
         color: white;
-        width: 200px;
+        min-width: 200px;
         border: solid 2px #F15D58;
+      }
+
+      .row-control {
+        width: 320px;
+        margin-top: 5px;
       }
       
       input {
@@ -233,8 +238,10 @@
           <h1>Subscribe to your favorite web fiction</h1>
           <p class="form">
             <form method="POST" action="javascript:addInvite()">
-              <input id="email" type="text" name="email" style="border: solid 2px white" placeholder="email"/>
-              <button id="button">Get Started</button>
+              <input id="email" class="row-control" type="text" name="email" style="border: solid 2px white" placeholder="email"/>
+
+              <button id="button" class="row-control">Sign up for Early Access</button>
+
             </form>
           </p>
           <p id="invalid" style="visibility:hidden">Please enter a valid email address</p>

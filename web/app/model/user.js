@@ -5,6 +5,7 @@ import {Promise} from 'es6-promise'
 import {Get, Post, Put, Delete, url} from '../api'
 import {EventEmitter} from 'events'
 import {Subscription, findSubscription} from './subscription'
+import {settings} from './settings'
 
 // UserModel //////////////////////////////////////
 
@@ -34,7 +35,7 @@ export class UserModel {
   events: EventEmitter;
 
   constructor() {
-    this.currentUser = SETTINGS.user
+    this.currentUser = settings().user
     this.events = new EventEmitter()
   }
 
@@ -49,6 +50,11 @@ export class UserModel {
     return Delete(url('auth'))
     .then(() => this._clearAuth())
     .then(u => this._updateAuth(u))
+  }
+
+  refresh() {
+    return Get(url('auth'))
+    .then(user => this._updateAuth(user))
   }
 
   isLoggedIn():boolean {

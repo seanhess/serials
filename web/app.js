@@ -97,6 +97,7 @@ var lastState:any
 var lastData:any
 
 Router.run(routes, run(function(Handler, state, data) {
+  console.log("RENDER", Alerts.alert)
   React.render(
     <Handler
       {...data}

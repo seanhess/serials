@@ -52,7 +52,7 @@ export class SignupPage extends React.Component {
     }
 
     //var signup = this.state.signup
-    return <LogoPage>
+    return <LogoPage alert={this.props.alert}>
       {content}
     </LogoPage>
   }
@@ -120,6 +120,8 @@ export class SignupForm extends React.Component {
           <button className="expand" onClick={this.onSubmit.bind(this)}>Create My Account</button>
         </div>
       </div>
+
+      <div style={{marginBottom: 50}}/>
     </div>
   }
 }

@@ -9,12 +9,14 @@ import Control.Applicative
 import Crypto.BCrypt (hashPasswordUsingPolicy, HashingPolicy(..))
 
 import Data.Text (Text, pack, unpack, toLower)
+import qualified Data.Text as Text
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Time
 import Data.Pool
 import Data.Maybe (isJust, isNothing)
 import Data.Either (lefts)
+import Data.Monoid ((<>))
 
 import GHC.Generics
 import Database.RethinkDB.NoClash hiding (table)
@@ -85,9 +87,10 @@ validate validator rest = do
     Right _  -> rest
 
 validatePassword :: UserSignup -> Either Text ()
-validatePassword u = if (password u) /= (passwordConfirmation u)
-    then Left "Password and Password Confirmation do not match"
-    else Right ()
+validatePassword u =
+  if (password u) /= (passwordConfirmation u)
+  then Left "Password and Password Confirmation do not match"
+  else validateRequired "Password" (password u)
 
 validateEmail :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
 validateEmail h u = do
@@ -102,9 +105,15 @@ validateInvite h u = do
   case mInvite of
     Nothing -> return $ Left "Invite not found"
     Just invite ->
-      return $ if isJust (Invite.userId invite)
+      return $ if isJust (Invite.signup invite)
         then Left "Invite already used"
         else Right ()
+
+validateRequired :: Text -> Text -> Either Text ()
+validateRequired name txt =
+  if Text.length txt == 0
+  then Left $ name <> " is required"
+  else Right ()
 
 validateSignup :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
 validateSignup h u = do
@@ -114,6 +123,10 @@ validateSignup h u = do
     x:xs -> Left x
 
   where
-  validators = [ return $ validatePassword u
-               , validateEmail h u
-               , validateInvite h u ]
+  validators = [
+      return $ validateRequired "First Name" (firstName u),
+      return $ validateRequired "Last Name" (firstName u),
+      return $ validatePassword u,
+      validateEmail h u,
+      validateInvite h u
+    ]

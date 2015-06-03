@@ -11,11 +11,16 @@ export type Signup = {
   passwordConfirmation:string;
 }
 
+export type InviteSignup = {
+  userId: string;
+  date: Date;
+}
+
 export type Invite = {
   email: string;
   id: string;
   code: string;
-  userId?: string;
+  signup?: InviteSignup;
   sent?: string; // date
 }
 

@@ -86,8 +86,8 @@ class UserCell extends React.Component {
   render():React.Element {
     var invite = this.props.invite
 
-    if (invite.userId) {
-      return <a href={userApiURL(invite.userId)}>{invite.userId}</a>
+    if (invite.signup) {
+      return <a href={userApiURL(invite.signup.userId)}>{toDateString(invite.userId)}</a>
     }
 
     else {

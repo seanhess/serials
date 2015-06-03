@@ -1,14 +1,18 @@
-
+// @flow
 var axios = require('axios')
 var path:any = require('path')
 import {getLocalStorage} from './helpers'
 import {Alerts} from './model/alert'
+import {Promise} from 'es6-promise'
 
-export var api = function(method:string, url:string, data?:Object) {
+export type Body = Object | string
+
+export var api = function(method:string, url:string, data?:Body) {
   var config = {
     method: method,
     url: url,
     data: data,
+    headers: {}
   }
 
   config.headers = {
@@ -30,11 +34,11 @@ export function Del(url:string) {
 
 export var Delete = Del
 
-export function Post(url:string, body:Object) {
+export function Post(url:string, body?:Body) {
   return api("post", url, body)
 }
 
-export function Put(url:string, body:Object) {
+export function Put(url:string, body?:Body) {
   return api("put", url, body)
 }
 
@@ -44,12 +48,18 @@ function toData(res) {
 
 function error(err) {
   console.error("API", err.status, err.statusText+":", err.data)
-  Alerts.update({
-    type: 'error',
-    message: "Something is broken. Please email support at serials@orbit.al and we'll take a look"
-  })
-  throw err
+
+  
+  if (err.status >= 500) {
+    Alerts.update("error", "Something is broken. Please email support at serials@orbit.al and we'll take a look")
+  }
+  else {
+    Alerts.update("error", "Error: " + err.data)
+  }
+  return Promise.resolve()
+  .then(() => {throw err})
 }
+
 
 // ------------------------------------------------
 

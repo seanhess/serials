@@ -32,17 +32,29 @@ import Numeric (showIntAtBase)
 type Email = Text
 type InviteCode = Text
 
+data Signup = Signup {
+  userId :: Text,
+  date :: UTCTime
+} deriving (Show, Generic, Eq)
+
 data Invite = Invite {
   id :: Text,
   email :: Email,
   code :: InviteCode,
   -- when they sign up they are here
-  userId :: Maybe Text,
+  signup :: Maybe Signup,
   sent :: Maybe UTCTime
 } deriving (Show, Generic, Eq)
 
-instance FromJSON Invite
+
+instance ToJSON Signup
+instance FromJSON Signup
+
+instance ToDatum Signup
+
 instance ToJSON Invite
+instance FromJSON Invite
+
 instance FromDatum Invite
 instance ToDatum Invite
 
@@ -80,7 +92,10 @@ find h code = do
     return $ headMay is
 
 markUsed :: Pool RethinkDBHandle -> InviteCode -> Text -> IO ()
-markUsed h code userId = runPool h $ table # getAll codeIndex [expr code] # update (const ["userId" := expr userId])
+markUsed h code userId = do
+  time <- getCurrentTime
+  let signup = Signup userId time
+  runPool h $ table # getAll codeIndex [expr code] # update (const ["signup" := toDatum signup])
 
 markSent :: Pool RethinkDBHandle -> InviteCode -> IO ()
 markSent h code = do

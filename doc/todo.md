@@ -11,8 +11,9 @@ Next Milestone: MVP
 - [ ] Better emails and copy
 - [x] Mention early access on the landing page
 - [x] BUG: signup process
-- [ ] BUG: alert clicks redirect you :( How do I get them clickable?
+- [ ] BUG: alert clicks redirect you How do I get them clickable?
 - [ ] TEST: mobile read/unread clicks
+- [ ] landing page should redirect to app if you are logged in
 
 OPTIMIZATIONS
 ---------------------

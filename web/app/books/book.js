@@ -71,24 +71,26 @@ export class Book extends React.Component {
   }
 
   markAsReadUnread(chapter:Chapter, read:boolean) {
-    if (!this.state.subscription) return
+    if (!this.state.subscription) return Promise.resolve()
     var sub = markAsRead(this.state.subscription, chapter.id, read)
-    saveSubscription(sub)
+    return saveSubscription(sub)
     .then(this.reloadSubscription.bind(this))
   }
 
   markAsRead(chapter:Chapter) {
-    this.markAsReadUnread(chapter, true)
+    return this.markAsReadUnread(chapter, true)
   }
 
   markAsUnread(chapter:Chapter) {
-    this.markAsReadUnread(chapter, false)
+    return this.markAsReadUnread(chapter, false)
   }
 
   readChapter(chapter:Chapter) {
     this.markAsReadUnread(chapter, true)
-    var url = chapterContentURL(chapter)
-    window.location = url
+    .then(function() {
+      var url = chapterContentURL(chapter)
+      window.location = url
+    })
   }
 
   render():?React.Element {

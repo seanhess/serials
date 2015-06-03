@@ -31,7 +31,8 @@ var LinkStyle = {
   color: Colors.white,
   fontSize: '14px',
   margin: 14,
-  display: 'inline-block'
+  display: 'inline-block',
+  cursor: 'pointer'
 }
 
 var CenterText = {

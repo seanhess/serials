@@ -22,3 +22,7 @@ export var background = {
 export var clickable = {
   cursor: 'pointer'
 }
+
+export var mobileInput = {
+  fontSize: '1em'
+}

@@ -9,6 +9,8 @@ import {Alerts} from '../model/alert'
 import {AlertView} from '../alert'
 import {makeUpdate} from '../data/update'
 
+import {mobileInput} from '../style'
+
 var emptyLogin = function() {
   return {
     email: '',
@@ -70,12 +72,16 @@ export class Login extends React.Component {
     return <LogoPage alert={this.props.alert}>
       <form onSubmit={this.onSubmit.bind(this)}>
         <label>Email</label>
-        <input type="text"
+        <input type="email"
+          ref="email"
+          name="email"
           value={login.email}
           onChange={update((s, v) => s.email = v)}
         />
         <label>Password</label>
         <input type="password"
+          ref="password"
+          name="password"
           value={login.password}
           onChange={update((s, v) => s.password = v)}
         />

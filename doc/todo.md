@@ -7,13 +7,15 @@ Next Milestone: MVP
 - [x] multiple entry points
 - [x] CDN libraries (externals)
 - [x] book chapters are way too slow (see pact)
-- [ ] analytics
-- [ ] Better emails and copy
-- [ ] Dedicated in-app about page. Not a landing page.
+- [x] Dedicated in-app about page. Not a landing page.
 - [x] landing page should redirect to app if you are logged in
 - [x] Mention early access on the landing page
 - [x] BUG: signup process
 - [x] BUG: alert clicks redirect you How do I get them clickable?
+- [ ] analytics
+- [ ] Better emails and copy
+- [x] (small) login page doesn't auto complete
+- [x] (small) login page zooms in when you select the field
 
 OPTIMIZATIONS
 ---------------------

@@ -24,3 +24,7 @@ button:hover, .button:hover, button:focus, .button:focus {
   background-color: #D05045;
   outline: 0;
 }
+
+input[type='text'], input[type='password'], input[type='date'], input[type='email'], input[type='search'], textarea {
+  font-size: 1em;
+}

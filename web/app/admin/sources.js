@@ -2,7 +2,7 @@
 
 import React from 'react'
 import {SourceModel} from '../model/source'
-import {statusColor} from '../books/book'
+import {statusColor} from '../books/book-info'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'
 

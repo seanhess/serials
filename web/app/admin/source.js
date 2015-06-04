@@ -9,7 +9,6 @@ import {toDateString} from '../helpers'
 import {Chapters} from './chapters'
 import {ImportSettings} from './import'
 import {DisabledButton, FormSection} from '../comp'
-import {statusColor} from '../books/book'
 
 import {coverStyle, Cover} from '../cover'
 import {makeUpdate, checked} from '../data/update'
@@ -153,6 +152,12 @@ export class Source extends React.Component {
           onChange={update((s, v) => s.author = v)}
         />
 
+        <label>Author URL</label>
+        <input type="text"
+          value={source.authorUrl}
+          onChange={update((s, v) => s.authorUrl = v)}
+        />
+
         <label>Status</label>
         <select
           value={source.status}
@@ -183,6 +188,12 @@ export class Source extends React.Component {
             <input type="text"
               value={source.imageUrl}
               onChange={update((s, v) => s.imageUrl = v)}
+            />
+
+            <label>Artist URL</label>
+            <input type="text"
+              value={source.imageArtistUrl}
+              onChange={update((s, v) => s.imageArtistUrl = v)}
             />
 
             <div>

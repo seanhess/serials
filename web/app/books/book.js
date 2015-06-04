@@ -1,9 +1,9 @@
 // @flow
 
 import React from 'react'
-import {Link} from 'react-router'
+import {Link, RouteHandler} from 'react-router'
+import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 
-import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
@@ -15,9 +15,9 @@ import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
-import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 import {Colors, clickable} from '../style'
 import {transitionTo} from '../router'
+import {BookInfo, CoverColumns, BookArt, BookTitle} from './book-info'
 
 
 export class Book extends React.Component {
@@ -113,9 +113,9 @@ export class Book extends React.Component {
 
     var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
-    var lastChapter = last(chapters) || {}
     var shown = chapters.filter(showChapter)
     var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
+    var lastChapter = last(this.props.chapters) || {}
 
     //var current = chaptersAndSubs.filter(unread)[0]
     var current = findBookmark(chaptersAndSubs)
@@ -132,17 +132,13 @@ export class Book extends React.Component {
     
     return <div>
       <h3> </h3>
-      <div style={{marginTop: 10}}>
-        <div style={{float: 'left', width: 160, marginBottom: 15}}>
-          <Cover source={source} />
-        </div>
-        <div style={{marginLeft: 160}}>
-          <h3>{source.name}</h3>
-          <div>by {source.author}</div>
-          <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>
-          <div style={{color: statusColor(source.status)}}>{source.status}</div>
-        </div>
-      </div>
+
+      <BookTitle source={source} />
+
+      <CoverColumns>
+        <BookArt source={source} />
+        <BookInfo source={source} lastChapter={lastChapter}/>
+      </CoverColumns>
 
       <div style={{clear: 'both'}}>
         {this.renderSubscribe(sub, source)}
@@ -174,19 +170,6 @@ export class Book extends React.Component {
       onClick={this.toggleSubscribe.bind(this)}>
       {content}
     </button>
-  }
-}
-
-export function statusColor(status:SourceStatus):string {
-  if (status === Status.Active) {
-    return "#009800"
-  }
-  else if (status === Status.Complete) {
-    //return "#207DE5"
-    return Colors.dark
-  }
-  else {
-    return "#888"
   }
 }
 

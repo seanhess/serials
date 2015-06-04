@@ -24,9 +24,11 @@ export type Source = {
   importSettings: ImportSettings;
   name: string;
   author: string;
+  authorUrl: string;
   url: string;
   imageUrl: string;
   imageMissingTitle: boolean;
+  imageArtistUrl: string;
   lastScan?: Scan;
   status: SourceStatus;
 }
@@ -89,8 +91,10 @@ export function emptySource():Source {
     id: "",
     name: "",
     author: "",
+    authorUrl: "",
     url: "",
     imageUrl: "",
+    imageArtistUrl: "",
     status: Status.Active,
     imageMissingTitle: false,
     importSettings: emptyImportSettings(TOC)

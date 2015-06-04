@@ -27,11 +27,13 @@ data Source = Source {
   url :: Text,
   name :: Text,
   author :: Text,
+  authorUrl :: Text,
 
   status :: Status,
 
   imageUrl :: Text,
   imageMissingTitle :: Bool,
+  imageArtistUrl :: Maybe Text,
 
   importSettings :: ImportSettings,
 

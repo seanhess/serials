@@ -11,8 +11,6 @@ import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, n
 import {Alerts} from '../model/alert'
 import {findBookmark, toChapterAndRead} from './bookmark'
 
-import {Cover} from'../cover'
-
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {Colors, clickable} from '../style'

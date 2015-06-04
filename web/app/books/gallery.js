@@ -6,8 +6,8 @@ var React = require('react')
 
 var {RouteHandler} = require('react-router')
 var {SourceModel} = require('../model/source')
-var {Cover} = require('../cover')
 
+import {SourceCover} from '../cover'
 import {SuggestBook} from './support'
 import {Source, notHidden} from '../model/source'
 import {curry} from 'lodash'
@@ -80,7 +80,7 @@ export class GalleryCover extends React.Component {
 
     return <div style={style}>
       <a href={url}>
-        <Cover source={source} />
+        <SourceCover source={source} />
       </a>
     </div>
   }

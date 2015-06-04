@@ -10,7 +10,7 @@ import {Chapters} from './chapters'
 import {ImportSettings} from './import'
 import {DisabledButton, FormSection} from '../comp'
 
-import {coverStyle, Cover} from '../cover'
+import {coverStyle, SourceCover} from '../cover'
 import {makeUpdate, checked} from '../data/update'
 
 export class Source extends React.Component {
@@ -174,7 +174,7 @@ export class Source extends React.Component {
 
         <div>
           <div style={{float: 'left', width: 170}}>
-            <Cover source={source} />
+            <SourceCover source={source} />
           </div>
 
           <div style={{marginLeft: 170, minHeight: 250}}>
@@ -187,6 +187,12 @@ export class Source extends React.Component {
             <input type="text"
               value={source.imageUrl}
               onChange={update((s, v) => s.imageUrl = v)}
+            />
+
+            <label>Artist</label>
+            <input type="text"
+              value={source.imageArtist}
+              onChange={update((s, v) => s.imageArtist = v)}
             />
 
             <label>Artist URL</label>

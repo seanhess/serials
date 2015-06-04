@@ -33,6 +33,8 @@ data Source = Source {
 
   imageUrl :: Text,
   imageMissingTitle :: Bool,
+
+  imageArtist :: Maybe Text,
   imageArtistUrl :: Maybe Text,
 
   importSettings :: ImportSettings,

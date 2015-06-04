@@ -4,6 +4,7 @@ var React = require('react')
 var {assign} = require('lodash')
 
 import {Source, emptySource} from './model/source'
+import {displayIf} from './style'
 
 // but get the images at 2x resolution so they can be retina yo
 // or just get the photos at that ratio
@@ -34,24 +35,39 @@ export function coverStyle(url:string):Object {
   }
 }
 
-export class Cover extends React.Component {
+export class CoverOverlay extends React.Component {
   render():React.Element {
-    var source:Source = this.props.source || emptySource()
-    var showTitle:bool = source.imageMissingTitle
+    console.log("SHOW", this.props.show)
 
-    var textStyle = assign(CoverTextStyle, display(showTitle))
+    var style = assign(
+      displayIf('block', this.props.show !== false),
+      OverlayStyle,
+      CoverTextStyle,
+      this.props.style
+    )
 
-    return <div style={assign(coverStyle(source.imageUrl), {position: 'relative'})}>
-      <div style={textStyle}>
-        {source.name}
-      </div>
+    return <div style={style}>
+      {this.props.children}
     </div>
   }
 }
 
-function display(value:bool) {
-  return {
-    display: (value) ? 'block' : 'none'
+export class Cover extends React.Component {
+  render():React.Element {
+    return <div style={assign(coverStyle(this.props.src), {position: 'relative'})}>
+      {this.props.children}
+    </div>
+  }
+}
+
+export class SourceCover extends React.Component {
+  render():React.Element {
+    var source:Source = this.props.source || emptySource()
+    var showTitle:bool = source.imageMissingTitle
+
+    return <Cover src={source.imageUrl}>
+      <CoverOverlay show={showTitle}>{source.name}</CoverOverlay>
+    </Cover>
   }
 }
 
@@ -60,7 +76,7 @@ function display(value:bool) {
 // so do I want 2 or 3 across?
 // definitely 3 :)
 
-var CoverTextStyle = {
+export var OverlayStyle = {
   padding: 10,
   color: 'white',
   textAlign: 'center',
@@ -69,6 +85,10 @@ var CoverTextStyle = {
   fontSize: 18,
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   width: CoverSize.Width
+}
+
+export var CoverTextStyle = {
+  fontSize: 18,
 }
 
 

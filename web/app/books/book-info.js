@@ -4,10 +4,10 @@ import React from 'react'
 import {Link} from 'react-router'
 import {last, assign} from 'lodash'
 
-import {Cover} from'../cover'
+import {SourceCover, Cover, CoverOverlay} from'../cover'
 import {toDateString} from '../helpers'
 
-import {SourceStatus, Status} from '../model/source'
+import {SourceStatus, Status, emptySource, Source} from '../model/source'
 import {Colors, displayIf} from '../style'
 
 export class BookInfo extends React.Component {
@@ -41,17 +41,20 @@ export class CoverColumns extends React.Component {
   }
 }
 
-          // <BookInfo source={this.props.source} lastChapter={lastChapter} />
-
 export class BookArt extends React.Component {
   render():React.Element {
-    var cover = <Cover source={this.props.source} />
-    if (this.props.source.imageArtistUrl) {
-      return <a href={this.props.source.imageArtistUrl}>{cover}</a>
+    var source:Source = this.props.source || emptySource()
+    var overlay = ""
+
+    if (source.imageArtistUrl) {
+      overlay = <CoverOverlay style={{padding: 4}}>
+        <a style={{color: 'white', fontSize: 12}} href={source.imageArtistUrl}>Art by {source.imageArtist}</a>
+      </CoverOverlay>
     }
-    else {
-      return cover
-    }
+
+    return <Cover src={source.imageUrl} >
+      {overlay}
+    </Cover>
   }
 }
 

@@ -15,7 +15,6 @@ export class Library extends React.Component {
 
   render():React.Element {
     var sources = (this.props.sources || [])
-                    .filter(notHidden)
 
     return <div>
       <h3>My Books</h3>

@@ -167,7 +167,6 @@ export class Source extends React.Component {
           <option value={Status.Complete}>{Status.Complete}</option>
           <option value={Status.Disabled}>{Status.Disabled}</option>
           <option value={Status.Abandoned}>{Status.Abandoned}</option>
-          <option value={Status.Hidden}>{Status.Hidden}</option>
         </select>
       </FormSection>
 

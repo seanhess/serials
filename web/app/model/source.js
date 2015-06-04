@@ -5,18 +5,17 @@ import {Get, Post, Put, Del, url} from '../api'
 
 // SourceModel //////////////////////////////////////
 
-export type SourceStatus = "Active" | "Disabled" | "Complete" | "Abandoned" | "Hidden";
+export type SourceStatus = "Active" | "Disabled" | "Complete" | "Abandoned";
 
 export var Status = {
   Active: "Active",
   Disabled: "Disabled",
   Complete: "Complete",
   Abandoned: "Abandoned",
-  Hidden: "Hidden",
   All: ([]: Array<SourceStatus>)
 }
 
-Status.All = [Status.Active, Status.Disabled, Status.Complete, Status.Abandoned, Status.Hidden]
+Status.All = [Status.Active, Status.Disabled, Status.Complete, Status.Abandoned]
 
 
 export type Source = {
@@ -61,7 +60,7 @@ export type TOCSettings = {
 
 
 export function notHidden(source:Source):boolean {
-  return source.status !== Status.Hidden
+  return source.status !== Status.Disabled
 }
 
 export var SourceModel = {

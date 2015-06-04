@@ -7,7 +7,7 @@ import {RouteHandler} from 'react-router'
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
 import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
-import {findSubscription, setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
+import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
 import {Cover} from'../cover'
 
@@ -15,6 +15,7 @@ import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 import {Colors, clickable} from '../style'
+import {transitionTo} from '../router'
 
 type ChapterAndRead = {
   chapter: Chapter;
@@ -46,7 +47,17 @@ export class Book extends React.Component {
     this.state = {subscription: null, showRead: false}
   }
 
+  forceLogin() {
+    transitionTo('login', {}, {to: 'book', id: this.props.params.id})
+  }
+
   toggleSubscribe() {
+
+    if (!Users.isLoggedIn()) {
+      this.forceLogin()
+      return
+    }
+
     var hasSubscription = !!this.state.subscription
     var sourceId = this.props.params.id
 
@@ -54,6 +65,7 @@ export class Book extends React.Component {
       this.setState({subscription: null})
     }
     else {
+      // I'd LIKE to do this, but I can't create it correctly
       this.setState({subscription: newSubscription(Users.currentUserId(), sourceId)})
     }
 
@@ -66,6 +78,7 @@ export class Book extends React.Component {
         Alerts.update("secondary", "You are unsubscribed")
       }
     })
+    .then(this.reloadSubscription.bind(this))
   }
 
   reloadSubscription() {
@@ -73,12 +86,24 @@ export class Book extends React.Component {
     .then((sub) => this.setState({subscription: sub}))
   }
 
-  componentWillReceiveProps(props:any) {
+  //componentWillReceiveProps(props:any) {
+    ////console.log("WILL RECEIVE PROPS", props)
+    //// this is a bad idea :)
+  //}
+
+  componentDidMount() {
     this.reloadSubscription()
   }
 
   markAsReadUnread(chapter:Chapter, read:boolean) {
-    if (!this.state.subscription) return Promise.resolve()
+    if (!Users.isLoggedIn()) {
+      this.forceLogin()
+      return Promise.resolve()
+    }
+    if (!this.state.subscription) {
+      Alerts.update('info', 'Please subscribe to enable bookmarking')
+      return Promise.resolve()
+    }
     var sub = markAsRead(this.state.subscription, chapter.id, read)
     this.setState({subscription:sub})
     return saveSubscription(sub)
@@ -139,7 +164,7 @@ export class Book extends React.Component {
         {this.renderSubscribe(sub, source)}
       </div>
 
-      <div style={{marginTop: 10}}>
+      <div>
         {chaptersAndSubs.map(row)}
       </div>
 
@@ -152,13 +177,19 @@ export class Book extends React.Component {
   renderSubscribe(subscription:Subscription, source:Source):?React.Element {
     var hasSubscription = !!subscription
     var className = "expand"
-    var text = "Subscribe to " + source.name
+    var content = <div>
+      <div style={{fontSize: 20, fontWeight: 'bold'}}>Subscribe to {source.name}</div>
+      <div style={{fontSize: 14, marginTop: 10, fontWeight: 'normal'}}>Enables bookmarking and notifications</div>
+    </div>
     if (hasSubscription) {
       className += " secondary"
-      text = "Subscribed"
+      content = "Subscribed"
     }
 
-    return <button className={className} onClick={this.toggleSubscribe.bind(this)}>{text}</button>
+    return <button className={className} 
+      onClick={this.toggleSubscribe.bind(this)}>
+      {content}
+    </button>
   }
 }
 

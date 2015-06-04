@@ -61,11 +61,13 @@ function typeClass(type:string):string {
 function face(type:string):string {
   if (type === "error")        return "◉︵◉"
   else if (type === "success") return "(/◔ ◡ ◔)/"
+  else if (type === "info") return "◕ ◡ ◕"
   // ◕︵◕
   // ಠ╭╮ಠ
   // ◉︵◉
   // ⊙﹏⊙
   // ⊙_ʘ
   // ಠ_ಠ
+  // ⊂(◉‿◉)つ
   else return ""
 }

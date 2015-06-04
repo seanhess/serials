@@ -16,14 +16,15 @@ Next Milestone: MVP
 - [x] (small) login page zooms in when you select the field
 - [x] User sign up date?
 - [x] validate signup data (name and password length)
-- [-] new screenshots with hpmor instead of twig
-- [-] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
-- [ ] Better emails and copy. (Copy someone else' process)
-- [ ] Remove wildbow properties
-- [ ] Find or commision real art
+- [x] new screenshots with hpmor instead of twig
+- [x] Remove wildbow properties
 - [x] /hello and /app - REQUIRED. To be able to redirect, AND choose which one to go to
-- [ ] INDEX: redirect to either hello or the other app prior to loading everything. Redirect from server!
+- [x] INDEX: redirect to either hello or the other app prior to loading everything. Redirect from server!
+- [x] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
+- [ ] Find or commision real art
+- [ ] Analytics: build funnel
 - [ ] Signup link from main app
+- [ ] Better emails and copy. (Copy someone else' process)
 
 TWEAKS
 ------

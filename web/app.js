@@ -32,6 +32,7 @@ import {Alerts} from './app/model/alert'
 import {pageview} from './app/model/analytics'
 
 import {background} from './app/style'
+import {start, query} from './app/router'
 
 class App extends React.Component {
 
@@ -97,16 +98,17 @@ var lastHandler:any
 var lastState:any
 var lastData:any
 
-Router.run(routes, run(function(Handler, state, data) {
+start(routes, function(Handler, state, data) {
   React.render(
     <Handler
       {...data}
+      query={query()}
       currentUser={Users.currentUser}
       alert={Alerts.alert}
       params={state.params}
       pathname={state.pathname}
     />, document.body)
-}, onUrlChange))
+}, onUrlChange)
 
 function onUrlChange(Handler, state) {
   Alerts.urlChange()

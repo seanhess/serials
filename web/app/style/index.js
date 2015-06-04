@@ -26,3 +26,15 @@ export var clickable = {
 export var mobileInput = {
   fontSize: '1em'
 }
+
+export function displayIf(base:string, show:boolean):{display:string} {
+  return {
+    display: (show) ? base : 'none'
+  }
+}
+
+export function visibleIf(show:boolean):{visibility:string} {
+  return {
+    visibility: (show) ? 'visible' : 'hidden'
+  }
+}

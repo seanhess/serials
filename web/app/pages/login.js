@@ -10,6 +10,7 @@ import {AlertView} from '../alert'
 import {makeUpdate} from '../data/update'
 
 import {mobileInput} from '../style'
+import {transitionTo} from '../router'
 
 var emptyLogin = function() {
   return {
@@ -52,14 +53,27 @@ export class Login extends React.Component {
     .then((user) => {
       console.log("Logged in", user)
       if (user) {
+        this.setState({login: emptyLogin()})
         // we don't need a message on login
         //Alerts.update("success", 'You have successfully logged in', true)
-        this.setState({login: emptyLogin()})
-        window.location.hash = "/"
+
+        if (this.props.query.to) {
+          var params = this.props.query
+          transitionTo(params.to, params)
+        }
+        else {
+          transitionTo("library", {id: user.id})
+        }
       }
     })
-    .catch(() => {
+    .catch(function(err) {
+      if (err.status == 401) {
         Alerts.update("error", 'Invalid email address or password')
+      }
+      else {
+        console.error("ERROR", err)
+        Alerts.oops()
+      }
     })
   }
 
@@ -88,6 +102,8 @@ export class Login extends React.Component {
 
         <button>Login</button>
       </form>
+
+      <p>Don't have an account? <a href="/hello">Sign up for Early Access</a></p>
     </LogoPage>
   }
 }

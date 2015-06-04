@@ -48,14 +48,13 @@ function toData(res) {
 
 function error(err) {
   console.error("API", err.status, err.statusText+":", err.data)
-
   
   if (err.status >= 500) {
-    Alerts.update("error", "Something is broken. Please email support at serials@orbit.al and we'll take a look")
+    Alerts.oops()
   }
-  else if (err.status == 400) {
-    // do nothing
-  }
+  //else if (err.status == 404) {
+    //// do nothing
+  //}
   else {
     Alerts.update("error", "Error: " + err.data)
   }

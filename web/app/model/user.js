@@ -88,6 +88,8 @@ export class UserModel {
 export var Users = new UserModel()
 
 export function loadSubscription(sourceId:string):Promise<Subscription> {
+  var userId = Users.currentUserId()
+  if (!userId) return Promise.resolve()
   return findSubscription(Users.currentUserId(), sourceId)
 }
 

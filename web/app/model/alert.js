@@ -34,6 +34,10 @@ export class AlertModel {
     return alert
   }
 
+  oops():Alert {
+    return this.update("error", "Something is broken. Please email support at serials@orbit.al and we'll take a look")
+  }
+
   clear():Alert {
     this.alert = this.emptyAlert()
     this.events.emit('change', this)

@@ -17,7 +17,7 @@ export class BookInfo extends React.Component {
 
     return <div>
       <div style={{color: statusColor(source.status)}}>{source.status}</div>
-      <div style={{color: '#888'}}>Last Updated {toDateString(lastChapter.added)}</div>
+      <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>
     </div>
 
   }
@@ -47,7 +47,7 @@ export class BookArt extends React.Component {
     var overlay = ""
 
     if (source.imageArtistUrl) {
-      overlay = <CoverOverlay style={{padding: 4}}>
+      overlay = <CoverOverlay style={{padding: 4, paddingTop: 0}}>
         <a style={{color: 'white', fontSize: 12}} href={source.imageArtistUrl}>Art by {source.imageArtist}</a>
       </CoverOverlay>
     }

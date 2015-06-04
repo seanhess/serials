@@ -22,8 +22,8 @@ Next Milestone: MVP
 - [x] INDEX: redirect to either hello or the other app prior to loading everything. Redirect from server!
 - [x] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
 - [x] Signup link from main app
-- [ ] Art attribution. Is that considered good form?
-- [ ] Find or commision real art
+- [x] Art attribution. Is that considered good form?
+- [x] Find or commision real art
 - [ ] Analytics: build funnel
 - [ ] Better emails and copy. (Copy someone else' process)
 - [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section

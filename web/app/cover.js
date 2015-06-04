@@ -11,6 +11,8 @@ import {displayIf} from './style'
 // 200x320 x2
 // 150x240
 // 100x160
+// Blank Image - http://i.imgur.com/bMwt85W.jpg
+
 export var CoverSize = {
   Width: 150,
   Height: 240,

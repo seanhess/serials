@@ -96,10 +96,6 @@ export class Book extends React.Component {
   }
 
   markAsReadUnread(chapter:Chapter, read:boolean) {
-    if (!Users.isLoggedIn()) {
-      this.forceLogin()
-      return Promise.resolve()
-    }
     if (!this.state.subscription) {
       Alerts.update('info', 'Please subscribe to enable bookmarking')
       return Promise.resolve()

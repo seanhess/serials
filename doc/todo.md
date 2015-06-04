@@ -21,14 +21,14 @@ Next Milestone: MVP
 - [x] /hello and /app - REQUIRED. To be able to redirect, AND choose which one to go to
 - [x] INDEX: redirect to either hello or the other app prior to loading everything. Redirect from server!
 - [x] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
+- [x] Signup link from main app
 - [ ] Find or commision real art
 - [ ] Analytics: build funnel
-- [ ] Signup link from main app
 - [ ] Better emails and copy. (Copy someone else' process)
 
 TWEAKS
 ------
-- [ ] bookmark not showing when it hits a title
+- [x] bookmark not showing when it hits a title
 
 OPTIMIZATIONS
 ---------------------

@@ -70,11 +70,18 @@ export class InvitesList extends React.Component {
   }
 
   renderRow(invite:Invite):React.Element {
+
+    var sent = " "
+
+    if (invite.sent) {
+      sent = toDateString(invite.sent)
+    }
+
     return <tr>
       <td>{invite.email}</td>
       <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
       <td><UserCell invite={invite} onSend={this.props.onSend}/></td>
-      <td>{toDateString(invite.sent)}</td>
+      <td>{sent}</td>
       <td><a onClick={() => this.props.onDelete(invite.code)}>
         <span className="fa fa-trash"></span>
       </a></td>

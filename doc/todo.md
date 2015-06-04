@@ -24,6 +24,8 @@ Next Milestone: MVP
 - [x] Signup link from main app
 - [x] Art attribution. Is that considered good form?
 - [x] Find or commision real art
+- [ ] Art: the spaceships. I need something I can use.
+- [ ] Switch to invite-only beta
 - [ ] Analytics: build funnel
 - [ ] Better emails and copy. (Copy someone else' process)
 - [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section
@@ -41,7 +43,9 @@ FUTURE
 -------
 - [ ] Icon for new chapters
 
-
 MIGRATIONS
 ----------
 - [ ] `r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})`
+
+- emailed eliezer
+- commented to mahasim - http://mahasim.deviantart.com/art/Twig-Commission-527933451

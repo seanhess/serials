@@ -29,7 +29,7 @@ var toChapterAndRead = curry(function(subs:?{[id:string]:SubChapter}, chapter:Ch
 })
 
 function unread(c:ChapterAndRead) {
-  return !c.read
+  return isLink(c.chapter) && !c.read
 }
 
 export class Book extends React.Component {

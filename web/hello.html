@@ -124,8 +124,8 @@
 
       .books {
         height: 240px;
-        background: url(./landing/books.png) no-repeat;
-        background-size: 1427px 100%;
+        background: url(./landing/books-safe.png) no-repeat;
+        background-size: 949px 100%;
         background-position-x: 50%;
       }
 
@@ -151,25 +151,6 @@
       */
 
     </style>
-
-    <!-- Check for urls belonging to the other app -->
-    <!-- TODO do this on the server! -->
-    <script>
-      if (window.location.hash) {
-        var url = "/app.html" + window.location.hash
-        window.location = url
-      }
-    </script>
-
-    <!-- Check to see if logged in -->
-    <script src="settings.js"></script>
-    <script>
-
-      // check to see if logged in
-      if (SETTINGS.user) {
-        window.location = "/app.html"
-      }
-    </script>
 
     <!-- Google analytics -->
     <script>
@@ -299,13 +280,13 @@
       <div class="feature">
         <h3 style="color: #F15D58;"><span class="fa fa-bookmark"></span> Bookmarks</h3>
         <p style="height: 56px">As you read a book, we keep track of where you are, making it easy to jump right in and read the next chapter.</p>
-        <img class="screenshot" src="./landing/chapters.png">
+        <img class="screenshot" style="border: solid 1px #AAA" src="./landing/chapters.png">
       </div>
 
       <div class="feature">
         <h3 style="color: #F15D58;"><span class="fa fa-bell"></span> Notifications</h3>
         <p style="height: 56px">Get notified the minute a new chapter is published, with email or on your phone.</p>
-        <img class="screenshot" src="./landing/notification.png">
+        <img class="screenshot" style="border: solid 1px #AAA" src="./landing/notification.png">
       </div>
     </div>
 

@@ -59,7 +59,7 @@ function typeClass(type:string):string {
 
 // http://wrttn.me/30dbfd/
 function face(type:string):string {
-  if (type === "error")        return "◉︵◉"
+  if (type === "error")        return "◉︵◉" // "◕︵◕" 
   else if (type === "success") return "(/◔ ◡ ◔)/"
   else if (type === "info") return "◕ ◡ ◕"
   // ◕︵◕

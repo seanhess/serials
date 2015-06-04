@@ -116,4 +116,3 @@ export function proxyContent(remoteUrl:string):Promise<string> {
 export function findChapter(id:string):Promise<Chapter> {
   return Get(url('chapters', id))
 }
-

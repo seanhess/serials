@@ -25,6 +25,7 @@ Next Milestone: MVP
 - [ ] Find or commision real art
 - [ ] Analytics: build funnel
 - [ ] Better emails and copy. (Copy someone else' process)
+- [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section
 
 TWEAKS
 ------

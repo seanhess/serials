@@ -9,6 +9,8 @@ import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '..
 import {Users, loadSubscription} from '../model/user'
 import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
+import {findBookmark, toChapterAndRead} from './bookmark'
+
 import {Cover} from'../cover'
 
 import {toDateString} from '../helpers'
@@ -17,21 +19,6 @@ import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from '
 import {Colors, clickable} from '../style'
 import {transitionTo} from '../router'
 
-type ChapterAndRead = {
-  chapter: Chapter;
-  read: boolean;
-}
-
-var toChapterAndRead = curry(function(subs:?{[id:string]:SubChapter}, chapter:Chapter):ChapterAndRead {
-  return {
-    chapter: chapter,
-    read: !!subs && subs[chapter.id] && subs[chapter.id].read
-  }
-})
-
-function unread(c:ChapterAndRead) {
-  return isLink(c.chapter) && !c.read
-}
 
 export class Book extends React.Component {
 
@@ -130,7 +117,8 @@ export class Book extends React.Component {
     var shown = chapters.filter(showChapter)
     var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
 
-    var current = chaptersAndSubs.filter(unread)[0]
+    //var current = chaptersAndSubs.filter(unread)[0]
+    var current = findBookmark(chaptersAndSubs)
 
     var row = (cs) => <Chapter 
                         chapter={cs.chapter} 

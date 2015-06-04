@@ -30,6 +30,7 @@ import Network.Wai
 import Network.Wai.Handler.Warp (run, Port)
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.AddHeaders
+import Network.Wai.Middleware.Static
 
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
@@ -306,13 +307,18 @@ type API =
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
   :<|> "status" :> Get AppStatus
 
-  -- :<|> Get ()
-
   :<|> Raw
 
+rootApp :: IO Application
+rootApp = scottyApp $ do
+  middleware $ staticPolicy (noDots >-> addBase "web")
 
-server :: Pool RethinkDBHandle -> Env -> Server API
-server h env =
+  get "/app"   $ file "./web/app.html"
+  get "/hello" $ file "./web/hello.html"
+  get "/"      $ file "./web/index.html"
+
+server :: Pool RethinkDBHandle -> Env -> Application -> Server API
+server h env root =
 
         sourcesServer h
    :<|> chaptersServer h
@@ -328,9 +334,7 @@ server h env =
 
    :<|> status
 
-   -- :<|> root
-
-   :<|> serveDirectory "web"
+   :<|> root
 
   where
 
@@ -349,9 +353,6 @@ server h env =
     printVar key a = ""
 
     status = liftIO $ appStatus h
-
-    root :: Handler ()
-    root = return $ ()
 
   --appInfo = return $ AppInfo "Serials" "0.1.0"
 
@@ -380,6 +381,7 @@ api = Proxy
 runApi :: Int -> Pool RethinkDBHandle -> Env -> IO ()
 runApi port p env = do
   env <- readAllEnv
+  root <- rootApp
   createDb p
   Source.init p
   Chapter.init p
@@ -387,7 +389,7 @@ runApi port p env = do
   Invite.init p
   Subscription.init p
   putStrLn $ "Starting..."
-  run port $ stack $ serve api (server p env)
+  run port $ stack $ serve api (server p env root)
   return ()
 
 -- Cors ---------------------------------------------------------

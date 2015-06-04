@@ -5,7 +5,7 @@
     <!-- Check for urls belonging to the other app -->
     <script>
       if (window.location.hash) {
-        var url = "/app.html" + window.location.hash
+        var url = "/app" + window.location.hash
         window.location = url
       }
     </script>
@@ -16,11 +16,11 @@
 
       // check to see if logged in
       if (SETTINGS.user) {
-        window.location = "/app.html"
+        window.location = "/app"
       }
 
       else {
-        window.location = "/hello.html"
+        window.location = "/hello"
       }
     </script>
   </head>

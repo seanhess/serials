@@ -92,6 +92,11 @@ export class Header extends React.Component {
       signup = <a style={LinkStyle} href="/hello">Sign Up</a>
     }
 
+    var linkTo = {to: "root"}
+    if (this.props.currentUser) {
+      linkTo = {to: "library", params: {id: this.props.currentUser.id}}
+    }
+
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
         <Link to="about" style={LinkStyle}>About</Link>
@@ -100,7 +105,7 @@ export class Header extends React.Component {
         {this.renderCurrentUser()}
       </div>
       <div style={CenterText}>
-        <Link to="books" style={TitleStyle}>
+        <Link {...linkTo} style={TitleStyle}>
           <img src="img/serials-icon-light.png" style={{height: 30, marginRight: 5}}/>
           <span style={{fontWeight: 'bold', color: Colors.light}}>serials</span>
         </Link>

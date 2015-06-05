@@ -145,3 +145,10 @@ export function isRecommended(source:Source):boolean {
   return source.name === "Friendship is Optimal" ||
          source.name === "Harry Potter and the Methods of Rationality"
 }
+
+export function isSearch(term:string):(source:Source) => boolean {
+  var search = new RegExp(term.toLowerCase())
+  return function(source:Source):boolean {
+    return search.test(source.name.toLowerCase()) || search.test(source.author.toLowerCase())
+  }
+}

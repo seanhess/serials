@@ -9,7 +9,7 @@ var {SourceModel} = require('../model/source')
 
 import {SourceCover} from '../cover'
 import {SuggestBook} from './support'
-import {Source, notHidden} from '../model/source'
+import {Source, notHidden, isSearch} from '../model/source'
 import {curry} from 'lodash'
 
 export class Gallery extends React.Component {
@@ -32,15 +32,12 @@ export class Gallery extends React.Component {
                                 .filter(notHidden)
 
     if (this.state.search) {
-      var search = this.state.search.toLowerCase()
-      sources = sources.filter(function(source) {
-        return source.name.toLowerCase().match(search)
-      })
+      sources = sources.filter(isSearch(this.state.search))
     }
 
     return <div style={{marginTop: 15}}>
       <div>
-        <input type="text" value={this.state.search} placeholder="Find Book" onChange={this.search.bind(this)}/>
+        <input type="text" value={this.state.search} placeholder="Search Books" onChange={this.search.bind(this)}/>
       </div>
       <SimpleGallery sources={sources} />
       <hr />

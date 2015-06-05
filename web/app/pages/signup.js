@@ -8,6 +8,7 @@ import {LogoPage} from './login'
 import {Signup, signup, invitesFind, Invite, emptyInvite} from '../model/invite'
 import {EmailLink} from '../books/support'
 import {Alerts} from '../model/alert'
+import {transitionTo} from '../router'
 
 var emptySignup = function(invite):Signup {
   return {
@@ -32,7 +33,7 @@ export class SignupPage extends React.Component {
     .then(() => Users.refresh())
     .then(function() {
       Alerts.update("success", 'Your account is created. Welcome!', true)
-      window.location.hash = "/"
+      transitionTo("library", {id: Users.currentUserId()})
     })
   }
 

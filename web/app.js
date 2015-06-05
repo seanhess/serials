@@ -58,7 +58,7 @@ class App extends React.Component {
 }
 
 var routes = (
-  <Route handler={App} path="/">
+  <Route name="root" handler={App} path="/">
     <Redirect from="/" to="books" />
 
     <Route name='login' handler={Login}/>

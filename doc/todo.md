@@ -26,14 +26,15 @@ Next Milestone: MVP
 - [x] Find or commision real art
 - [?] Art: the spaceships. I need something I can use.
 - [x] Switch to invite-only beta
-- [ ] Jump to bookmark
+- [x] Jump to bookmark
 - [ ] Analytics: build funnel
 - [ ] Better emails and copy. (Copy someone else' process)
-- [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section
+- [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
 
 TWEAKS
 ------
 - [x] bookmark not showing when it hits a title
+- [ ] better top bar
 
 OPTIMIZATIONS
 ---------------------

@@ -69,6 +69,10 @@ export var SourceModel = {
     return Get(url('sources'))
   },
 
+  findRecommended():Promise<Array<Source>> {
+    return this.findAll().then(ss => ss.filter(isRecommended))
+  },
+
   find(id:string) {
     return Get(url('sources', id))
   },
@@ -137,3 +141,7 @@ export function emptyScan():Scan {
   }
 }
 
+export function isRecommended(source:Source):boolean {
+  return source.name === "Friendship is Optimal" ||
+         source.name === "Harry Potter and the Methods of Rationality"
+}

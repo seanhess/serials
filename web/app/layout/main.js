@@ -101,8 +101,8 @@ export class Header extends React.Component {
       </div>
       <div style={CenterText}>
         <Link to="books" style={TitleStyle}>
-          <img src="img/serials-icon-white.png" style={{height: 30, marginRight: 5}}/>
-          <span style={{fontWeight: 'bold'}}>serials</span>
+          <img src="img/serials-icon-light.png" style={{height: 30, marginRight: 5}}/>
+          <span style={{fontWeight: 'bold', color: Colors.light}}>serials</span>
         </Link>
       </div>
     </nav>

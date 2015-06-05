@@ -27,7 +27,7 @@ export var mobileInput = {
   fontSize: '1em'
 }
 
-export function displayIf(base:string, show:boolean):{display:string} {
+export function displayIf(show:boolean, base:string = 'block'):{display:string} {
   return {
     display: (show) ? base : 'none'
   }

@@ -1,6 +1,6 @@
 // @flow
 
-import {curry, dropWhile, tail} from 'lodash'
+import {curry, dropWhile, tail, find} from 'lodash'
 
 import {Chapter, isLink} from '../model/chapter'
 import {SubChapter} from '../model/subscription'
@@ -49,7 +49,13 @@ export function afterLastRead(cs:Array<ChapterAndRead>, last:ChapterAndRead):Arr
 
 export function findBookmark(cs:Array<ChapterAndRead>):?ChapterAndRead {
   var last = lastRead(cs)
-  if (!last) return cs[0]
+  if (!last) return nextLink(cs)
   var unread = afterLastRead(cs, last)
-  return unread[0]
+  return nextLink(unread)
+}
+
+export function nextLink(cs:Array<ChapterAndRead>):?ChapterAndRead {
+  return find(cs, function(c:ChapterAndRead) {
+    return isLink(c.chapter)
+  })
 }

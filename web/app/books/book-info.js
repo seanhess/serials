@@ -29,13 +29,11 @@ export class CoverColumns extends React.Component {
     var right = this.props.children[1]
 
     return <div>
-      <div style={{marginTop: 10}}>
-        <div style={{float: 'left', width: 160, marginBottom: 15}}>
-          {left}
-        </div>
-        <div style={{marginLeft: 160}}>
-          {right}
-        </div>
+      <div style={{float: 'left', width: 160, marginBottom: 15}}>
+        {left}
+      </div>
+      <div style={{marginLeft: 160}}>
+        {right}
       </div>
     </div>
   }

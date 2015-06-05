@@ -5,11 +5,11 @@ import {Link, RouteHandler} from 'react-router'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
-import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL} from '../model/chapter'
+import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL, contentText} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
 import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
-import {findBookmark, toChapterAndRead} from './bookmark'
+import {findBookmark, toChapterAndRead, ChapterAndRead} from './bookmark'
 
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
@@ -31,6 +31,8 @@ export class Book extends React.Component {
     super(props)
     this.state = {subscription: null, showRead: false}
   }
+
+  // really, I should call a lifecycle function when the url loads. That makes way more sense
 
   forceLogin() {
     transitionTo('login', {}, {to: 'book', id: this.props.params.id})
@@ -71,11 +73,6 @@ export class Book extends React.Component {
     .then((sub) => this.setState({subscription: sub}))
   }
 
-  //componentWillReceiveProps(props:any) {
-    ////console.log("WILL RECEIVE PROPS", props)
-    //// this is a bad idea :)
-  //}
-
   componentDidMount() {
     this.reloadSubscription()
   }
@@ -106,6 +103,16 @@ export class Book extends React.Component {
     })
   }
 
+  readBookmark(cr:?ChapterAndRead):void {
+    if (!cr) return
+    var chapter = cr.chapter
+    //var node = React.findDOMNode(this)
+    //console.log("READ", chapter, node)
+    var topNumber = chapter.number
+    var chapterNode = document.getElementById(topNumber.toString())
+    chapterNode.scrollIntoView()
+  }
+
   render():?React.Element {
     var sub = this.state.subscription
 
@@ -116,7 +123,7 @@ export class Book extends React.Component {
     var lastChapter = last(this.props.chapters) || {}
 
     //var current = chaptersAndSubs.filter(unread)[0]
-    var current = findBookmark(chaptersAndSubs)
+    var current:?ChapterAndRead = findBookmark(chaptersAndSubs)
 
     var row = (cs) => <Chapter 
                         chapter={cs.chapter} 
@@ -127,19 +134,25 @@ export class Book extends React.Component {
                         onMarkUnread={this.markAsUnread.bind(this)}
                         isCurrent={cs == current}
                       />
-    
+
     return <div>
       <h3> </h3>
 
       <BookTitle source={source} />
 
-      <CoverColumns>
-        <BookArt source={source} />
-        <BookInfo source={source} lastChapter={lastChapter}/>
-      </CoverColumns>
-
-      <div style={{clear: 'both'}}>
+      <div style={{marginTop: 10}}>
         {this.renderSubscribe(sub, source)}
+      </div>
+
+      <div style={{marginTop: -5}}>
+        <CoverColumns>
+          <BookArt source={source} />
+          <BookInfo source={source} lastChapter={lastChapter}/>
+        </CoverColumns>
+      </div>
+
+      <div style={{clear: 'both', marginBottom: -5}}>
+        <ReadBookmark current={current} onClick={() => this.readBookmark(current)}/>
       </div>
 
       <div>
@@ -156,7 +169,7 @@ export class Book extends React.Component {
     var hasSubscription = !!subscription
     var className = "expand"
     var content = <div>
-      <div style={{fontSize: 20, fontWeight: 'bold'}}>Subscribe to {source.name}</div>
+      <div style={{fontSize: 20, fontWeight: 'bold'}}>Subscribe</div>
       <div style={{fontSize: 14, marginTop: 10, fontWeight: 'normal'}}>Enables bookmarking and notifications</div>
     </div>
     if (hasSubscription) {
@@ -191,7 +204,7 @@ export class Chapter extends React.Component {
       content=this.renderTitle(this.props.chapter)
     }
 
-    return <div>
+    return <div id={chapter.number}>
       {content}
     </div>
   }
@@ -234,8 +247,13 @@ export class Chapter extends React.Component {
   }
 
   renderTitle(chapter:Chapter):React.Element {
-    return <div className="row" style={assign({}, CollapseBorder, {borderBottom: 'solid 1px #666', padding: 10, marginTop: 20})}>
-      <h5 style={{margin:0}}>{chapter.content.titleText}</h5>
+    var style = assign({}, CollapseBorder, {
+      borderBottom: 'solid 1px #666',
+      padding: 10,
+      backgroundColor: Colors.light
+    })
+    return <div className="row" style={style}>
+      <h5 style={{margin:0, color: Colors.dark}}>{chapter.content.titleText}</h5>
     </div>
   }
 }
@@ -244,11 +262,21 @@ export class Chapter extends React.Component {
 // this should only show up 
 // if subscribed, and not on the first chapter
 // eh, do this later
-class ReadNow extends React.Component {
+class ReadBookmark extends React.Component {
   render():React.Element {
-    return <div>
-      <button>Bookmark: </button>
-    </div>
+    var current = this.props.current
+
+    var bookmark = ""
+
+    if (current) {
+      bookmark = <button onClick={this.props.onClick} className="info expand">
+        <span className="fa fa-bookmark"></span>
+        <span> Read - </span>
+        <span> {contentText(current.chapter)}</span>
+      </button>
+    }
+
+    return <div>{bookmark}</div>
   }
 }
 

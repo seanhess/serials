@@ -116,3 +116,18 @@ export function proxyContent(remoteUrl:string):Promise<string> {
 export function findChapter(id:string):Promise<Chapter> {
   return Get(url('chapters', id))
 }
+
+export function contentText(chapter:Chapter):string {
+  if (chapter.content.tag === "Link") {
+    var link:ContentLink = (chapter.content : any)
+    return link.linkText
+  }
+  else {
+    var title:ContentTitle = (chapter.content : any)
+    return title.titleText
+  }
+}
+
+
+
+

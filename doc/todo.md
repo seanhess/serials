@@ -24,8 +24,9 @@ Next Milestone: MVP
 - [x] Signup link from main app
 - [x] Art attribution. Is that considered good form?
 - [x] Find or commision real art
-- [ ] Art: the spaceships. I need something I can use.
-- [ ] Switch to invite-only beta
+- [?] Art: the spaceships. I need something I can use.
+- [x] Switch to invite-only beta
+- [ ] Jump to bookmark
 - [ ] Analytics: build funnel
 - [ ] Better emails and copy. (Copy someone else' process)
 - [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section
@@ -47,7 +48,11 @@ MIGRATIONS
 ----------
 - [ ] `r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})`
 
+
+FOLLOW UP
+---------
 - emailed eliezer
 - commented to mahasim - http://mahasim.deviantart.com/art/Twig-Commission-527933451
+- note to nkabuto - http://nkabuto.deviantart.com/art/Sci-fi-City-02-288260077
 
 - http://nkabuto.deviantart.com/art/Sci-fi-City-02-288260077

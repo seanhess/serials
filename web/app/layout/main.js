@@ -28,7 +28,7 @@ var TitleStyle = {
 }
 
 var LinkStyle = {
-  color: Colors.white,
+  color: Colors.light,
   fontSize: '14px',
   margin: 14,
   display: 'inline-block',

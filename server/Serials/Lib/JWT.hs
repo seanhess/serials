@@ -67,6 +67,7 @@ defaultClaims :: Text -> Map Text Value -> IO JWTClaimsSet
 defaultClaims id unc = do
   iat <- currentTime
   exp <- timeLater oneYear
+  print $ toUTCTime $ fromJust exp
   return $ def {
       iss = stringOrURI "Serials",
       iat = iat,
@@ -95,4 +96,4 @@ hasExpired j = case expiredAt j of
   Just e  -> do
     let expTime = toUTCTime e
     time <- getCurrentTime
-    return $ time < expTime
+    return $ expTime < time

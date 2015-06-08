@@ -115,7 +115,9 @@ verifyClaims t = do
     return $ fmap claims jwt
 
 userJWT :: User -> IO Text
-userJWT user = signClaims <$> userClaims user
+userJWT user = do
+    claims <- userClaims user
+    return $ signClaims claims
 
 userClaims :: User -> IO JWTClaimsSet
 userClaims user = defaultClaims (id user) $ fromList [adminClaim]
@@ -139,4 +141,5 @@ parseToken mc = do
   return $ token
 
 checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
-checkAuth h mt = secure <$> checkCurrentAuth h mt
+checkAuth h mt = do
+    secure <$> checkCurrentAuth h mt

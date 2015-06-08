@@ -8,7 +8,7 @@
 
 module Serials.Route.Auth where
 
-import Prelude hiding (id)
+import Prelude hiding (id, exp)
 
 import Crypto.BCrypt (validatePassword)
 import Control.Applicative ((<$>))
@@ -16,6 +16,7 @@ import Control.Applicative ((<$>))
 import Data.Text (Text, pack, toLower)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import Data.Time
 import Data.ByteString hiding (head, last, pack)
 import Data.Maybe (fromJust, isJust)
 import Data.Pool (Pool)
@@ -40,8 +41,9 @@ import Servant.Server.Internal
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
 import qualified Serials.Model.User as User hiding (User())
+import System.Locale
 
-import Web.JWT (JSON, JWTClaimsSet, claims, unregisteredClaims)
+import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims)
 import Web.Cookie
 
 
@@ -128,8 +130,13 @@ userClaims user = defaultClaims (id user) $ fromList [adminClaim]
 
 type CookieHeader = '[Header "Set-Cookie" Text]
 
-addAuthHeader :: Text -> a -> Headers CookieHeader a
-addAuthHeader token a = addHeader ("token=" <> token <> "; path=/; HttpOnly;") a
+addAuthHeader :: JWTClaimsSet -> a -> Headers CookieHeader a
+addAuthHeader claims a = addHeader header a
+  where
+  header = "token=" <> token <> "; path=/; HttpOnly; expires=" <> expires
+  token   = signClaims claims
+  expTime = toUTCTime $ fromJust $ exp claims
+  expires = formatTimeRFC822 expTime
 
 clearAuthHeader :: Headers CookieHeader ()
 clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()
@@ -143,3 +150,9 @@ parseToken mc = do
 checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
 checkAuth h mt = do
     secure <$> checkCurrentAuth h mt
+
+----------------------------------------------------------------
+
+-- copied from timerep, which wouldn't install :( Stupid cabal
+formatTimeRFC822 :: UTCTime -> Text
+formatTimeRFC822 = pack . formatTime defaultTimeLocale "%a, %d %b %Y %X %z"

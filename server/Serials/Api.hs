@@ -253,8 +253,8 @@ type AuthAPI =
 
 addAuth :: User -> Handler (Headers CookieHeader SecureUser)
 addAuth u = do
-  token <- liftIO $ userJWT u
-  return $ (addAuthHeader token (SecureUser u))
+  claims <- liftIO $ userClaims u
+  return $ (addAuthHeader claims (SecureUser u))
 
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
 authServer h = current :<|> logout :<|> login :<|> jwt

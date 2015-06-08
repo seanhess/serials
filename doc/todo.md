@@ -30,10 +30,11 @@ Next Milestone: MVP
 - [-] Analytics: build funnel
 - [x] Personally invite ryan and guys from thread. Who else?
 - [x] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
-- [ ] Sign ins not saving! Expired? Why?
+- [x] Sign ins not saving! Expired? Why?
 - [x] List of users.
 - [x] Stats about users. see their goods
 - [x] Better emails and copy.
+- [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 
 TWEAKS
@@ -48,7 +49,8 @@ OPTIMIZATIONS
 
 FUTURE
 -------
-- [ ] Icon for new chapters
+- [ ] Icon for new chapters. (How do I define new? It should be per-user. Whether they've "seen" them or not? Within the last week? Deviation from the rest of the chapters?)
+- [ ] Library: show progress in the gallery. Show badges for ... new chapters? Or unread?
 
 MIGRATIONS
 ----------

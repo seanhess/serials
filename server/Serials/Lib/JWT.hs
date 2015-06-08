@@ -2,6 +2,7 @@
 
 module Serials.Lib.JWT (
   subject,
+  toUTCTime,
   defaultClaims,
   signClaims,
   verifyJwt
@@ -67,7 +68,6 @@ defaultClaims :: Text -> Map Text Value -> IO JWTClaimsSet
 defaultClaims id unc = do
   iat <- currentTime
   exp <- timeLater oneYear
-  print $ toUTCTime $ fromJust exp
   return $ def {
       iss = stringOrURI "Serials",
       iat = iat,

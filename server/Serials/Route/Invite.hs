@@ -17,7 +17,7 @@ import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import Serials.Model.App (readAllEnv, Env(..), Endpoint)
 
-import Text.Blaze.Html5
+import Text.Blaze.Html5 hiding (style)
 import Text.Blaze.Html5.Attributes
 
 -- I need to validate the email address
@@ -50,8 +50,8 @@ sendInviteEmail i = do
 
 inviteEmail :: Invite -> Endpoint -> Email
 inviteEmail i endpoint = Email "Invite to join Serials" $ do
-  h3 "You have been invited to join Serials"
-  p $ do
-    "Just need to click this link and finishing creating your account: "
-    a ! href (textValue $ endpoint <> "/#/signup/" <> Invite.code i) $ "create account"
+  logoPage endpoint $ do
+    h3 "You have been invited to join Serials"
+    p $ do
+      a ! href (textValue $ endpoint <> "/#/signup/" <> Invite.code i) $ "Click here to create an account"
 

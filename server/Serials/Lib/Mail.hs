@@ -2,9 +2,12 @@
 
 module Serials.Lib.Mail (
   sendMail,
+  logoPage,
   isValidAddress,
   Email(..)
 ) where
+
+import Prelude hiding (div)
 
 import System.Environment
 import Data.Monoid ((<>))
@@ -23,7 +26,10 @@ import qualified Serials.Model.User as U
 import Serials.Model.Invite (Invite)
 import qualified Serials.Model.Invite as I
 
-import Serials.Model.App (readAllEnv, Env(..))
+import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+
+import Text.Blaze.Html5 hiding (style, map)
+import Text.Blaze.Html5.Attributes
 
 data Email = Email {
   emailSubject :: Text,
@@ -43,3 +49,10 @@ sendMail to (Email subj msg) = do
     case res of
       MandrillSuccess k -> liftIO (print k)
       MandrillFailure f -> liftIO (print f)
+
+logoPage :: Endpoint -> Html -> Html
+logoPage endpoint body = do
+  div ! style "max-width: 420px" $ do
+    div ! style "text-align: center" $ do
+      img ! src (textValue $ endpoint <> "/img/serials-logo-dark.png") ! style "width: 100px"
+    body

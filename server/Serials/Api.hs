@@ -47,6 +47,7 @@ import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
+import Serials.Lib.Mail (Email(..))
 
 import Serials.Route.Auth
 import Serials.Route.Invite
@@ -62,7 +63,7 @@ import qualified Database.RethinkDB as R
 
 import Web.JWT (JWTClaimsSet)
 import Web.Scotty
-
+import Text.Blaze.Html.Renderer.Text (renderHtml)
 
 -- if you use (Maybe a) with liftIO it will return null instead of a 404
 -- this is intentional for some routes
@@ -329,13 +330,29 @@ type API =
 
   :<|> Raw
 
-rootApp :: IO Application
-rootApp = scottyApp $ do
+rootApp :: Pool RethinkDBHandle -> IO Application
+rootApp h = scottyApp $ do
   middleware $ staticPolicy (noDots >-> addBase "web")
 
   get "/app"   $ file "./web/app.html"
   get "/hello" $ file "./web/hello.html"
   get "/"      $ file "./web/index.html"
+
+  -- test to see what emails look like
+  get "/emails/invite" $ do
+    -- get an invite, the first one?
+    invs <- liftIO $ Invite.all h
+    env <- liftIO $ readAllEnv
+    let (Email _ body) = inviteEmail (head invs) (endpoint env)
+    html $ renderHtml body
+
+  get "/emails/welcome" $ do
+    -- get an invite, the first one?
+    us <- liftIO $ User.list h
+    env <- liftIO $ readAllEnv
+    let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
+    html $ renderHtml body
+
 
 server :: Pool RethinkDBHandle -> Env -> Application -> Server API
 server h env root =
@@ -401,7 +418,7 @@ api = Proxy
 runApi :: Int -> Pool RethinkDBHandle -> Env -> IO ()
 runApi port p env = do
   env <- readAllEnv
-  root <- rootApp
+  root <- rootApp p
   createDb p
   Source.init p
   Chapter.init p

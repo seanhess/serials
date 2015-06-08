@@ -85,10 +85,10 @@ sendWelcomeEmail u = do
 
 welcomeEmail :: Endpoint -> User -> Email
 welcomeEmail ep u = Email "Your account is active!" $ do
-  h3 ("Hello " >> toHtml (User.firstName u) >> ",")
-  p $ do
-    "Welcome to Serials! "
-    a ! href (textValue $ ep <> "/app#/login") $ "Click here to start reading!"
+  logoPage ep $ do
+    h3 ("Hello " >> toHtml (User.firstName u) >> ", welcome to Serials!")
+    p $ do
+      a ! href (textValue $ ep <> "/app#/login") $ "Click here to start reading"
 
 
 

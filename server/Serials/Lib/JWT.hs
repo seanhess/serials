@@ -7,8 +7,11 @@ module Serials.Lib.JWT (
   verifyJwt
 ) where
 
+import Control.Applicative ((<$>))
+
 import Prelude hiding (exp, id)
 import Data.Time.Clock
+import Data.Monoid
 import Data.Time.Clock.POSIX
 import Data.Aeson (toJSON, Value)
 import System.Posix.Types
@@ -28,6 +31,9 @@ addTime d t = d `addUTCTime` t
 
 toSecs :: UTCTime -> Int
 toSecs = round . utcTimeToPOSIXSeconds
+
+toUTCTime :: IntDate -> UTCTime
+toUTCTime i = posixSecondsToUTCTime $ secondsSinceEpoch i
 
 utcTimeToEpochTime :: UTCTime -> NominalDiffTime
 utcTimeToEpochTime = fromIntegral . toSecs
@@ -78,14 +84,15 @@ jwtSecret = secret "6aefad90e7a41c1d9267feccc0ee763ebd8ef9c3496a2d84b5c36e6ff4b7
 verifyJwt :: JSON -> IO (Maybe (JWT VerifiedJWT))
 verifyJwt j = case verify jwtSecret =<< decode j of
   Nothing -> return Nothing
-  Just j -> fmap f $ expired j
-    where f r = case r of
-            Just True -> Just j
-            _ -> Nothing
+  Just j -> do
+    exp <- hasExpired j
+    if exp then return Nothing
+    else return $ Just j
 
-expired :: JWT a -> IO (Maybe Bool)
-expired j = do
-    t <- currentTime
-    let e = expiredAt j
-    return . Just $ intDateToNominalDT e > intDateToNominalDT t
-
+hasExpired :: JWT a -> IO Bool
+hasExpired j = case expiredAt j of
+  Nothing -> return False
+  Just e  -> do
+    let expTime = toUTCTime e
+    time <- getCurrentTime
+    return $ time < expTime

@@ -31,17 +31,10 @@ Next Milestone: MVP
 - [x] Personally invite ryan and guys from thread. Who else?
 - [x] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
 - [ ] Sign ins not saving! Expired? Why?
-- [ ] List of users.
-- [ ] Stats about users. see their goods
-- [ ] Better emails and copy.
-      - find another site with a good beta invite process. simple?
-      - email: you're invited! You can sign up immediately
-      - email: you're on the list! We will let you know
-      - email: you've signup up, hooray!
-- [ ] Beta invites:
-      - generate an invite code without needing an email
-      - signups let you set email and verifies it?
-generate an invite code without attaching an email. Allow them to change email during signup. Verify email address on signup? Why does it matter? Ability to paste an invite link to someone.
+- [x] List of users.
+- [x] Stats about users. see their goods
+- [x] Better emails and copy.
+- [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 
 TWEAKS
 ------

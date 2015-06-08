@@ -60,7 +60,7 @@ emailIndexName = "email"
 emailIndex = Index emailIndexName
 
 list :: Pool RethinkDBHandle -> IO [User]
-list h = runPool h $ table
+list h = runPool h $ table # orderBy [asc "id"]
 
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
 find h id = runPool h $ table # get (expr id)
@@ -70,6 +70,8 @@ findByEmail h email = do
   us <- runPool h $ table # getAll emailIndex [expr email]
   return $ headMay us
 
+remove :: Pool RethinkDBHandle -> Text -> IO ()
+remove h id = runPool h $ table # get (expr id) # delete
 
 secure :: (Functor m) => m User -> m SecureUser
 secure = fmap SecureUser

@@ -65,11 +65,13 @@ checkScanHealth h = do
 
 --------------------------------------------------------
 
+type Endpoint = Text
+
 data Env = Env {
   port :: Int,
   db :: (String, Integer),
   mandrill :: Text,
-  endpoint :: Text
+  endpoint :: Endpoint
 } deriving (Show)
 
 readAllEnv :: IO Env

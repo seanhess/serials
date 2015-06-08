@@ -35,7 +35,7 @@ import Network.Wai.Middleware.Static
 import Serials.Model.Source (Source(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
-import Serials.Model.Invite (Invite(..), Email)
+import Serials.Model.Invite (Invite(..), EmailAddress)
 import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
@@ -181,6 +181,24 @@ type UsersAPI =
   :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Post ()
   :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete ()
 
+  :<|> AuthProtected :> AdminUserAPI
+
+type AdminUserAPI =
+       Get [SecureUser]
+  :<|> Capture "id" Text :> Delete ()
+
+adminUsersServer :: Pool RethinkDBHandle -> Server AdminUserAPI
+adminUsersServer h = usersGet :<|> usersDel
+
+  where
+
+  usersGet :: Handler [SecureUser]
+  usersGet = liftIO $ secure <$> User.list h
+
+  usersDel :: Text -> Handler ()
+  usersDel id = liftIO $ User.remove h id
+
+
 usersServer :: Pool RethinkDBHandle -> Server UsersAPI
 usersServer h =
         signup
@@ -188,6 +206,8 @@ usersServer h =
    :<|> userBooksGet
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
+    -- this sucks. It has to be last or it "protects" everything in here. 
+   :<|> protected hasClaimAdmin (adminUsersServer h)
 
   where
 
@@ -260,7 +280,7 @@ authServer h = current :<|> logout :<|> login :<|> jwt
 
 type InvitesAPI =
        Get [Invite]
-  :<|> ReqBody Email :> Post ()
+  :<|> ReqBody EmailAddress :> Post ()
   :<|> Capture "code" Text :> Get Invite
   :<|> Capture "code" Text :> Delete ()
   :<|> Capture "code" Text :> "sent" :> Post ()
@@ -270,7 +290,7 @@ invitesServer h = list :<|> add :<|> find :<|> remove :<|> send
 
   where
 
-  add :: Email -> Handler ()
+  add :: EmailAddress -> Handler ()
   add e = EitherT $ inviteAddEmail h e
 
   list :: Handler [Invite]

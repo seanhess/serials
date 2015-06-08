@@ -66,6 +66,16 @@ export class UserModel {
     return this.currentUser.id
   }
 
+  //// Admin ////////////////////////////////
+
+  loadAll():Promise<Array<User>> {
+    return Get(url('users'))
+  }
+
+  delete(id:string):Promise<void> {
+    return Delete(url('users', id))
+  }
+
 
   //// Changes //////////////////////////////
   bind(f:Function) {
@@ -93,7 +103,7 @@ export function loadSubscription(sourceId:string):Promise<Subscription> {
   return findSubscription(Users.currentUserId(), sourceId)
 }
 
-export function userApiURL(id:?string) {
+export function userApiURL(id:?string):string {
   if (!id) return ""
   return url('users', id)
 }

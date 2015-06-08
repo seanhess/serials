@@ -19,13 +19,17 @@ import Data.Either (lefts)
 import Data.Monoid ((<>))
 
 import GHC.Generics
-import Database.RethinkDB.NoClash hiding (table)
+import Database.RethinkDB.NoClash (RethinkDBHandle, FromDatum(..), ToDatum(..))
 
 import qualified Serials.Model.User as User
 import Serials.Model.User (User)
 import qualified Serials.Model.Invite as Invite
 import Serials.Lib.Mail
 import Serials.Model.Invite (Invite)
+import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+
+import Text.Blaze.Html5 hiding (code)
+import Text.Blaze.Html5.Attributes
 
 data UserSignup = UserSignup {
   firstName :: Text,
@@ -71,6 +75,20 @@ newUser u = do
 
 customHashPolicy :: HashingPolicy
 customHashPolicy = HashingPolicy 10 "$2b$"
+
+-- Email -----------------------------------------------------------
+
+sendWelcomeEmail :: User -> IO ()
+sendWelcomeEmail u = do
+  env <- readAllEnv
+  sendMail [User.email u] (welcomeEmail (endpoint env) u)
+
+welcomeEmail :: Endpoint -> User -> Email
+welcomeEmail ep u = Email "Your account is active!" $ do
+  h3 ("Hello " >> toHtml (User.firstName u) >> ",")
+  p $ do
+    "Welcome to Serials! "
+    a ! href (textValue $ ep <> "/app#/login") $ "Click here to start reading!"
 
 
 
@@ -130,3 +148,4 @@ validateSignup h u = do
       validateEmail h u,
       validateInvite h u
     ]
+

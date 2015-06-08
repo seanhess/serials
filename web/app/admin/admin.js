@@ -8,6 +8,7 @@ import {RouteHandler} from 'react-router'
 import {MainContainer, Header} from '../layout/main'
 import {importLog, version} from '../model/admin'
 import {settings} from '../model/settings'
+import {FormSection} from '../comp'
 
 export class Admin extends React.Component {
   render():React.Element {
@@ -50,25 +51,49 @@ export class AdminDashboard extends React.Component {
       <div>
         <h3>Admin</h3>
 
-        <p>
-          <label>Settings</label>
-          <code style={{fontSize: 'smaller'}}>{sets.appName} {sets.version}</code>
+        <p className="row">
+          <label className="columns small-12 medium-2">Settings</label>
+          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.appName} {sets.version}</code>
         </p>
 
 
-        <p>
-          <label>Endpoint</label>
-          <code style={{fontSize: 'smaller'}}>{sets.appEndpoint}</code>
+        <p className="row">
+          <label className="columns small-12 medium-2">Endpoint</label>
+          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.appEndpoint}</code>
         </p>
 
-        <p>
-          <label>Version</label>
-          <code style={{fontSize: 'smaller'}}>{this.props.version}</code>
+        <p className="row">
+          <label className="columns small-12 medium-2">Version</label>
+          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{this.props.version}</code>
         </p>
 
-        <div><Link to="sources">Sources</Link></div>
-        <div><Link to="invites">Invites</Link></div>
-        <div><a href="#/admin/import-log/500">Import Log</a></div>
+        <hr />
+
+        <div>
+          <FormSection title="Sources">
+            <div>
+              <Link className="button info" to="sources">
+                <span className="fa fa-book"></span>
+                <span> Sources</span>
+              </Link>
+            </div>
+            <div><a href="#/admin/import-log/500">Import Log</a></div>
+          </FormSection>
+
+          <FormSection title="Users">
+            <Link className="button info" to="admin-users">
+              <span className="fa fa-user"></span>
+              <span> Users</span>
+            </Link>
+            <span> </span>
+            <Link className="button info" to="invites">
+              <span className="fa fa-paper-plane"></span>
+              <span> Invites</span>
+            </Link>
+          </FormSection>
+
+        </div>
+
       </div>
     </div>
   }

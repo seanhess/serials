@@ -29,7 +29,7 @@ import System.Random (randomIO, randomRIO)
 
 import Numeric (showIntAtBase)
 
-type Email = Text
+type EmailAddress = Text
 type InviteCode = Text
 
 data Signup = Signup {
@@ -39,7 +39,7 @@ data Signup = Signup {
 
 data Invite = Invite {
   id :: Text,
-  email :: Email,
+  email :: EmailAddress,
   code :: InviteCode,
   -- when they sign up they are here
   signup :: Maybe Signup,
@@ -58,7 +58,7 @@ instance FromJSON Invite
 instance FromDatum Invite
 instance ToDatum Invite
 
-invite :: Email -> Maybe UTCTime -> IO Invite
+invite :: EmailAddress -> Maybe UTCTime -> IO Invite
 invite e mt = do
   code <- generateCode
   let id = emailId e
@@ -80,7 +80,7 @@ add h inv = do
 remove :: Pool RethinkDBHandle -> Text -> IO ()
 remove h code = runPool h $ table # getAll codeIndex [expr code] # delete
 
-emailId :: Text -> Email
+emailId :: Text -> EmailAddress
 emailId = toLower
 
 all :: Pool RethinkDBHandle -> IO [Invite]

@@ -14,6 +14,7 @@ import {Admin, ImportLog, AdminDashboard} from './app/admin/admin'
 import {Sources} from './app/admin/sources'
 import {Source} from './app/admin/source'
 import {Invites} from './app/admin/invites'
+import {AdminUsers} from './app/admin/users'
 
 import {Main} from './app/books/main'
 import {MainContainer, Header} from './app/layout/main'
@@ -82,6 +83,7 @@ var routes = (
       <DefaultRoute handler={AdminDashboard}/>
       <Route name="sources" handler={Sources}/>
       <Route name="invites" handler={Invites}/>
+      <Route name="admin-users" handler={AdminUsers}/>
       <Route name="source"  path="sources/:id" handler={Source}/>
       <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
     </Route>

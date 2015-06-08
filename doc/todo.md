@@ -27,14 +27,26 @@ Next Milestone: MVP
 - [?] Art: the spaceships. I need something I can use.
 - [x] Switch to invite-only beta
 - [x] Jump to bookmark
-- [ ] Analytics: build funnel
-- [ ] Better emails and copy. (Copy someone else' process)
-- [ ] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
+- [-] Analytics: build funnel
+- [x] Personally invite ryan and guys from thread. Who else?
+- [x] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
+- [ ] Sign ins not saving! Expired? Why?
+- [ ] List of users.
+- [ ] Stats about users. see their goods
+- [ ] Better emails and copy.
+      - find another site with a good beta invite process. simple?
+      - email: you're invited! You can sign up immediately
+      - email: you're on the list! We will let you know
+      - email: you've signup up, hooray!
+- [ ] Beta invites:
+      - generate an invite code without needing an email
+      - signups let you set email and verifies it?
+generate an invite code without attaching an email. Allow them to change email during signup. Verify email address on signup? Why does it matter? Ability to paste an invite link to someone.
 
 TWEAKS
 ------
 - [x] bookmark not showing when it hits a title
-- [ ] better top bar
+- [ ] better top bar. Menu button? Slide out?
 
 OPTIMIZATIONS
 ---------------------
@@ -48,7 +60,6 @@ FUTURE
 MIGRATIONS
 ----------
 - [ ] `r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})`
-
 
 FOLLOW UP
 ---------

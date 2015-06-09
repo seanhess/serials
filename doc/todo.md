@@ -34,6 +34,13 @@ Next Milestone: MVP
 - [x] List of users.
 - [x] Stats about users. see their goods
 - [x] Better emails and copy.
+
+- [ ] way to silence chapter updates when updating / purging.
+- [ ] BUG: pact chapters
+- [ ] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
+
+- [ ] new domain name
+
 - [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 

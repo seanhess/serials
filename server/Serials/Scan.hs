@@ -96,7 +96,10 @@ importSource h source = do
   checkErr $ Chapter.saveAll h ups
 
   -- notify all
-  notifyChapters h source new
+  -- skip this step if all the chapters are new.
+  -- or if the book is inactive
+  when (length new < length merged && Source.status source == Active) $ do
+    notifyChapters h source new
 
 
   -- this means it actually completed, so go last?

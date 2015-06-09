@@ -5,6 +5,7 @@ import Router from 'react-router'
 
 import {SourceModel, emptySource, emptyScan, Status} from '../model/source'
 import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
+import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
 import {Chapters} from './chapters'
 import {ImportSettings} from './import'
@@ -12,6 +13,8 @@ import {DisabledButton, FormSection} from '../comp'
 
 import {coverStyle, SourceCover} from '../cover'
 import {makeUpdate, checked} from '../data/update'
+import {displayIf} from '../style'
+import {transitionTo} from '../router'
 
 export class Source extends React.Component {
 
@@ -41,13 +44,17 @@ export class Source extends React.Component {
 
 
   onSaveClick() {
-    if (this.props.params.id == "new") {
-      this.create()
+    if (this.isNew()) {
+      return this.create()
     }
 
     else {
-      this.save()
+      return this.save()
     }
+  }
+
+  isNew():boolean {
+    return this.props.params.id == "new"
   }
 
   onSaveChapter(chapter:Chapter) {
@@ -79,23 +86,28 @@ export class Source extends React.Component {
 
   save() {
     var source = this.state.source
-    SourceModel.save(this.props.source.id, source)
-    .then(() => window.location.hash = "/admin/sources")
+    return SourceModel.save(this.props.source.id, source)
+    .then(() => Alerts.update("success", "Saved!"))
   }
 
   create() {
     var source = this.state.source
-    SourceModel.create(source)
+    return SourceModel.create(source)
     .then(() => window.location.hash = "/admin/sources")
   }
 
   runScan() {
-    this.setState({scanning: true})
-    ChapterModel.importSource(this.props.params.id)
-    .then(() => {
-      this.setState({scanning: false})
-    })
+    if (this.isNew()) {
+      throw new Error("Cannot scan new source")
+    }
+
+    // save first
+    this.save()
+    .then(() => this.setState({scanning: true}))
+    .then(() => ChapterModel.importSource(this.props.params.id))
+    .then(() => this.setState({scanning: false}))
     .then(this.reloadChapters.bind(this))
+    .then(() => Alerts.update("success", "Scan complete"))
   }
 
   deleteAllChapters() {
@@ -137,7 +149,7 @@ export class Source extends React.Component {
       <div>
         <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
         <span> </span>
-        <a className="secondary button" href="#/admin/sources">Cancel</a>
+        <a className="secondary button" href="#/admin/sources">Close</a>
       </div>
 
       <FormSection title="Basic Settings">
@@ -217,37 +229,40 @@ export class Source extends React.Component {
         <ImportSettings settings={source.importSettings} onUpdate={this.onUpdateSettings.bind(this)} />
       </FormSection>
 
-      <h4>{chapters.length} Chapters</h4>
 
-      <div>
-        Last Scan
-        <ul>
-          <li>Date: {toDateString(lastScan.date)}</li>
-          <li>Total: {lastScan.total}</li>
-          <li>New: {lastScan.new.length}</li>
-          <li>Updated: {lastScan.updated.length}</li>
-        </ul>
+      <div style={displayIf(!this.isNew())}>
+        <h4>{chapters.length} Chapters</h4>
+
+        <div>
+          Last Scan
+          <ul>
+            <li>Date: {toDateString(lastScan.date)}</li>
+            <li>Total: {lastScan.total}</li>
+            <li>New: {lastScan.new.length}</li>
+            <li>Updated: {lastScan.updated.length}</li>
+          </ul>
+        </div>
+
+        <div className="right">
+          <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
+          <span> </span>
+          <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
+        </div>
+
+        <div className="">
+          <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
+          <span> </span>
+          <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
+        </div>
+
+
+        <Chapters chapters={chapters} source={source}
+          onSaveChapter={this.onSaveChapter.bind(this)}
+          onClearChapter={this.onClearChapter.bind(this)}
+          onDeleteChapter={this.onDeleteChapter.bind(this)}
+          onHiddenChange={this.onHiddenChapter.bind(this)}
+        />
       </div>
-
-      <div className="right">
-        <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
-        <span> </span>
-        <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
-      </div>
-
-      <div>
-        <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
-        <span> </span>
-        <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
-      </div>
-
-
-      <Chapters chapters={chapters} source={source}
-        onSaveChapter={this.onSaveChapter.bind(this)}
-        onClearChapter={this.onClearChapter.bind(this)}
-        onDeleteChapter={this.onDeleteChapter.bind(this)}
-        onHiddenChange={this.onHiddenChapter.bind(this)}
-      />
 
     </div>
 

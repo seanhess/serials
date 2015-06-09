@@ -6,7 +6,7 @@ import {Link} from 'react-router'
 
 import {RouteHandler} from 'react-router'
 import {MainContainer, Header} from '../layout/main'
-import {importLog, version} from '../model/admin'
+import {importLog} from '../model/admin'
 import {settings} from '../model/settings'
 import {FormSection} from '../comp'
 
@@ -41,21 +41,11 @@ export class ImportLog extends React.Component {
 
 export class AdminDashboard extends React.Component {
 
-  static load() {
-    return {version: version()}
-  }
-
   render():React.Element {
     var sets = settings()
     return <div>
       <div>
         <h3>Admin</h3>
-
-        <p className="row">
-          <label className="columns small-12 medium-2">Settings</label>
-          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.appName} {sets.version}</code>
-        </p>
-
 
         <p className="row">
           <label className="columns small-12 medium-2">Endpoint</label>
@@ -64,7 +54,7 @@ export class AdminDashboard extends React.Component {
 
         <p className="row">
           <label className="columns small-12 medium-2">Version</label>
-          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{this.props.version}</code>
+          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.version}</code>
         </p>
 
         <hr />

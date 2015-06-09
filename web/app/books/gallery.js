@@ -9,7 +9,7 @@ var {SourceModel} = require('../model/source')
 
 import {SourceCover} from '../cover'
 import {SuggestBook} from './support'
-import {Source, notHidden, isSearch} from '../model/source'
+import {Source, isNotHidden, isSearch} from '../model/source'
 import {curry} from 'lodash'
 
 export class Gallery extends React.Component {
@@ -29,7 +29,7 @@ export class Gallery extends React.Component {
 
   render():React.Element {
     var sources:Array<Source> = (this.props.sources || [])
-                                .filter(notHidden)
+                                .filter(isNotHidden)
 
     if (this.state.search) {
       sources = sources.filter(isSearch(this.state.search))

@@ -17,13 +17,13 @@ export var Status = {
 
 Status.All = [Status.Active, Status.Disabled, Status.Complete, Status.Abandoned]
 
-
 export type Source = {
   id: string;
   importSettings: ImportSettings;
   name: string;
   author: string;
   authorUrl: string;
+  hidden: boolean;
   url: string;
   imageUrl: string;
   imageMissingTitle: boolean;
@@ -60,8 +60,8 @@ export type TOCSettings = {
 }
 
 
-export function notHidden(source:Source):boolean {
-  return source.status !== Status.Disabled
+export function isNotHidden(source:Source):boolean {
+  return source.hidden !== true
 }
 
 export var SourceModel = {
@@ -96,6 +96,7 @@ export function emptySource():Source {
     name: "",
     author: "",
     authorUrl: "",
+    hidden: false,
     url: "",
     imageUrl: "",
     imageArtist: null,

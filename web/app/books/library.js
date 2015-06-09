@@ -3,7 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import {userBooks} from '../model/subscription'
-import {notHidden, SourceModel, isRecommended} from '../model/source'
+import {SourceModel, isRecommended} from '../model/source'
 import {SimpleGallery} from './gallery'
 import {Suggestion} from '../books/support'
 

@@ -39,7 +39,6 @@ export function coverStyle(url:string):Object {
 
 export class CoverOverlay extends React.Component {
   render():React.Element {
-    console.log("SHOW", this.props.show)
 
     var style = assign(
       displayIf(this.props.show !== false),

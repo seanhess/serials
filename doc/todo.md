@@ -35,12 +35,12 @@ Next Milestone: MVP
 - [x] Stats about users. see their goods
 - [x] Better emails and copy.
 
-- [ ] way to silence chapter updates when updating / purging.
-- [ ] BUG: pact chapters
+- [x] way to silence chapter updates when updating / purging.
+- [x] BUG: pact chapters
 - [ ] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
+- [ ] Clean up wildbow stuff and email him asking for review
 
 - [ ] new domain name
-
 - [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 
@@ -61,7 +61,8 @@ FUTURE
 
 MIGRATIONS
 ----------
-- [ ] `r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})`
+- [x] r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})
+- [ ] r.db('serials').table('sources').update({hidden: false})
 
 FOLLOW UP
 ---------

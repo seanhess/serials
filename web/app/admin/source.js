@@ -16,7 +16,15 @@ import {makeUpdate, checked} from '../data/update'
 import {displayIf} from '../style'
 import {transitionTo} from '../router'
 
+type AdminSourceProps = {
+  source: Source;
+  chapters: Array<Chapter>;
+  params: {id: string};
+}
+
 export class Source extends React.Component {
+
+  props: AdminSourceProps;
 
   static load(params) {
     if (params.id == "new") {
@@ -158,28 +166,48 @@ export class Source extends React.Component {
           value={source.name}
           onChange={update((s, v) => s.name = v)}
         />
-        <label>Author</label>
-        <input type="text"
-          value={source.author}
-          onChange={update((s, v) => s.author = v)}
-        />
 
-        <label>Author URL</label>
-        <input type="text"
-          value={source.authorUrl}
-          onChange={update((s, v) => s.authorUrl = v)}
-        />
+        <div className="row">
+          <div className="columns small-12 medium-6">
+            <label>Author</label>
+            <input type="text"
+              value={source.author}
+              onChange={update((s, v) => s.author = v)}
+            />
+          </div>
 
-        <label>Status</label>
-        <select
-          value={source.status}
-          onChange={update((s, v) => s.status = v)}
-        >
-          <option value={Status.Active}>{Status.Active}</option>
-          <option value={Status.Complete}>{Status.Complete}</option>
-          <option value={Status.Disabled}>{Status.Disabled}</option>
-          <option value={Status.Abandoned}>{Status.Abandoned}</option>
-        </select>
+          <div className="columns small-12 medium-6">
+            <label>Author URL</label>
+            <input type="text"
+              value={source.authorUrl}
+              onChange={update((s, v) => s.authorUrl = v)}
+            />
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="columns small-12 medium-3">
+            <label>Status</label>
+            <select
+              value={source.status}
+              onChange={update((s, v) => s.status = v)}
+            >
+              <option value={Status.Active}>{Status.Active}</option>
+              <option value={Status.Complete}>{Status.Complete}</option>
+              <option value={Status.Disabled}>{Status.Disabled}</option>
+              <option value={Status.Abandoned}>{Status.Abandoned}</option>
+            </select>
+          </div>
+
+          <div className="columns small-12 medium-3">
+            <label>Hidden</label>
+            <input type="checkbox"
+              checked={source.hidden}
+              onChange={update((s, v) => s.hidden = v, checked)}
+            />
+          </div>
+          <div className="columns medium-9"></div>
+        </div>
       </FormSection>
 
       <FormSection title="Image Settings">

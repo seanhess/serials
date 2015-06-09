@@ -5,6 +5,7 @@ import {SourceModel} from '../model/source'
 import {statusColor} from '../books/book-info'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'
+import {displayIf} from '../style'
 
 export class Sources extends React.Component {
 
@@ -20,10 +21,15 @@ export class Sources extends React.Component {
     function renderRow(source) {
       var lastScan = source.lastScan || {}
       return <tr key={source.id}>
-        <td style={{padding: 3, textAlign: 'center'}}><img src={source.imageUrl} style={{height: 35}}/></td>
+        <td style={{padding: 3, textAlign: 'center'}}>
+          <Link to="book" params={source}>
+            <img src={source.imageUrl} style={{height: 35}}/>
+          </Link>
+        </td>
         <td><Link to="source" params={{id: source.id}}>{source.name}</Link></td>
         <td><a href={source.url}>{source.url}</a></td>
         <td style={{color: statusColor(source.status)}}>{source.status}</td>
+        <td><span className="fa fa-eye-slash" style={displayIf(source.hidden)}></span></td>
         <td>{lastScan.total}</td>
       </tr>
     }
@@ -37,6 +43,7 @@ export class Sources extends React.Component {
           <th>Name</th>
           <th>URL</th>
           <th>Active</th>
+          <th>Hidden</th>
           <th>Chapters</th>
         </tr>
         {sorted.map(renderRow)}

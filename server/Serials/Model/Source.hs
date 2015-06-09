@@ -28,6 +28,7 @@ data Source = Source {
   name :: Text,
   author :: Text,
   authorUrl :: Text,
+  hidden :: Bool,
 
   status :: Status,
 

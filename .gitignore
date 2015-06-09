@@ -14,3 +14,4 @@ rethinkdb_data
 web/version.txt
 doc/notes.md
 server/Version.hs
+server/Version.hs.bak

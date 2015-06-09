@@ -4,12 +4,15 @@ set -e
 echo "
 == BUILD ==================="
 version=$(git log -1 --format="%h | %ad | %an | %s")
+#version=$(git rev-parse --short HEAD)
 
 # TODO I need to include a text file statically in the build somehow
 # maybe write to .cabal file?
 
+git update-index --assume-unchanged server/Version.hs
 echo $version
-echo $version > web/version.txt
+# generatedVersion = "ERROR"
+sed -i.bak "s/generatedVersion = \".*\"/generatedVersion = \"$version\"/" server/Version.hs
 
 echo "
 -- npm -------------------"

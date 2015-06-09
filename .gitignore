@@ -13,3 +13,4 @@ rethinkdb_data
 .lvimrc
 web/version.txt
 doc/notes.md
+server/Version.hs

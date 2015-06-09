@@ -40,6 +40,9 @@ Next Milestone: MVP
 - [ ] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
 - [ ] Clean up wildbow stuff and email him asking for review
 
+BACKLOG
+----
+- [ ] version hard-coded into executable to make sure it's correct
 - [ ] new domain name
 - [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.

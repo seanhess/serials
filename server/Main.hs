@@ -15,6 +15,7 @@ import Serials.Model.App
 
 import System.Environment
 import Network.URI
+import Version
 
 
 -- dispatches multiple possible programs to run based on the name
@@ -41,7 +42,7 @@ mainApi = do
     env <- readAllEnv
     print env
     p <- connectDbPool (db env)
-    runApi (port env) p env
+    runApi (port env) p generatedVersion env
 
 mainScan :: [String] -> IO ()
 mainScan ids = do

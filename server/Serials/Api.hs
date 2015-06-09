@@ -354,8 +354,8 @@ rootApp h = scottyApp $ do
     html $ renderHtml body
 
 
-server :: Pool RethinkDBHandle -> Env -> Application -> Server API
-server h env root =
+server :: Pool RethinkDBHandle -> String -> Env -> Application -> Server API
+server h version env root =
 
         sourcesServer h
    :<|> chaptersServer h
@@ -384,7 +384,7 @@ server h env root =
     settings :: Maybe Text -> IO AppSettings
     settings mc = do
       user <- checkAuth h mc
-      return $ AppSettings "Serials" "0.2" user (endpoint env)
+      return $ AppSettings "Serials" version user (endpoint env)
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
@@ -395,7 +395,7 @@ server h env root =
 
 data AppSettings = AppSettings {
   appName :: Text,
-  version :: Text,
+  version :: String,
   user :: Maybe SecureUser,
   appEndpoint :: Text
 } deriving (Show, Generic)
@@ -415,8 +415,8 @@ stack app = heads $ cors' $ app
 api :: Proxy API
 api = Proxy
 
-runApi :: Int -> Pool RethinkDBHandle -> Env -> IO ()
-runApi port p env = do
+runApi :: Int -> Pool RethinkDBHandle -> String -> Env -> IO ()
+runApi port p version env = do
   env <- readAllEnv
   root <- rootApp p
   createDb p
@@ -426,7 +426,7 @@ runApi port p env = do
   Invite.init p
   Subscription.init p
   putStrLn $ "Starting..."
-  run port $ stack $ serve api (server p env root)
+  run port $ stack $ serve api (server p version env root)
   return ()
 
 -- Cors ---------------------------------------------------------

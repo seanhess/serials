@@ -37,8 +37,8 @@ Next Milestone: MVP
 
 - [x] way to silence chapter updates when updating / purging.
 - [x] BUG: pact chapters
-- [ ] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
-- [ ] Clean up wildbow stuff and email him asking for review
+- [x] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
+- [x] Clean up wildbow stuff and email him asking for review
 
 BACKLOG
 ----

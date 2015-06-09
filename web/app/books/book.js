@@ -108,8 +108,7 @@ export class Book extends React.Component {
     var chapter = cr.chapter
     //var node = React.findDOMNode(this)
     //console.log("READ", chapter, node)
-    var topNumber = chapter.number
-    var chapterNode = document.getElementById(topNumber.toString())
+    var chapterNode = document.getElementById(chapter.id)
     chapterNode.scrollIntoView()
   }
 
@@ -122,18 +121,12 @@ export class Book extends React.Component {
     var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
     var lastChapter = last(this.props.chapters) || {}
 
+    if (chaptersAndSubs.length) {
+      console.log("TEST", chaptersAndSubs[0].chapter, chaptersAndSubs[1].chapter)
+    }
+
     //var current = chaptersAndSubs.filter(unread)[0]
     var current:?ChapterAndRead = findBookmark(chaptersAndSubs)
-
-    var row = (cs) => <Chapter 
-                        chapter={cs.chapter} 
-                        read={cs.read} 
-                        key={cs.chapter.id} 
-                        onClick={this.readChapter.bind(this)}
-                        onMarkRead={this.markAsRead.bind(this)}
-                        onMarkUnread={this.markAsUnread.bind(this)}
-                        isCurrent={cs == current}
-                      />
 
     return <div>
       <h3> </h3>
@@ -156,13 +149,25 @@ export class Book extends React.Component {
       </div>
 
       <div>
-        {chaptersAndSubs.map(row)}
+        {chaptersAndSubs.map(this.renderChapterRow.bind(this, current))}
       </div>
 
       <br />
 
       <SomethingWrong />
     </div>
+  }
+
+  renderChapterRow(current:?ChapterAndRead, cs:Chapter):React.Element {
+      return <Chapter 
+        chapter={cs.chapter} 
+        read={cs.read} 
+        key={cs.chapter.id} 
+        onClick={this.readChapter.bind(this)}
+        onMarkRead={this.markAsRead.bind(this)}
+        onMarkUnread={this.markAsUnread.bind(this)}
+        isCurrent={cs == current}
+      />
   }
 
   renderSubscribe(subscription:Subscription, source:Source):?React.Element {
@@ -201,10 +206,10 @@ export class Chapter extends React.Component {
       content = this.renderLink(this.props.chapter)
     }
     else {
-      content=this.renderTitle(this.props.chapter)
+      content = this.renderTitle(this.props.chapter)
     }
 
-    return <div id={chapter.number}>
+    return <div id={chapter.id}>
       {content}
     </div>
   }

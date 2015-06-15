@@ -41,8 +41,8 @@ Next Milestone: MVP
 - [x] Clean up wildbow stuff and email him asking for review
 
 - [x] Make sure emails made it to karen and aaron
+- [P] Ask permission for all art, and give notice
 - [ ] follow up with the reddit guys
-- [ ] Ask permission for all art, and give notice
 - [ ] Ping wildbow one more time? Maybe use a different method?
 - [x] Automatically send email on signup for now. (until more people)
 - [ ] don't delete read/unread information on unsubscribe
@@ -51,7 +51,7 @@ Next Milestone: MVP
 
 ART PERMISSION
 -----------------
-- [ ] TALKING 3 worlds collide.
+- [x] TALKING 3 worlds collide.
 - [ ] ASKED DA. Friendship is optimal
 - [x] Twisted Cogs
 - [ ] Harry Potter and the Methods of Rationality

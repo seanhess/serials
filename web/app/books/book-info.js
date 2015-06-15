@@ -48,9 +48,14 @@ export class BookArt extends React.Component {
       color: Colors.light
     }
 
+    var artistUrl;
     if (source.imageArtistUrl) {
+      artistUrl = source.imageArtistUrl
+    }
+
+    if (source.imageArtist) {
       overlay = <CoverOverlay style={{padding: 4, paddingTop: 0, fontSize: 12}}>
-        <a href={source.imageArtistUrl} style={style}>
+        <a href={artistUrl} style={style}>
           <div>Cover Art: {source.imageArtist}</div>
           <div><span>Copyright 2015</span></div>
         </a>

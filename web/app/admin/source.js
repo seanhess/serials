@@ -236,11 +236,11 @@ export class Source extends React.Component {
               onChange={update(setImageUrl)}
             />
 
-            <label>Image Missing Title</label>
             <input type="checkbox"
               checked={source.imageMissingTitle}
               onChange={update((s, v) => s.imageMissingTitle = v, checked)}
             />
+            <label>Image Missing Title</label>
 
             <label>Artist</label>
             <input type="text"

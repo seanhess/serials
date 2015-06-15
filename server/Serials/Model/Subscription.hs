@@ -34,6 +34,7 @@ data Subscription = Subscription {
   userId :: Text,
   sourceId :: Text,
   added :: UTCTime,
+  subscribed :: Bool,
   chapters :: HashMap Text SubChapter
 } deriving (Show, Generic)
 
@@ -76,9 +77,13 @@ usersSubscribed h sourceId = runPool h $ table
 add :: Pool RethinkDBHandle -> Text -> Text -> IO ()
 add h uid sid = do
     time <- getCurrentTime
-    let id = subId uid sid
-        sub = Subscription id uid sid time HashMap.empty
-    runPool h $ table # insert (toDatum sub)
+    msub <- find h uid sid
+    let id  = subId uid sid
+        def = Subscription id uid sid time True HashMap.empty
+        sub = fromMaybe def msub
+        sub' = sub { subscribed = True }
+
+    save h uid sid sub'
 
 save :: Pool RethinkDBHandle -> Text -> Text -> Subscription -> IO ()
 save h uid sid sub = runPool h $ table # get (expr (subId uid sid)) # replace (const $ toDatum sub)
@@ -87,7 +92,7 @@ find :: Pool RethinkDBHandle -> Text -> Text -> IO (Maybe Subscription)
 find h uid sid = runPool h $ table # get (expr (subId uid sid))
 
 remove :: Pool RethinkDBHandle -> Text -> Text -> IO ()
-remove h uid sid = runPool h $ table # get (expr (subId uid sid)) # delete
+remove h uid sid = runPool h $ table # get (expr (subId uid sid)) # update (const ["subscribed" := False])
 
 subId :: Text -> Text -> Text
 subId userId sourceId = userId <> "-" <> sourceId

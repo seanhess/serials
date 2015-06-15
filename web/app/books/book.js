@@ -29,7 +29,10 @@ export class Book extends React.Component {
 
   constructor(props:any) {
     super(props)
-    this.state = {subscription: null, showRead: false}
+    this.state = {
+      subscription: newSubscription(Users.currentUserId(), props.params.id),
+      showRead: false
+    }
   }
 
   // really, I should call a lifecycle function when the url loads. That makes way more sense
@@ -45,20 +48,17 @@ export class Book extends React.Component {
       return
     }
 
-    var hasSubscription = !!this.state.subscription
     var sourceId = this.props.params.id
 
-    if (hasSubscription) {
-      this.setState({subscription: null})
-    }
-    else {
-      // I'd LIKE to do this, but I can't create it correctly
-      this.setState({subscription: newSubscription(Users.currentUserId(), sourceId)})
-    }
+    // set subscribed to false
+    var sub = this.state.subscription
+    sub.subscribed = !sub.subscribed
+    this.setState({subscription: sub})
 
-    return setSubscribed(Users.currentUserId(), sourceId, !hasSubscription)
+    // update on the server
+    return setSubscribed(Users.currentUserId(), sourceId, sub.subscribed)
     .then(function() {
-      if (!hasSubscription) {
+      if (sub.subscribed) {
         Alerts.update("success", "You are subscribed!")
       }
       else {
@@ -78,7 +78,7 @@ export class Book extends React.Component {
   }
 
   markAsReadUnread(chapter:Chapter, read:boolean) {
-    if (!this.state.subscription) {
+    if (!this.state.subscription.subscribed) {
       Alerts.update('info', 'Please subscribe to enable bookmarking')
       return Promise.resolve()
     }
@@ -118,7 +118,13 @@ export class Book extends React.Component {
     var source:Source = this.props.source || emptySource()
     var chapters = this.props.chapters || []
     var shown = chapters.filter(showChapter)
-    var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
+
+    var readChapters = {}
+    if (sub.subscribed) {
+      readChapters = sub.chapters
+    }
+
+    var chaptersAndSubs = shown.map(toChapterAndRead(readChapters))
     var lastChapter = last(this.props.chapters) || {}
 
     //var current = chaptersAndSubs.filter(unread)[0]
@@ -171,14 +177,13 @@ export class Book extends React.Component {
       />
   }
 
-  renderSubscribe(subscription:Subscription, source:Source):?React.Element {
-    var hasSubscription = !!subscription
+  renderSubscribe(sub:Subscription, source:Source):?React.Element {
     var className = "expand"
     var content = <div>
       <div style={{fontSize: 20, fontWeight: 'bold'}}>Subscribe</div>
       <div style={{fontSize: 14, marginTop: 10, fontWeight: 'normal'}}>Enables bookmarking and notifications</div>
     </div>
-    if (hasSubscription) {
+    if (sub.subscribed) {
       className += " secondary"
       content = "Subscribed"
     }

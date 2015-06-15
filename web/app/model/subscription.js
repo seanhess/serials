@@ -7,6 +7,7 @@ import {cloneDeep} from 'lodash'
 export type Subscription = {
   userId: string;
   sourceId: string;
+  subscribed: boolean;
   chapters: { [id:string]:SubChapter };
 }
 
@@ -15,8 +16,8 @@ export type SubChapter = {
   read: boolean;
 }
 
-export function newSubscription(userId: string, sourceId: string):Subscription {
-  return {userId, sourceId, chapters: {}}
+export function newSubscription(userId: string, sourceId: string, subscribed:boolean = true):Subscription {
+  return {userId, sourceId, subscribed: subscribed, chapters: {}}
 }
 
 export function userBooks(userId:string):Promise<Array<Source>> {
@@ -25,6 +26,10 @@ export function userBooks(userId:string):Promise<Array<Source>> {
 
 export function findSubscription(userId:string, sourceId:string):Promise<Subscription> {
   return Get(url('users', userId, 'subs', sourceId))
+  .then(function(sub) {
+    if (sub) return sub
+    return newSubscription(userId, sourceId)
+  })
 }
 
 export function saveSubscription(sub:Subscription):Promise<void> {

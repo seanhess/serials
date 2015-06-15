@@ -41,23 +41,24 @@ Next Milestone: MVP
 - [x] Clean up wildbow stuff and email him asking for review
 
 - [x] Make sure emails made it to karen and aaron
-- [P] Ask permission for all art, and give notice
+- [x] Ask permission for all art, and give notice
+- [x] Automatically send email on signup for now. (until more people)
+- [x] don't delete read/unread information on unsubscribe
+- [ ] new domain name: web fiction
 - [ ] follow up with the reddit guys
 - [ ] Ping wildbow one more time? Maybe use a different method?
-- [x] Automatically send email on signup for now. (until more people)
-- [ ] don't delete read/unread information on unsubscribe
 
 - [ ] Manually recruit about 10 users. Get feedback from them.
 
 ART PERMISSION
 -----------------
 - [x] TALKING 3 worlds collide.
-- [ ] ASKED DA. Friendship is optimal
+- [?] ASKED DA. Friendship is optimal
 - [x] Twisted Cogs
-- [ ] Harry Potter and the Methods of Rationality
-- [ ] Mother of Learning
-- [ ] ASKED DA. Pact
-- [ ] The Metropolitan Man
+- [x] Harry Potter and the Methods of Rationality
+- [?] ASKED DA. Mother of Learning
+- [?] ASKED DA. Pact
+- [x] The Metropolitan Man
 
 AUTHOR PERMISSION
 -----------------
@@ -66,7 +67,6 @@ Should I ask for permission from authors? They're as scared as the artists are.
 BACKLOG
 ----
 - [ ] version hard-coded into executable to make sure it's correct
-- [ ] new domain name
 - [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 
@@ -90,6 +90,7 @@ MIGRATIONS
 - [x] r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})
 - [x] r.db('serials').table('sources').update({hidden: false})
 - [ ] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
+- [ ] r.db('serials').table('subscriptions').update({subscribed: true})
 
 FOLLOW UP
 ---------
@@ -106,4 +107,3 @@ Communities
 - [ ] (2145) https://www.reddit.com/r/Parahumans/
 - [ ] https://www.reddit.com/r/writing/
 - [ ] Webfictionguide.com
-- [ ] 

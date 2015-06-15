@@ -39,6 +39,7 @@ Next Milestone: MVP
 - [x] BUG: pact chapters
 - [x] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
 - [x] Clean up wildbow stuff and email him asking for review
+- [x] version hard-coded into executable to make sure it's correct
 
 - [x] Make sure emails made it to karen and aaron
 - [x] Ask permission for all art, and give notice
@@ -60,13 +61,22 @@ ART PERMISSION
 - [?] ASKED DA. Pact
 - [x] The Metropolitan Man
 
+DOMAIN NAMES
+------------
+webfiction.co
+webfiction.com ($3688)
+
 AUTHOR PERMISSION
 -----------------
 Should I ask for permission from authors? They're as scared as the artists are.
 
 BACKLOG
 ----
-- [ ] version hard-coded into executable to make sure it's correct
+- [ ] Sort gallery by chapters read per week
+- [ ] Sort library by title?
+- [ ] Update RethinkDB
+- [ ] Update GHC
+- [ ] Switch to stack
 - [ ] Login not autofilling
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 
@@ -89,8 +99,8 @@ MIGRATIONS
 ----------
 - [x] r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})
 - [x] r.db('serials').table('sources').update({hidden: false})
-- [ ] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
-- [ ] r.db('serials').table('subscriptions').update({subscribed: true})
+- [x] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
+- [x] r.db('serials').table('subscriptions').update({subscribed: true})
 
 FOLLOW UP
 ---------

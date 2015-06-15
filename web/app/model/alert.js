@@ -2,6 +2,7 @@
 
 import {Promise} from 'es6-promise'
 import {EventEmitter} from 'events'
+import {EMAIL} from './settings'
 
 // AlertModel //////////////////////////////////////
 export type Alert = {
@@ -35,7 +36,7 @@ export class AlertModel {
   }
 
   oops():Alert {
-    return this.update("error", "Something is broken. Please email support at serials@orbit.al and we'll take a look")
+    return this.update("error", "Something is broken. Please email support at "+ EMAIL +" and we'll take a look")
   }
 
   clear():Alert {

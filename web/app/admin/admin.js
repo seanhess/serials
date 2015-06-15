@@ -57,6 +57,11 @@ export class AdminDashboard extends React.Component {
           <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.version}</code>
         </p>
 
+        <p className="row">
+          <label className="columns small-12 medium-2">Environment</label>
+          <code className="columns small-12 medium-10" style={{fontSize: 'smaller'}}>{sets.appEnvironment}</code>
+        </p>
+
         <hr />
 
         <div>

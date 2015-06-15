@@ -14,12 +14,12 @@ Disclaimer
 
 Neither Orbital Labs or Serials are affiliated with any of the authors, books, art or content. We currently use art under the Fair Use doctrine, but prior to launch we will only use art we have a clear license to.
 
-Please contact [serials@orbit.al](mailto:serials@orbit.al) if we are using anything we don't have rights to and we'll clear it up
+Please contact [webfiction@orbit.al](mailto:webfiction@orbit.al) if we are using anything we don't have rights to and we'll clear it up
 
-Pre-alpha Site
---------------
+Early Access Site
+-----------------
 
-http://serials.orbit.al
+http://webfiction.co
 
 MILESTONES
 ----------

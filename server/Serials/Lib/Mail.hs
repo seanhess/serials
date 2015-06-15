@@ -43,7 +43,7 @@ sendMail :: [Text] -> Email -> IO ()
 sendMail to (Email subj msg) = do
   env <- readAllEnv
   runMandrill (mandrill env) $ do
-    let from = fromJust $ emailAddress "serials@orbit.al"
+    let from = fromJust $ emailAddress "webfiction@orbit.al"
         tos  = map (fromJust . emailAddress . encodeUtf8) to
     res <- sendEmail (newHtmlMessage from tos subj msg)
     case res of

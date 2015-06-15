@@ -67,22 +67,27 @@ checkScanHealth h = do
 
 type Endpoint = Text
 
+data AppEnvironment = Dev | Production deriving (Show, Generic, Read)
+instance ToJSON AppEnvironment
+
 data Env = Env {
   port :: Int,
   db :: (String, Integer),
   mandrill :: Text,
-  endpoint :: Endpoint
+  endpoint :: Endpoint,
+  environment :: AppEnvironment
 } deriving (Show)
 
 readAllEnv :: IO Env
 readAllEnv = do
     port <- readEnv "PORT" 3001
+    environment <- readEnv "ENV" Dev
     endpoint <- defEnv "ENDPOINT" "http://localhost:3001"
     db <- lookupDb
     mm <- lookupEnv "MANDRILL_API_KEY"
     case mm of
       Nothing -> error "missing env MANDRILL_API_KEY"
-      Just m  -> return $ Env port db (pack m) (pack endpoint)
+      Just m  -> return $ Env port db (pack m) (pack endpoint) environment
 
 lookupDb :: IO (String, Integer)
 lookupDb = do

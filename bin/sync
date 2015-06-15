@@ -1,5 +1,5 @@
 #!/bin/bash
 
-server="root@serials.orbit.al"
+server="root@webfiction.co"
 
 rsync -rav -e ssh --delete --exclude-from .rsyncignore . $server:/opt/serials

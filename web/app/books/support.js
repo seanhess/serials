@@ -1,9 +1,9 @@
 // @flow
 import React from 'react'
 
-var EMAIL = "serials@orbit.al"
 
 import {makeUpdate} from '../data/update'
+import {EMAIL} from '../model/settings'
 
 // TODO: should put this somewhere more common
 var validateEmail = function(email) {

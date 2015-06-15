@@ -384,7 +384,7 @@ server h version env root =
     settings :: Maybe Text -> IO AppSettings
     settings mc = do
       user <- checkAuth h mc
-      return $ AppSettings "Serials" version user (endpoint env)
+      return $ AppSettings "Serials" version user (endpoint env) (environment env)
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
@@ -397,11 +397,11 @@ data AppSettings = AppSettings {
   appName :: Text,
   version :: String,
   user :: Maybe SecureUser,
-  appEndpoint :: Text
+  appEndpoint :: Text,
+  appEnvironment :: AppEnvironment
 } deriving (Show, Generic)
 
 instance ToJSON AppSettings
-
 
 
 -- Run ---------------------------------------------------------

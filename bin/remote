@@ -9,6 +9,7 @@ server="root@webfiction.co"
 
 # download it
 ssh -t -t $server << END
+set -e
 cd /opt/serials
 bash bin/remote.sh
 exit 0

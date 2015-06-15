@@ -54,6 +54,10 @@ Next Milestone: MVP
 
 - [ ] Manually recruit about 10 users. Get feedback from them.
 
+BUGS
+----
+- [ ] pushing haskell errors doesn't fail!
+
 ART PERMISSION
 -----------------
 - [x] TALKING 3 worlds collide.

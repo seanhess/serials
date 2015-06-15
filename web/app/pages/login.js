@@ -4,6 +4,7 @@ import {Link} from 'react-router'
 import {RouteHandler} from 'react-router'
 
 import {FormSection} from '../comp'
+import {Logo} from '../pages/about'
 import {Users} from '../model/user'
 import {Alerts} from '../model/alert'
 import {AlertView} from '../alert'
@@ -23,8 +24,8 @@ export class LogoPage extends React.Component {
   render():React.Element {
     return <div>
       <div style={{padding: 25}} className="row small-12 columns">
-        <div style={{textAlign: 'center', height: 200}}>
-          <Link to="books"><img src="img/serials-logo-dark.png" style={{height: '100%'}}/></Link>
+        <div style={{textAlign: 'center'}}>
+          <Logo />
         </div>
         {this.props.children}
       </div>

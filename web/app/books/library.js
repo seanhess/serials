@@ -46,7 +46,7 @@ export class Library extends React.Component {
 export class Instruction extends React.Component {
   render():React.Element {
     return <div>
-      <h1>Welcome to serials!</h1>
+      <h1>Welcome to Web Fiction!</h1>
       <div>This is your libarary. Your books will be here.  </div>
     </div>
   }

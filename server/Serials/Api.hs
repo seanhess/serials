@@ -391,8 +391,6 @@ server h version env root =
 
     status = liftIO $ appStatus h
 
-  --appInfo = return $ AppInfo "Serials" "0.1.0"
-
 data AppSettings = AppSettings {
   appName :: Text,
   version :: String,

@@ -52,9 +52,9 @@ sendInviteEmail i = do
   sendMail [Invite.email i] (inviteEmail i (endpoint env))
 
 inviteEmail :: Invite -> Endpoint -> Email
-inviteEmail i endpoint = Email "Invite to join Serials" $ do
+inviteEmail i endpoint = Email "Invite to join Web Fiction" $ do
   logoPage endpoint $ do
-    h3 "You have been invited to join Serials"
+    h3 "You have been invited to join Web Fiction"
     p $ do
       a ! href (textValue $ endpoint <> "/#/signup/" <> Invite.code i) $ "Click here to create an account"
 

@@ -53,6 +53,5 @@ sendMail to (Email subj msg) = do
 logoPage :: Endpoint -> Html -> Html
 logoPage endpoint body = do
   div ! style "max-width: 420px" $ do
-    div ! style "text-align: center" $ do
-      img ! src (textValue $ endpoint <> "/img/serials-logo-dark.png") ! style "width: 100px"
+    img ! src (textValue $ endpoint <> "/img/serials-icon-dark.png") ! style "width: 100px"
     body

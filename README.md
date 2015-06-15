@@ -1,7 +1,7 @@
-serials
+Web Fiction
 =========
 
-Serials aims to be a podcast-like experience for reading serial publications on the web. 
+This app aims to be a podcast-like experience for reading serial publications on the web. 
 
 Many excellent books and webcomics are being published openly on the web today. Most of those are published one chapter at a time. It's awesome that authors are self-publishing, but this format makes it hard to keep track of your progress.
 
@@ -12,7 +12,7 @@ The system will scan sources to create a table of contents for each book. It wil
 Disclaimer
 ----------
 
-Neither Orbital Labs or Serials are affiliated with any of the authors, books, art or content. We currently use art under the Fair Use doctrine, but prior to launch we will only use art we have a clear license to.
+Neither Orbital Labs or Web Fiction are affiliated with any of the authors, books, art or content. We currently use art under the Fair Use doctrine, but prior to launch we will only use art we have a clear license to.
 
 Please contact [webfiction@orbit.al](mailto:webfiction@orbit.al) if we are using anything we don't have rights to and we'll clear it up
 

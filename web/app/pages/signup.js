@@ -83,7 +83,7 @@ export class SignupForm extends React.Component {
 
     return <div>
 
-      <p style={{marginTop: 30}}>Welcome to serials! Enter your information to sign up for an account</p>
+      <p style={{marginTop: 30}}>Welcome to Web Fiction! Enter your information to sign up for an account</p>
 
       <label>Email</label>
       <p>{signup.email}</p>

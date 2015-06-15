@@ -87,13 +87,19 @@ export class BookTitle extends React.Component {
 export class BookDetails extends React.Component {
   render():React.Element {
 
-    var content = ""
-
-    if (this.props.source && this.props.source.imageArtistAboutUrl) {
-      content = <p>About the Artist: <a href={this.props.source.imageArtistAboutUrl}>{this.props.source.imageArtist}</a></p>
+    if (!this.props.source) {
+      return <div/>
     }
 
-    return <div>{content}</div>
+    var aboutAuthor = <p>About the Author: <a href={this.props.source.authorUrl}>{this.props.source.author}</a></p>
+
+    var aboutArtist = ""
+    if (this.props.source.imageArtistAboutUrl) {
+      aboutArtist = <p>About the Artist: <a href={this.props.source.imageArtistAboutUrl}>{this.props.source.imageArtist}</a></p>
+    }
+
+
+    return <div>{aboutAuthor} {aboutArtist}</div>
   }
 }
 

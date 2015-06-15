@@ -21,8 +21,15 @@ var emptySignup = function(invite):Signup {
   }
 }
 
+type SignupProps = {
+  alert: any;
+  loaded: boolean;
+  invite: Invite;
+}
 
 export class SignupPage extends React.Component {
+
+  props: SignupProps;
 
   static load(params) {
     return {invite: invitesFind(params.code)}
@@ -45,7 +52,7 @@ export class SignupPage extends React.Component {
     else if (!this.props.invite) {
       content = <InvalidCode message="We couldn't find your beta code!"/>
     }
-    else if (this.props.invite.userId) {
+    else if (this.props.invite.signup) {
       content = <InvalidCode message="This beta code has already been used"/>
     }
     else {

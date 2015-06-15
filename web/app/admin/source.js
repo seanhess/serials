@@ -22,6 +22,13 @@ type AdminSourceProps = {
   params: {id: string};
 }
 
+function setImageUrl(source:Source, value:string) {
+  if (!value) {
+    value = "http://i.imgur.com/bMwt85W.jpg"
+  }
+  source.imageUrl = value
+}
+
 export class Source extends React.Component {
 
   props: AdminSourceProps;
@@ -208,6 +215,7 @@ export class Source extends React.Component {
           </div>
           <div className="columns medium-9"></div>
         </div>
+
       </FormSection>
 
       <FormSection title="Image Settings">
@@ -218,15 +226,10 @@ export class Source extends React.Component {
           </div>
 
           <div style={{marginLeft: 170, minHeight: 250}}>
-            <label>URL</label>
-            <input type="text"
-              value={source.url}
-              onChange={update((s, v) => s.url = v)}
-            />
             <label>Image URL</label>
             <input type="text"
               value={source.imageUrl}
-              onChange={update((s, v) => s.imageUrl = v)}
+              onChange={update(setImageUrl)}
             />
 
             <label>Artist</label>
@@ -254,6 +257,12 @@ export class Source extends React.Component {
       </FormSection>
 
       <FormSection title="Import Settings">
+        <label>URL</label>
+        <input type="text"
+          value={source.url}
+          onChange={update((s, v) => s.url = v)}
+        />
+
         <ImportSettings settings={source.importSettings} onUpdate={this.onUpdateSettings.bind(this)} />
       </FormSection>
 

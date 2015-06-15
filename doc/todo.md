@@ -46,6 +46,13 @@ Next Milestone: MVP
 - [ ] Ping wildbow one more time? Maybe use a different method?
 - [x] Automatically send email on signup for now. (until more people)
 
+- [ ] Manually recruit about 10 users. Get feedback from them.
+
+ART PERMISSION
+-----------------
+- [x] 3 worlds collide. No permission
+- [ ] 
+
 BACKLOG
 ----
 - [ ] version hard-coded into executable to make sure it's correct
@@ -81,3 +88,12 @@ FOLLOW UP
 - note to nkabuto - http://nkabuto.deviantart.com/art/Sci-fi-City-02-288260077
 
 - http://nkabuto.deviantart.com/art/Sci-fi-City-02-288260077
+
+
+Communities
+------------
+- [ ] (370) https://www.reddit.com/r/webfiction/
+- [ ] (2145) https://www.reddit.com/r/Parahumans/
+- [ ] https://www.reddit.com/r/writing/
+- [ ] Webfictionguide.com
+- [ ] 

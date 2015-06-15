@@ -27,10 +27,13 @@ inviteAddEmail h e = do
   then return $ Left $ err400 { errBody = "Invalid Email Address" }
   else do
     time <- getCurrentTime
-    inv <- Invite.invite e Nothing
-    -- don't automatically send email, wait until manually approved
-    -- sendInviteEmail inv
-    Invite.add h inv
+    inv <- Invite.invite e
+
+    -- for now, automatically send the invite email
+    sendInviteEmail inv
+    let inv' = inv { Invite.sent = Just time }
+
+    Invite.add h inv'
     return $ Right ()
 
 inviteSend :: Pool RethinkDBHandle -> InviteCode -> IO ()

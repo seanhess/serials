@@ -7,6 +7,7 @@ import {userApiURL} from '../model/user'
 import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
 import {toDateString} from '../helpers'
+import {sortBy, reverse} from 'lodash'
 
 // should farm them out to other display components
 // should have model functions that do all the lifting
@@ -41,7 +42,7 @@ export class Invites extends React.Component {
 
   render():React.Element {
 
-    var invites = this.props.invites || []
+    var invites = sortBy(this.props.invites || [], i => i.created).reverse()
 
     return <div>
       <h2>Invites</h2>
@@ -61,7 +62,9 @@ export class InvitesList extends React.Component {
         <th>Email</th>
         <th>Code</th>
         <th>User</th>
+        <th></th>
         <th>Sent</th>
+        <th>Created</th>
         <th></th>
       </tr>
 
@@ -81,7 +84,9 @@ export class InvitesList extends React.Component {
       <td>{invite.email}</td>
       <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
       <td><UserCell invite={invite} onSend={this.props.onSend}/></td>
+      <td><InvitesSend invite={invite} onSend={this.props.onSend}/></td>
       <td>{sent}</td>
+      <td>{toDateString(invite.created)}</td>
       <td><a onClick={() => this.props.onDelete(invite.code)}>
         <span className="fa fa-trash"></span>
       </a></td>
@@ -97,9 +102,7 @@ class UserCell extends React.Component {
       return <a href={userApiURL(invite.signup.userId)}>{toDateString(invite.userId)}</a>
     }
 
-    else {
-      return <InvitesSend invite={invite} onSend={this.props.onSend}/>
-    }
+    return <span/>
   }
 }
 

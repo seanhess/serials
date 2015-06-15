@@ -40,6 +40,12 @@ Next Milestone: MVP
 - [x] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
 - [x] Clean up wildbow stuff and email him asking for review
 
+- [ ] Make sure emails made it to karen and aaron
+- [ ] follow up with the reddit guys
+- [ ] Ask permission for all art, and give notice
+- [ ] Ping wildbow one more time? Maybe use a different method?
+- [ ] Automatically send email on signup for now. (until more people)
+
 BACKLOG
 ----
 - [ ] version hard-coded into executable to make sure it's correct
@@ -65,7 +71,8 @@ FUTURE
 MIGRATIONS
 ----------
 - [x] r.db('serials').table('sources').update({imageArtist: "", imageArtistUrl: "", authorUrl: ""})
-- [ ] r.db('serials').table('sources').update({hidden: false})
+- [x] r.db('serials').table('sources').update({hidden: false})
+- [ ] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
 
 FOLLOW UP
 ---------

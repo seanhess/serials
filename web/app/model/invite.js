@@ -22,6 +22,7 @@ export type Invite = {
   code: string;
   signup?: InviteSignup;
   sent?: string; // date
+  created: string;
 }
 
 export function emptyInvite():Invite {
@@ -29,6 +30,7 @@ export function emptyInvite():Invite {
     email: "",
     id: "",
     code: "",
+    created: "",
   }
 }
 

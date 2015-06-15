@@ -43,7 +43,8 @@ data Invite = Invite {
   code :: InviteCode,
   -- when they sign up they are here
   signup :: Maybe Signup,
-  sent :: Maybe UTCTime
+  sent :: Maybe UTCTime,
+  created :: UTCTime
 } deriving (Show, Generic, Eq)
 
 
@@ -58,11 +59,12 @@ instance FromJSON Invite
 instance FromDatum Invite
 instance ToDatum Invite
 
-invite :: EmailAddress -> Maybe UTCTime -> IO Invite
-invite e mt = do
+invite :: EmailAddress -> IO Invite
+invite e = do
   code <- generateCode
+  time <- getCurrentTime
   let id = emailId e
-  return $ Invite id id code Nothing mt
+  return $ Invite id id code Nothing Nothing time
 
 
 ----------------------------------------------o

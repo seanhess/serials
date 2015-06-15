@@ -40,11 +40,11 @@ Next Milestone: MVP
 - [x] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
 - [x] Clean up wildbow stuff and email him asking for review
 
-- [ ] Make sure emails made it to karen and aaron
+- [x] Make sure emails made it to karen and aaron
 - [ ] follow up with the reddit guys
 - [ ] Ask permission for all art, and give notice
 - [ ] Ping wildbow one more time? Maybe use a different method?
-- [ ] Automatically send email on signup for now. (until more people)
+- [x] Automatically send email on signup for now. (until more people)
 
 BACKLOG
 ----

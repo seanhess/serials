@@ -102,7 +102,7 @@ export function showChapter(chapter:Chapter):bool {
 }
 
 export function isLink(chapter:Chapter):bool {
-  return chapter.content.tag == "Link"
+  return (chapter.content.tag : any) == "Link"
 }
 
 export function proxyURL(remoteUrl:string):string {

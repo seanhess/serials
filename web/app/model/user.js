@@ -4,7 +4,7 @@ import {Promise} from 'es6-promise'
 
 import {Get, Post, Put, Delete, url} from '../api'
 import {EventEmitter} from 'events'
-import {Subscription, findSubscription} from './subscription'
+import {Subscription, findSubscription, newSubscription} from './subscription'
 import {settings} from './settings'
 
 // UserModel //////////////////////////////////////
@@ -99,7 +99,7 @@ export var Users = new UserModel()
 
 export function loadSubscription(sourceId:string):Promise<Subscription> {
   var userId = Users.currentUserId()
-  if (!userId) return Promise.resolve()
+  if (!userId) return Promise.resolve(newSubscription("", sourceId, false))
   return findSubscription(Users.currentUserId(), sourceId)
 }
 

@@ -46,21 +46,25 @@ Next Milestone: MVP
 - [x] Automatically send email on signup for now. (until more people)
 - [x] don't delete read/unread information on unsubscribe
 - [x] new domain name: web fiction
-- [ ] follow up with the reddit guys
 - [ ] Ping wildbow one more time? Maybe use a different method?
+- [ ] follow up with the reddit guys
 
 - [ ] Manually recruit about 10 users. Get feedback from them.
 
 BUGS
 ----
 - [x] pushing haskell errors doesn't fail!
-- [ ] codes not being used up
+
+REGRESSIONS
+-----------
+- [x] codes not being used up
 - [x] Books all appear as "subscribed" at first
+- [x] can't see books if not logged in
 
 ART PERMISSION
 -----------------
 - [x] TALKING 3 worlds collide.
-- [?] ASKED DA. Friendship is optimal
+- [x] Friendship is optimal. Gave Permission. DA
 - [x] Twisted Cogs
 - [x] Harry Potter and the Methods of Rationality
 - [?] ASKED DA. Mother of Learning

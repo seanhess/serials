@@ -46,6 +46,9 @@ Next Milestone: MVP
 - [x] Automatically send email on signup for now. (until more people)
 - [x] don't delete read/unread information on unsubscribe
 - [ ] new domain name: web fiction
+      - put nginx in front
+      - redirect serials.orbit.al to webfiction.co
+
 - [ ] follow up with the reddit guys
 - [ ] Ping wildbow one more time? Maybe use a different method?
 

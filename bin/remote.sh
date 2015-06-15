@@ -26,7 +26,7 @@ cp ./conf/cron.conf /etc/cron.d/serials
 
 # run the application with the database linked
 echo "-- run --------------"
-cp ./conf/serials.upstart.conf /etc/init/serials.conf
+cp -f ./conf/serials.upstart.conf /etc/init/serials.conf
 
 echo "== restarted =================" >> /var/log/serials.log
 

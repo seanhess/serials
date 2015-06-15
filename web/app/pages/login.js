@@ -43,7 +43,7 @@ export class Login extends React.Component {
 
   componentWillMount() {
     if (Users.isLoggedIn()) {
-      window.location.hash = "/"
+      transitionTo("library", {id: Users.currentUserId()})
     }
   }
 

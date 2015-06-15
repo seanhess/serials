@@ -108,7 +108,7 @@ export class Source extends React.Component {
   create() {
     var source = this.state.source
     return SourceModel.create(source)
-    .then(() => window.location.hash = "/admin/sources")
+    .then(() => transitionTo("sources"))
   }
 
   runScan() {

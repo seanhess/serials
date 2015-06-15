@@ -55,7 +55,7 @@ BUGS
 ----
 - [x] pushing haskell errors doesn't fail!
 - [ ] codes not being used up
-- [ ] Books all appear as "subscribed" at first
+- [x] Books all appear as "subscribed" at first
 
 ART PERMISSION
 -----------------
@@ -78,6 +78,8 @@ Should I ask for permission from authors? They're as scared as the artists are.
 
 BACKLOG
 ----
+- [ ] Only show "Updated <date>" if the book is still active
+- [ ] Book chapter links should work on hover. Set the href and override?
 - [ ] Sort gallery by chapters read per week
 - [ ] Sort library by title?
 - [ ] Update RethinkDB

@@ -45,10 +45,7 @@ Next Milestone: MVP
 - [x] Ask permission for all art, and give notice
 - [x] Automatically send email on signup for now. (until more people)
 - [x] don't delete read/unread information on unsubscribe
-- [ ] new domain name: web fiction
-      - put nginx in front
-      - redirect serials.orbit.al to webfiction.co
-
+- [x] new domain name: web fiction
 - [ ] follow up with the reddit guys
 - [ ] Ping wildbow one more time? Maybe use a different method?
 
@@ -56,7 +53,9 @@ Next Milestone: MVP
 
 BUGS
 ----
-- [ ] pushing haskell errors doesn't fail!
+- [x] pushing haskell errors doesn't fail!
+- [ ] codes not being used up
+- [ ] Books all appear as "subscribed" at first
 
 ART PERMISSION
 -----------------

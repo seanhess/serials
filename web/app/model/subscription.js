@@ -28,7 +28,7 @@ export function findSubscription(userId:string, sourceId:string):Promise<Subscri
   return Get(url('users', userId, 'subs', sourceId))
   .then(function(sub) {
     if (sub) return sub
-    return newSubscription(userId, sourceId)
+    return newSubscription(userId, sourceId, false)
   })
 }
 

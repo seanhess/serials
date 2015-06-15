@@ -5,7 +5,7 @@ import {Link, RouteHandler} from 'react-router'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
-import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL, contentText} from '../model/chapter'
+import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL, contentText, Chapter} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
 import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
@@ -19,6 +19,12 @@ import {BookInfo, CoverColumns, BookArt, BookTitle, BookDetails} from './book-in
 
 
 export class Book extends React.Component {
+
+  props: {
+    params: {id: string};
+    source: Source;
+    chapters: Array<Chapter>;
+  };
 
   static load(params) {
     return {
@@ -165,8 +171,8 @@ export class Book extends React.Component {
     </div>
   }
 
-  renderChapterRow(current:?ChapterAndRead, cs:Chapter):React.Element {
-      return <Chapter 
+  renderChapterRow(current:?ChapterAndRead, cs:ChapterAndRead):React.Element {
+      return <ChapterRow
         chapter={cs.chapter} 
         read={cs.read} 
         key={cs.chapter.id} 
@@ -203,7 +209,17 @@ var CollapseBorder = {
   marginBottom: -1
 }
 
-export class Chapter extends React.Component {
+export class ChapterRow extends React.Component {
+
+  props: {
+    chapter: Chapter;
+    read: boolean;
+    onMarkUnread: Function;
+    onMarkRead: Function;
+    onClick: Function;
+    isCurrent: boolean;
+  };
+
   render():React.Element {
     var chapter:Chapter = this.props.chapter
 
@@ -251,7 +267,7 @@ export class Chapter extends React.Component {
 
       <div style={{display: 'table-cell'}}>
         <a onClick={this.onClickChapter.bind(this)} style={assign({}, readStyle, clickable)}>
-          {chapter.content.linkText}
+          {contentText(chapter)}
         </a>
       </div>
     </div>
@@ -264,7 +280,7 @@ export class Chapter extends React.Component {
       backgroundColor: Colors.light
     })
     return <div className="row" style={style}>
-      <h5 style={{margin:0, color: Colors.dark}}>{chapter.content.titleText}</h5>
+      <h5 style={{margin:0, color: Colors.dark}}>{contentText(chapter)}</h5>
     </div>
   }
 }
@@ -274,6 +290,12 @@ export class Chapter extends React.Component {
 // if subscribed, and not on the first chapter
 // eh, do this later
 class ReadBookmark extends React.Component {
+
+  props: {
+    current: ChapterAndRead;
+    onClick: Function;
+  };
+
   render():React.Element {
     var current = this.props.current
 

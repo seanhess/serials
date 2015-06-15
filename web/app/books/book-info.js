@@ -8,9 +8,16 @@ import {SourceCover, Cover, CoverOverlay} from'../cover'
 import {toDateString} from '../helpers'
 
 import {SourceStatus, Status, emptySource, Source} from '../model/source'
+import {Chapter} from '../model/chapter'
 import {Colors, displayIf} from '../style'
 
 export class BookInfo extends React.Component {
+
+  props: {
+    source: Source;
+    lastChapter: Chapter;
+  };
+
   render():React.Element {
     var source = this.props.source
     var lastChapter = this.props.lastChapter
@@ -40,6 +47,11 @@ export class CoverColumns extends React.Component {
 }
 
 export class BookArt extends React.Component {
+
+  props: {
+    source?: Source;
+  };
+
   render():React.Element {
     var source:Source = this.props.source || emptySource()
     var overlay = ""
@@ -69,6 +81,11 @@ export class BookArt extends React.Component {
 }
 
 export class BookTitle extends React.Component {
+
+  props: {
+    source: Source;
+  };
+
   render():React.Element {
     var source = this.props.source
     return <div>

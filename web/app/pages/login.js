@@ -13,7 +13,9 @@ import {makeUpdate} from '../data/update'
 import {mobileInput} from '../style'
 import {transitionTo} from '../router'
 
-var emptyLogin = function() {
+type LoginData = {email: string; password: string}
+
+var emptyLogin = function():LoginData {
   return {
     email: '',
     password: ''
@@ -35,6 +37,8 @@ export class LogoPage extends React.Component {
 }
 
 export class Login extends React.Component {
+
+  state: {login: LoginData};
 
   constructor(props:any) {
     super(props)

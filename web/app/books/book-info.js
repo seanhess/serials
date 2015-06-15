@@ -44,9 +44,16 @@ export class BookArt extends React.Component {
     var source:Source = this.props.source || emptySource()
     var overlay = ""
 
+    var style = {
+      color: Colors.light
+    }
+
     if (source.imageArtistUrl) {
-      overlay = <CoverOverlay style={{padding: 4, paddingTop: 0}}>
-        <a style={{color: 'white', fontSize: 12}} href={source.imageArtistUrl}>Art by {source.imageArtist}</a>
+      overlay = <CoverOverlay style={{padding: 4, paddingTop: 0, fontSize: 12}}>
+        <a href={source.imageArtistUrl} style={style}>
+          <div>Cover Art: {source.imageArtist}</div>
+          <div><span>Copyright 2015</span></div>
+        </a>
       </CoverOverlay>
     }
 
@@ -74,6 +81,19 @@ export class BookTitle extends React.Component {
     else {
       return source.author
     }
+  }
+}
+
+export class BookDetails extends React.Component {
+  render():React.Element {
+
+    var content = ""
+
+    if (this.props.source && this.props.source.imageArtistAboutUrl) {
+      content = <p>About the Artist: <a href={this.props.source.imageArtistAboutUrl}>{this.props.source.imageArtist}</a></p>
+    }
+
+    return <div>{content}</div>
   }
 }
 

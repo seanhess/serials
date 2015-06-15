@@ -45,13 +45,23 @@ Next Milestone: MVP
 - [ ] Ask permission for all art, and give notice
 - [ ] Ping wildbow one more time? Maybe use a different method?
 - [x] Automatically send email on signup for now. (until more people)
+- [ ] don't delete read/unread information on unsubscribe
 
 - [ ] Manually recruit about 10 users. Get feedback from them.
 
 ART PERMISSION
 -----------------
-- [x] 3 worlds collide. No permission
-- [ ] 
+- [ ] TALKING 3 worlds collide.
+- [ ] ASKED DA. Friendship is optimal
+- [x] Twisted Cogs
+- [ ] Harry Potter and the Methods of Rationality
+- [ ] Mother of Learning
+- [ ] ASKED DA. Pact
+- [ ] The Metropolitan Man
+
+AUTHOR PERMISSION
+-----------------
+Should I ask for permission from authors? They're as scared as the artists are.
 
 BACKLOG
 ----

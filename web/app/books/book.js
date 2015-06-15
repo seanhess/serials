@@ -15,7 +15,7 @@ import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {Colors, clickable} from '../style'
 import {transitionTo} from '../router'
-import {BookInfo, CoverColumns, BookArt, BookTitle} from './book-info'
+import {BookInfo, CoverColumns, BookArt, BookTitle, BookDetails} from './book-info'
 
 
 export class Book extends React.Component {
@@ -121,10 +121,6 @@ export class Book extends React.Component {
     var chaptersAndSubs = shown.map(toChapterAndRead(sub && sub.chapters))
     var lastChapter = last(this.props.chapters) || {}
 
-    if (chaptersAndSubs.length) {
-      console.log("TEST", chaptersAndSubs[0].chapter, chaptersAndSubs[1].chapter)
-    }
-
     //var current = chaptersAndSubs.filter(unread)[0]
     var current:?ChapterAndRead = findBookmark(chaptersAndSubs)
 
@@ -152,9 +148,14 @@ export class Book extends React.Component {
         {chaptersAndSubs.map(this.renderChapterRow.bind(this, current))}
       </div>
 
-      <br />
+      <div style={{marginTop: 15}}>
 
-      <SomethingWrong />
+        <BookDetails source={source}/>
+
+        <SomethingWrong />
+      </div>
+
+      <div style={{height: 50}}> </div>
     </div>
   }
 

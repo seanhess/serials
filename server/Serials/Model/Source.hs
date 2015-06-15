@@ -37,6 +37,7 @@ data Source = Source {
 
   imageArtist :: Maybe Text,
   imageArtistUrl :: Maybe Text,
+  imageArtistAboutUrl :: Maybe Text,
 
   importSettings :: ImportSettings,
 

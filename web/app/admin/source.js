@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import Router from 'react-router'
+import {Link} from 'react-router'
 
 import {SourceModel, emptySource, emptyScan, Status} from '../model/source'
 import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
@@ -165,6 +165,10 @@ export class Source extends React.Component {
         <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
         <span> </span>
         <a className="secondary button" href="#/admin/sources">Close</a>
+        <span> </span>
+        <div className="right">
+          <Link to="book" params={{id: source.id}}>View Book</Link>
+        </div>
       </div>
 
       <FormSection title="Basic Settings">
@@ -232,6 +236,12 @@ export class Source extends React.Component {
               onChange={update(setImageUrl)}
             />
 
+            <label>Image Missing Title</label>
+            <input type="checkbox"
+              checked={source.imageMissingTitle}
+              onChange={update((s, v) => s.imageMissingTitle = v, checked)}
+            />
+
             <label>Artist</label>
             <input type="text"
               value={source.imageArtist}
@@ -244,13 +254,12 @@ export class Source extends React.Component {
               onChange={update((s, v) => s.imageArtistUrl = v)}
             />
 
-            <div>
-              <label>Image Missing Title</label>
-              <input type="checkbox"
-                checked={source.imageMissingTitle}
-                onChange={update((s, v) => s.imageMissingTitle = v, checked)}
-              />
-            </div>
+            <label>Artist About URL</label>
+            <input type="text"
+              value={source.imageArtistAboutUrl}
+              onChange={update((s, v) => s.imageArtistAboutUrl = v)}
+            />
+
           </div>
         </div>
 

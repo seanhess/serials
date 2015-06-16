@@ -51,6 +51,11 @@ Next Milestone: MVP
 
 - [ ] Manually recruit about 10 users. Get feedback from them.
 
+GETTING A HOLD OF WILDBOW
+-------------------------
+- offer to do webmaster stuff for him (optimize page loads?) Or just whatever he needs.
+- 
+
 BUGS
 ----
 - [x] pushing haskell errors doesn't fail!
@@ -59,7 +64,7 @@ REGRESSIONS
 -----------
 - [x] codes not being used up
 - [x] Books all appear as "subscribed" at first
-- [x] can't see books if not logged in
+- [ ] can't see books if not logged in
 
 ART PERMISSION
 -----------------
@@ -82,6 +87,7 @@ Should I ask for permission from authors? They're as scared as the artists are.
 
 BACKLOG
 ----
+- [ ] Center on larger screens
 - [ ] Only show "Updated <date>" if the book is still active
 - [ ] Book chapter links should work on hover. Set the href and override?
 - [ ] Sort gallery by chapters read per week

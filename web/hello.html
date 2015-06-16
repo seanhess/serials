@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Serials - Subscribe to Web Fiction</title>
+    <title>Web Fiction - Subscribe to web books</title>
     <meta content="webfiction" property="og:title">
     <meta content="Follow the best books on the web " property="og:description">
     <meta content="Follow the best books on the web " name="description">
@@ -82,7 +82,8 @@
       }
 
       .screenshot {
-        width: 100%;
+        width: 300px;
+        height: 550px;
       }
 
       .feature {
@@ -122,15 +123,18 @@
         margin-bottom: 15px; 
       }
 
-      .books {
+      .book {
         height: 240px;
-        background: url(./landing/books-safe.png) no-repeat;
-        background-size: 949px 100%;
-        background-position-x: 50%;
+        width: 200px;
+        margin: 5px;
       }
 
       .disabled {
         opacity: 0.7;
+      }
+
+      .text-light {
+        color: #DCDDCD;
       }
 
       /* 
@@ -242,7 +246,7 @@
         </div>
 
         <div id="subscribe">
-          <h1>Subscribe to your favorite books</h1>
+          <h1>Follow your favorite web books</h1>
           <p class="form">
             <form method="POST" action="javascript:addInvite()">
               <input id="email" class="row-control" type="email" name="email" style="border: solid 2px white" placeholder="email"/>
@@ -276,29 +280,51 @@
     </div>
 
     <div class="banner" style="background-color: #F15D58; color: #333; padding: 50px; padding-right: 100px; padding-left: 100px">
-      <p class="byline">Keep up-to-date and read any serial book, no matter where it is on the web.</p>
+      <p class="byline">Subscribe to bookmark your place and be notified when a new chapter is available</p>
     </div>
 
     <div class="banner" style="background-color: #F8FBFB; padding: 50px; padding-top: 75px; padding-bottom: 100px">
       <div class="feature">
         <h3 style="color: #F15D58;"><span class="fa fa-bookmark"></span> Bookmarks</h3>
-        <p style="height: 56px">As you read a book, we keep track of where you are, making it easy to jump right in and read the next chapter.</p>
+        <p style="height: 56px">We automatically remember the chapters you've read, making it easy to jump right in and read the next one.</p>
         <img class="screenshot" style="border: solid 1px #AAA" src="./landing/chapters.png">
       </div>
 
       <div class="feature">
+        <h3 style="color: #F15D58;"><span class="fa fa-external-link"></span> External Links</h3>
+        <p style="height: 56px">Read the book exactly how the author published it, on the original page. We don't copy anything, we link to it.</p>
+        <img class="screenshot" style="border: solid 1px #AAA" src="./landing/external.png">
+      </div>
+
+      <div class="feature">
         <h3 style="color: #F15D58;"><span class="fa fa-bell"></span> Notifications</h3>
-        <p style="height: 56px">Get notified the minute a new chapter is published, with email or on your phone.</p>
+        <p style="height: 56px">Get an email or push notification the minute a new chapter is published</p>
         <img class="screenshot" style="border: solid 1px #AAA" src="./landing/notification.png">
+      </div>
+
+    </div>
+
+    <!-- color: #F8FBFB; -->
+    <div class="banner text-light" style="background-color: #333; padding-top: 100px; padding-bottom: 100px">
+      <h2 class="pad-line">Anywhere on the web</h2>
+      <p class="pad-line">We index books no matter where they are: on blogs, websites and forums</p>
+
+      <div class="books" style="margin-top: 30px;">
+        <img class="book" src="./landing/screen-friend.png">
+        <img class="book" src="./landing/screen-hpmor.png">
+        <img class="book" src="./landing/screen-metro.png">
+        <img class="book" src="./landing/screen-mother.png">
+        <img class="book" src="./landing/screen-worlds.png">
       </div>
     </div>
 
-    <div class="banner" style="background-color: #333; color: #F8FBFB; padding-top: 100px; padding-bottom: 100px">
-      <h2 class="pad-line">Anywhere on the web</h2>
-      <p class="pad-line">We index books no matter where they are: on blogs, websites and forums</p>
-      <div class="books" style="margin-top: 30px; margin-bottom: 100px;"> </div>
-      <p><button onclick="window.scrollTo(0, 0)">Get Started</button></p>
-
+    <div class="banner" style="background-color: #F15D58; color: #F8FBFB; padding: 50px; padding-right: 100px; padding-left: 100px">
+      <h2>For the Authors Community</h2>
+      <ul style="text-align: left; width: 320px; margin: 20px auto">
+        <li class="byline" style="margin-bottom: 10px">Non-commercial</li>
+        <li class="byline" style="margin-bottom: 10px">Control your content</li>
+        <li class="byline" style="margin-bottom: 10px">Other useful tools</li>
+      </ul>
     </div>
 
     <div class="banner" style="background-color: #F8FBFB; padding: 50px; padding-top: 75px; ">
@@ -307,11 +333,16 @@
       <p><a href="http://github.com/seanhess/serials">View the source on Github</a></p>
     </div>
 
+
     <div class="banner" style="color: white">
 
+      <div style="margin: 50px"><button onclick="window.scrollTo(0, 0)">Sign up for Early Access</button></div>
+
       <p>Art by <a href="http://nkabuto.deviantart.com/">Phuoc Quan</a></p>
+      <p>Contact us <a href="mailto:webfiction@orbit.al">webfiction@orbit.al</a></p>
 
     </div>
+
 
   </body>
 </html>

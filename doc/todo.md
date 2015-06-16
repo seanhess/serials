@@ -46,15 +46,14 @@ Next Milestone: MVP
 - [x] Automatically send email on signup for now. (until more people)
 - [x] don't delete read/unread information on unsubscribe
 - [x] new domain name: web fiction
-- [ ] Ping wildbow one more time? Maybe use a different method?
-- [ ] follow up with the reddit guys
+- [x] follow up with the reddit guys
 
-- [ ] Manually recruit about 10 users. Get feedback from them.
+- [x] Wait for Eliezer to have time to give permission
+- [ ] Post on /r/rational, and /r/webfiction, asking for feedback and criticism
 
 GETTING A HOLD OF WILDBOW
 -------------------------
 - offer to do webmaster stuff for him (optimize page loads?) Or just whatever he needs.
-- 
 
 BUGS
 ----
@@ -133,5 +132,7 @@ Communities
 ------------
 - [ ] (370) https://www.reddit.com/r/webfiction/
 - [ ] (2145) https://www.reddit.com/r/Parahumans/
+- [ ] (4600) http://www.reddit.com/r/writinghub
+- [ ] http://www.reddit.com/r/webfiction/comments/167rcd/where_list_read_serials_webfiction_webnovels_draft/
 - [ ] https://www.reddit.com/r/writing/
 - [ ] Webfictionguide.com

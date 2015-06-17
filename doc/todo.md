@@ -1,5 +1,13 @@
+Milestone: Feedback and Discovery
+---------------------------------
+- [ ] add a good TOS
+- [ ] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
 
-Next Milestone: MVP
+Bugs
+----
+- [ ] Root domain redirects to library, instead of bookshelf
+
+Milestone: MVP
 -------------------
 - [x] health check for last import to add to monitor
 - [x] alerts
@@ -12,48 +20,39 @@ Next Milestone: MVP
 - [x] Mention early access on the landing page
 - [x] BUG: signup process
 - [x] BUG: alert clicks redirect you How do I get them clickable?
-- [x] (small) login page doesn't auto complete
-- [x] (small) login page zooms in when you select the field
+- [x] login page doesn't auto complete
+- [x] login page zooms in when you select the field
 - [x] User sign up date?
 - [x] validate signup data (name and password length)
 - [x] new screenshots with hpmor instead of twig
-- [x] Remove wildbow properties
 - [x] /hello and /app - REQUIRED. To be able to redirect, AND choose which one to go to
 - [x] INDEX: redirect to either hello or the other app prior to loading everything. Redirect from server!
 - [x] analytics: unique landing page hits, unique signups, unique complete, unique subscribe, unique read. % of users that do each one. Use Google Analytics! It's free!
 - [x] Signup link from main app
 - [x] Art attribution. Is that considered good form?
 - [x] Find or commision real art
-- [?] Art: the spaceships. I need something I can use.
+- [x] Art: the spaceships. I need something I can use.
 - [x] Switch to invite-only beta
 - [x] Jump to bookmark
-- [-] Analytics: build funnel
+- [x] Analytics: build funnel
 - [x] Personally invite ryan and guys from thread. Who else?
 - [x] Privacy policy and terms. Explain your intent to support. Add "Authors" section. Link from about page.
 - [x] Sign ins not saving! Expired? Why?
 - [x] List of users.
 - [x] Stats about users. see their goods
 - [x] Better emails and copy.
-
 - [x] way to silence chapter updates when updating / purging.
 - [x] BUG: pact chapters
 - [x] Separate "hidden" from status, allow Ryan to subscribe while still making it hidden.
-- [x] Clean up wildbow stuff and email him asking for review
 - [x] version hard-coded into executable to make sure it's correct
-
 - [x] Make sure emails made it to karen and aaron
 - [x] Ask permission for all art, and give notice
 - [x] Automatically send email on signup for now. (until more people)
 - [x] don't delete read/unread information on unsubscribe
 - [x] new domain name: web fiction
 - [x] follow up with the reddit guys
-
 - [x] Wait for Eliezer to have time to give permission
-- [ ] Post on /r/rational, and /r/webfiction, asking for feedback and criticism
-
-GETTING A HOLD OF WILDBOW
--------------------------
-- offer to do webmaster stuff for him (optimize page loads?) Or just whatever he needs.
+- [x] Post on /r/rational, and /r/webfiction, asking for feedback and criticism
 
 BUGS
 ----

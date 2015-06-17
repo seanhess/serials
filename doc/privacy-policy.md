@@ -27,7 +27,7 @@ We collect information about how all visitors browse the site to make webfiction
 
 #### Other information related to your account
 
-When you are logged into your webfiction account, we save the following information about your preferences and your interactions with the site to allow you to customize your experience: subscriptions, read / unread chapters, comments, preferred language, all languages you see content in, points or karma, and the date of last login.
+When you are logged into your webfiction account, we save the following information about your preferences and your interactions with the site to allow you to customize your experience: subscriptions, read / unread chapters, comments, preferred language, all languages you see content in, and the date of last login.
 
 
 How we use or disclose collected information
@@ -43,7 +43,7 @@ This means that we will only share your personal data with your consent, and aft
 
 Anonymous, aggregated information that cannot be linked back to an individual user may be made available to third parties.
 
-#### webfiction will not disclose your information unless required by law
+#### Webfiction will not disclose your information unless required by law
 
 We may disclose – or preserve for future disclosure – your information if we believe, after due consideration, that doing so is reasonably necessary to comply with a law, regulation, or valid legal process. If we are going to release your information, we will do our best to provide you with notice in advance via email unless we are prohibited by court order from doing so (e.g., an order under 18 U.S.C. § 2705(b)). We reserve the right to delay notice to users in cases involving the exploitation of minors and when we believe a delay is necessary to prevent imminent and serious bodily harm to a person.
 
@@ -71,7 +71,7 @@ Email communications
 
 When you sign up for webfiction or contact support, webfiction may use a third party service to send you email messages. Only your email address will be stored with the third party service.
 
-During early access, signing up for webfiction also signs you up for a simple newsletter notifying you of updates or asking for feedback. We will keep this communications to a minimum. We will always make it easy to opt out of our subscription emails, for example, by including a 1-click unsubscribe link.
+During early access, signing up for webfiction also signs you up for a simple newsletter notifying you of updates or asking for feedback. We will keep these messages to a minimum. We will always make it easy to opt out of our subscription emails, for example, by including a 1-click unsubscribe link.
 
 Data security
 -------------

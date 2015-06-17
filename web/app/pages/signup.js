@@ -130,6 +130,7 @@ export class SignupForm extends React.Component {
       </div>
 
       <div style={{marginBottom: 50}}/>
+
     </div>
   }
 }

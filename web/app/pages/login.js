@@ -31,6 +31,7 @@ export class LogoPage extends React.Component {
         </div>
         {this.props.children}
       </div>
+      <div style={{position: 'absolute', bottom: 0, right: 0, margin: 20}}><a href="https://github.com/seanhess/serials/blob/master/doc/user-agreement.md">User Agreement</a></div>
       <AlertView alert={this.props.alert}/>
     </div>
   }

@@ -51,28 +51,10 @@ export class About extends React.Component {
         <p>Web Fiction is open source! <a href="http://github.com/seanhess/serials">View the source on Github</a></p>
       </div>
 
-
       <hr/>
 
-      <Terms />
+      <p>By using webfiction, you agree to our <a href="https://github.com/seanhess/serials/blob/master/doc/user-agreement.md">User Agreement</a> and <a href="https://github.com/seanhess/serials/blob/master/doc/privacy-policy.md">Privacy Policy</a></p>
 
     </div>
-  }
-}
-
-export class Terms extends React.Component {
-  render():ReactElement {
-    return <div className="row small-12 columns">
-
-      <h3>Privacy Policy</h3>
-      <p>Date: June 4 2015</p>
-
-      <p>We collect your email and may use it to contact you about new features and books that we've added. You will be able to unsubscribe from these emails at any time. We will never give your personal information to anyone else.</p>
-
-      <h3>Copyright Infringement</h3>
-
-      <p>We want to help authors and creators, not compete with them or steal their work. Any infringement is unintentional. If you see anything wrong, just send us a quick email to <EmailLink/> and we will try to fix it</p>
-
-      </div>
   }
 }

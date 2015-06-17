@@ -86,4 +86,4 @@ We reserve the right to change this policy to meet the changing needs of webfict
 Contact
 -------
 
-We welcomes questions, concerns, and feedback about this policy. Please feel free to contact us.
+We welcome questions, concerns, and feedback about this policy. Please feel free to contact us at webfiction@orbit.al.

@@ -30,13 +30,13 @@ All content added should improve the usefulness and value of the library to the 
 
 #### Featured content
 
-Not all content will be presented in the same manner. We intend to allow any book to be added to the site. But we also intend to curate books in some way. Access to curated books may be significantly better.
+Not all content will be presented in the same manner. We intend to allow any book to be added to the site. But we also intend to curate books in some way. Access to curated books may be significantly easier.
 
 #### Credit and permission
 
 Make sure to add links to the author and artist to credit them for their hard work. Favor patreon or a home page with a donation button where available.
 
-Because we are reproducing art on the site, please either submit your own art, or ask permission of the artist first.
+Please either submit your own art, or ask permission of the artist before submitting it.
 
 #### Infringement, Opting Out
 
@@ -44,10 +44,9 @@ If you are an author or artist and feel that your intellectual property is being
 
 We feel that webfiction falls squarely under fair use, but if you with to opt-out, let us know. If you opt-out, we will notify users that you have opted out so they do not attempt to add the book again.
 
-#### Moderator
+#### Author moderation
 
 If you are an author, let us know and we will make you a moderator of your book so you can make changes without review.
-
 
 Legal Stuff
 -----------
@@ -76,3 +75,8 @@ Changes to this User Agreement
 ------------------------------
 
 This user agreement is the entire agreement between you and us concerning webfiction It supersedes all prior or contemporaneous agreements between you and us. We may modify this user agreement at any time. If we make changes to this agreement that materially affect your rights, we will provide advance notice and keep this edition available as an archive on the webfiction website. By continuing to use webfiction after a change to this agreement, you agree to those changes.
+
+Contact
+-------
+
+We welcome questions, concerns, and feedback about this policy. Please feel free to contact us at webfiction@orbit.al.

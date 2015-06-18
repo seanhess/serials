@@ -19,8 +19,8 @@ import {AdminUsers} from './app/admin/users'
 import {Main} from './app/books/main'
 import {MainContainer, Header} from './app/layout/main'
 import {NotFound} from './app/layout/notFound'
-import {Gallery} from './app/books/gallery'
 import {Library} from './app/books/library'
+import {Bookshelf} from './app/books/bookshelf'
 import {Book} from './app/books/book'
 import {Read} from './app/books/read'
 import {Login} from './app/pages/login'
@@ -33,7 +33,7 @@ import {Alerts} from './app/model/alert'
 import {pageview} from './app/model/analytics'
 
 import {background} from './app/style'
-import {start, query} from './app/router'
+import {start, query, Routes, transitionTo} from './app/router'
 
 class App extends React.Component {
 
@@ -58,37 +58,37 @@ class App extends React.Component {
   }
 }
 
+// root should redirect to user's gallery if logged in
+
+
 var routes = (
-  <Route name="root" handler={App} path="/">
-    <Redirect from="/" to="books" />
+  <Route name={Routes.root} handler={App} path="/">
 
-    <Route name='login' handler={Login}/>
-    <Route name='signup' path="signup/:code" handler={SignupPage}/>
+    <Redirect from="/" to={Routes.bookshelf} params={{id: Users.currentUserId()}}/>
 
-    <Route name="books" path="books" handler={Main}>
-      <DefaultRoute handler={Gallery}/>
-      <Route name="book" path=":id" handler={Book} />
+    <Route name={Routes.login} handler={Login}/>
+    <Route name={Routes.signup} path="signup/:code" handler={SignupPage}/>
+
+    <Route path="books" handler={Main}>
+      <DefaultRoute name={Routes.library} handler={Library}/>
+      <Route name={Routes.book} path=":id" handler={Book} />
     </Route>
 
-    <Route name="pages" path="pages" handler={Main}>
-      <Route name="about" path="about" handler={About} />
+    <Route path="pages" handler={Main}>
+      <Route name={Routes.about} path="about" handler={About} />
     </Route>
 
-    <Route name="chapters" path="chapters">
-      <Route name="chapter" path=":id" handler={Read} />
+    <Route path="admin" handler={Admin}>
+      <DefaultRoute name={Routes.admin} handler={AdminDashboard}/>
+      <Route name={Routes.sources} handler={Sources}/>
+      <Route name={Routes.invites} handler={Invites}/>
+      <Route name={Routes.users}   handler={AdminUsers}/>
+      <Route name={Routes.source}  path="sources/:id" handler={Source}/>
+      <Route path="import-log/:n" handler={ImportLog}/>
     </Route>
 
-    <Route name="admin" handler={Admin}>
-      <DefaultRoute handler={AdminDashboard}/>
-      <Route name="sources" handler={Sources}/>
-      <Route name="invites" handler={Invites}/>
-      <Route name="admin-users" handler={AdminUsers}/>
-      <Route name="source"  path="sources/:id" handler={Source}/>
-      <Route name="import-log" path="import-log/:n" handler={ImportLog}/>
-    </Route>
-
-    <Route name="users" handler={Main}>
-      <Route name="library" path=":id/library" handler={Library}/>
+    <Route path="users" handler={Main}>
+      <Route name={Routes.bookshelf} path=":id/bookshelf" handler={Bookshelf}/>
     </Route>
 
     <NotFoundRoute handler={NotFound} />

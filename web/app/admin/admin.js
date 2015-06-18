@@ -9,6 +9,7 @@ import {MainContainer, Header} from '../layout/main'
 import {importLog} from '../model/admin'
 import {settings} from '../model/settings'
 import {FormSection} from '../comp'
+import {Routes} from '../router'
 
 export class Admin extends React.Component {
   render():React.Element {
@@ -67,7 +68,7 @@ export class AdminDashboard extends React.Component {
         <div>
           <FormSection title="Sources">
             <div>
-              <Link className="button info" to="sources">
+              <Link className="button info" to={Routes.sources}>
                 <span className="fa fa-book"></span>
                 <span> Sources</span>
               </Link>
@@ -76,12 +77,12 @@ export class AdminDashboard extends React.Component {
           </FormSection>
 
           <FormSection title="Users">
-            <Link className="button info" to="admin-users">
+            <Link className="button info" to={Routes.users}>
               <span className="fa fa-user"></span>
               <span> Users</span>
             </Link>
             <span> </span>
-            <Link className="button info" to="invites">
+            <Link className="button info" to={Routes.invites}>
               <span className="fa fa-paper-plane"></span>
               <span> Invites</span>
             </Link>

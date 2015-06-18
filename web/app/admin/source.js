@@ -14,7 +14,7 @@ import {DisabledButton, FormSection} from '../comp'
 import {coverStyle, SourceCover} from '../cover'
 import {makeUpdate, checked} from '../data/update'
 import {displayIf} from '../style'
-import {transitionTo} from '../router'
+import {transitionTo, Routes} from '../router'
 
 type AdminSourceProps = {
   source: Source;
@@ -108,7 +108,7 @@ export class Source extends React.Component {
   create() {
     var source = this.state.source
     return SourceModel.create(source)
-    .then(() => transitionTo("sources"))
+    .then(() => transitionTo(Routes.sources))
   }
 
   runScan() {
@@ -167,7 +167,7 @@ export class Source extends React.Component {
         <a className="secondary button" href="#/admin/sources">Close</a>
         <span> </span>
         <div className="right">
-          <Link to="book" params={{id: source.id}}>View Book</Link>
+          <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import {statusColor} from '../books/book-info'
 import {Link} from 'react-router'
 import {sortBy} from 'lodash'
 import {displayIf} from '../style'
+import {Routes} from '../router'
 
 export class Sources extends React.Component {
 
@@ -22,11 +23,11 @@ export class Sources extends React.Component {
       var lastScan = source.lastScan || {}
       return <tr key={source.id}>
         <td style={{padding: 3, textAlign: 'center'}}>
-          <Link to="book" params={source}>
+          <Link to={Routes.book} params={source}>
             <img src={source.imageUrl} style={{height: 35}}/>
           </Link>
         </td>
-        <td><Link to="source" params={{id: source.id}}>{source.name}</Link></td>
+        <td><Link to={Routes.source} params={{id: source.id}}>{source.name}</Link></td>
         <td><a href={source.url}>{source.url}</a></td>
         <td style={{color: statusColor(source.status)}}>{source.status}</td>
         <td><span className="fa fa-eye-slash" style={displayIf(source.hidden)}></span></td>

@@ -9,6 +9,7 @@ import {Users} from '../model/user'
 import {background, Colors} from '../style'
 import {AlertView} from '../alert'
 import {Alerts} from '../model/alert'
+import {Routes} from '../router'
 
 export class MainContainer extends React.Component {
   render():React.Element {
@@ -60,7 +61,7 @@ export class Header extends React.Component {
 
     if (currentUser) {
       return <div style={{display: 'inline-block'}}>
-        <Link style={LinkStyle} to="library" params={{id: this.props.currentUser.id}}>My Books</Link>
+        <Link style={LinkStyle} to={Routes.bookshelf} params={{id: this.props.currentUser.id}}>My Books</Link>
         <a style={LinkStyle} onClick={this.logout.bind(this)}>Logout</a>
       </div>
 
@@ -69,7 +70,7 @@ export class Header extends React.Component {
 
     else {
       return <div style={{display: 'inline-block'}}>
-        <Link style={LinkStyle} to='login'>Login</Link>
+        <Link style={LinkStyle} to={Routes.login}>Login</Link>
       </div>
     }
   }
@@ -92,16 +93,16 @@ export class Header extends React.Component {
       signup = <a style={LinkStyle} href="/hello">Sign Up</a>
     }
 
-    var linkTo = {to: "root"}
+    var linkTo = {to: Routes.root}
     if (this.props.currentUser) {
-      linkTo = {to: "library", params: {id: this.props.currentUser.id}}
+      linkTo = {to: Routes.bookshelf, params: {id: this.props.currentUser.id}}
     }
 
     return <nav style={NavBar} role="navigation">
       <div style={{float: 'right'}}>
-        <Link to="about" style={LinkStyle}>About</Link>
+        <Link to={Routes.about} style={LinkStyle}>About</Link>
         {signup}
-        <Link style={adminStyle} to="admin">Admin</Link>
+        <Link style={adminStyle} to={Routes.admin}>Admin</Link>
         {this.renderCurrentUser()}
       </div>
       <div style={CenterText}>

@@ -8,6 +8,7 @@ import {reloadHandler} from '../data/load'
 import {makeUpdate} from '../data/update'
 import {toDateString} from '../helpers'
 import {sortBy, reverse} from 'lodash'
+import {Routes} from '../router'
 
 // should farm them out to other display components
 // should have model functions that do all the lifting
@@ -82,7 +83,7 @@ export class InvitesList extends React.Component {
 
     return <tr>
       <td>{invite.email}</td>
-      <td><Link to="signup" params={{code: invite.code}}>{invite.code}</Link></td>
+      <td><Link to={Routes.signup} params={{code: invite.code}}>{invite.code}</Link></td>
       <td><UserCell invite={invite} onSend={this.props.onSend}/></td>
       <td><InvitesSend invite={invite} onSend={this.props.onSend}/></td>
       <td>{sent}</td>

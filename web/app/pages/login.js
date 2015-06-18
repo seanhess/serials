@@ -11,7 +11,7 @@ import {AlertView} from '../alert'
 import {makeUpdate} from '../data/update'
 
 import {mobileInput} from '../style'
-import {transitionTo} from '../router'
+import {transitionTo, Routes} from '../router'
 
 type LoginData = {email: string; password: string}
 
@@ -48,7 +48,7 @@ export class Login extends React.Component {
 
   componentWillMount() {
     if (Users.isLoggedIn()) {
-      transitionTo("library", {id: Users.currentUserId()})
+      transitionTo(Routes.bookshelf, {id: Users.currentUserId()})
     }
   }
 
@@ -68,7 +68,7 @@ export class Login extends React.Component {
           transitionTo(params.to, params)
         }
         else {
-          transitionTo("library", {id: user.id})
+          transitionTo(Routes.bookshelf, {id: user.id})
         }
       }
     })

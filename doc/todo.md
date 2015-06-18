@@ -1,7 +1,7 @@
 Milestone: Feedback and Discovery
 ---------------------------------
-- [ ] add a good TOS
-- [ ] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
+- [x] add a good TOS
+- [x] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
 
 Bugs
 ----

@@ -14,7 +14,7 @@ import {findBookmark, toChapterAndRead, ChapterAndRead} from './bookmark'
 import {toDateString} from '../helpers'
 import {SomethingWrong} from './support'
 import {Colors, clickable} from '../style'
-import {transitionTo} from '../router'
+import {transitionTo, Routes} from '../router'
 import {BookInfo, CoverColumns, BookArt, BookTitle, BookDetails} from './book-info'
 
 
@@ -44,7 +44,7 @@ export class Book extends React.Component {
   // really, I should call a lifecycle function when the url loads. That makes way more sense
 
   forceLogin() {
-    transitionTo('login', {}, {to: 'book', id: this.props.params.id})
+    transitionTo(Routes.login, {}, {to: 'book', id: this.props.params.id})
   }
 
   toggleSubscribe() {

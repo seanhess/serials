@@ -28,3 +28,18 @@ export function transitionTo(route:string, params?:Object, query?:Object) {
 export function query():Object {
   return currentQuery
 }
+
+export var Routes = {
+  root: "root",
+  bookshelf: "bookshelf",
+  library: "library",
+  sources: "sources",
+  source: "source",
+  users: "admin-users",
+  invites: "admin-invites",
+  signup: "signup",
+  admin: "admin",
+  about: "about",
+  login: "login",
+  book: "book"
+}

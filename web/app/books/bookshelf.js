@@ -35,7 +35,10 @@ export class Bookshelf extends React.Component {
         <p>Welcome to your bookshelf. The books you subscribe to will be shown here. <span style={displayIf(isEmpty, 'inline')}>Here are a few that we recommend: </span></p>
         <SimpleGallery sources={sources} />
         <div style={{marginTop: 15}}>
-          <Link className="button expand" to={Routes.library}>Find more books!</Link>
+          <Link className="button expand" to={Routes.library}>
+            <span className="fa fa-search"></span>
+            <span> Find more books!</span>
+          </Link>
         </div>
         <hr />
         <p><Suggestion /></p>

@@ -3,9 +3,21 @@ Milestone: Feedback and Discovery
 - [x] add a good TOS
 - [x] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
 
+Simple Discovery Improvements
+-----------------------------
+- [ ] Discovery: form to submit a new book
+- [ ] Discovery: show some metadata for books
+- [ ] Discovery: simple review step for new books (goes to admin queue)
+
+- [ ] Assign moderators to books
+- [ ] Admins and moderators can edit books
+- [ ] Way to test scanned chapters
+
+- [ ] Improve algorithm so you can just point it at a web page and let it go?
+
 Bugs
 ----
-- [ ] Root domain redirects to library, instead of bookshelf
+- [x] Root domain redirects to library, instead of bookshelf
 
 Milestone: MVP
 -------------------

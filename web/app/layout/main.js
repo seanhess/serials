@@ -6,112 +6,137 @@ import React from 'react'
 import {RouteHandler, Link} from 'react-router'
 import {assign} from 'lodash'
 import {Users} from '../model/user'
-import {background, Colors} from '../style'
+import {background, Colors, clickable, displayIf} from '../style'
 import {AlertView} from '../alert'
 import {Alerts} from '../model/alert'
-import {Routes} from '../router'
+import {Routes, transitionTo} from '../router'
+import {Header, SiteTitle} from './header'
+import {OffCanvas, MenuHeader, MenuLinkStyle} from './offcanvas'
+
+export class Main extends React.Component {
+  render():React.Element {
+    return <MainContainer alert={this.props.alert} currentUser={this.props.currentUser}>
+      <RouteHandler {...this.props}/>
+    </MainContainer>
+  }
+}
 
 export class MainContainer extends React.Component {
   render():React.Element {
-    return <div>
-      <div className="row columns small-12" style={background}>
-        {this.props.children}
+    return <OffCanvas>
+
+      <SiteTitle key="title" currentUser={this.props.currentUser} />
+
+      <MainMenu key="menu" currentUser={this.props.currentUser}/>
+
+      <div>
+        <div className="row columns small-12" style={background}>
+          {this.props.children}
+        </div>
+        <AlertView alert={this.props.alert}/>
       </div>
-      <AlertView alert={this.props.alert}/>
+    </OffCanvas>
+  }
+}
+
+//class MenuLink extends React.Component {
+//}
+
+var MenuIcon = {
+  float: 'right',
+  display: 'block',
+  fontSize: 24,
+  marginTop: 0
+}
+
+//class MenuIcon extends React.Component {
+  //render():React.Element {
+    //return <div className="right">
+    //</div>
+  //}
+//}
+
+export class MainMenu extends React.Component {
+  render():React.Element {
+    var user = this.props.currentUser
+    var userContent = ""
+
+    if (user) {
+      userContent = <UserMenu currentUser={user} />
+    }
+
+    else {
+      userContent = <AnonMenu />
+    }
+
+    return <ul className="off-canvas-list">
+      {userContent}
+      <div>
+        <li><MenuHeader>Web Fiction</MenuHeader></li>
+
+        <li><Link to={Routes.library} style={MenuLinkStyle}>
+          <span style={MenuIcon} className="fa fa-book"></span>
+          <span> Library</span>
+        </Link></li>
+
+        <li><Link to={Routes.about} style={MenuLinkStyle}>About</Link></li>
+      </div>
+    </ul>
+  }
+}
+
+export class AnonMenu extends React.Component {
+  render():React.Element {
+    return <div>
+      <li><MenuHeader>Account</MenuHeader></li>
+      <li><Link to={Routes.login}>
+        <span style={MenuIcon} className="fa fa-sign-in"></span>
+        <span> Login</span>
+      </Link></li>
     </div>
   }
 }
 
-var TitleStyle = {
-  color: Colors.white,
-  fontSize: '18px',
-  margin: 0,
-}
-
-var LinkStyle = {
-  color: Colors.light,
-  fontSize: '14px',
-  margin: 14,
-  display: 'inline-block',
-  cursor: 'pointer'
-}
-
-var CenterText = {
-  padding: 10,
-  margin: 0,
-}
-
-var NavBar = {
-  //backgroundColor: '#333',
-  backgroundColor: Colors.dark,
-  height: 47,
-  position: 'relative'
-}
-
-export class Header extends React.Component {
+export class UserMenu extends React.Component {
 
   logout() {
     Users.logout().then(function() {
-      window.location.hash = "/login"
+      transitionTo("login")
     })
-  }
-
-  renderCurrentUser():React.Element {
-    var currentUser = this.props.currentUser;
-
-    if (currentUser) {
-      return <div style={{display: 'inline-block'}}>
-        <Link style={LinkStyle} to={Routes.bookshelf} params={{id: this.props.currentUser.id}}>My Books</Link>
-        <a style={LinkStyle} onClick={this.logout.bind(this)}>Logout</a>
-      </div>
-
-        //<p style={LinkStyle}>Hello, {this.props.currentUser.firstName}</p>
-    }
-
-    else {
-      return <div style={{display: 'inline-block'}}>
-        <Link style={LinkStyle} to={Routes.login}>Login</Link>
-      </div>
-    }
   }
 
   render():React.Element {
+    var user = this.props.currentUser
+    return <div>
+      <li><MenuHeader>{user.firstName} {user.lastName}</MenuHeader></li>
+      <li><Link to={Routes.bookshelf} params={user} style={MenuLinkStyle}>
+        <span style={MenuIcon} className="fa fa-bookmark"></span>
+        <span> My Bookshelf</span>
+      </Link></li>
 
-    var isAdmin = false
-    if (this.props.currentUser && this.props.currentUser.admin) {
-      isAdmin = true
-    }
+      <li style={displayIf(user.admin)}>
+        <Link to={Routes.admin} style={MenuLinkStyle}>Admin</Link>
+      </li>
 
-    var adminStyle = assign({}, LinkStyle, {
-      display: (isAdmin) ? 'inline-block' : 'none'
-    })
+      <li><a onClick={this.logout.bind(this)} style={MenuLinkStyle}>
+        <span> Logout</span>
+      </a></li>
 
-
-    var signup = ""
-
-    if (!this.props.currentUser) {
-      signup = <a style={LinkStyle} href="/hello">Sign Up</a>
-    }
-
-    var linkTo = {to: Routes.root}
-    if (this.props.currentUser) {
-      linkTo = {to: Routes.bookshelf, params: {id: this.props.currentUser.id}}
-    }
-
-    return <nav style={NavBar} role="navigation">
-      <div style={{float: 'right'}}>
-        <Link to={Routes.about} style={LinkStyle}>About</Link>
-        {signup}
-        <Link style={adminStyle} to={Routes.admin}>Admin</Link>
-        {this.renderCurrentUser()}
-      </div>
-      <div style={CenterText}>
-        <Link {...linkTo} style={TitleStyle}>
-          <img src="img/serials-icon-light.png" style={{height: 30, marginRight: 5}}/>
-          <span style={{fontWeight: 'bold', color: Colors.light}}>Web Fiction</span>
-        </Link>
-      </div>
-    </nav>
+    </div>
   }
 }
+
+// if logged in: you have user stuff there, like "Profile", "Logout", etc?
+// or, why don't I JUST have the logged in button?
+
+// WHat do I need in there:
+
+// About
+// Admin
+// My Books
+// Logout or Login
+// Home
+// My Proposals (etc)
+
+
 

@@ -8,6 +8,7 @@ import {SourceModel, Source, isNotHidden, isSearch} from '../model/source'
 import {SuggestBook} from './support'
 import {SimpleGallery} from './gallery'
 import {curry} from 'lodash'
+import {displayIf} from '../style'
 
 export class Library extends React.Component {
 
@@ -32,13 +33,34 @@ export class Library extends React.Component {
       sources = sources.filter(isSearch(this.state.search))
     }
 
+    var resultsContent = <SimpleGallery sources={sources} />
+
+    if (sources.length === 0) {
+      resultsContent = <div>Can't find what you're looking for? Submit a book by clicking below.</div>
+    }
+
+    var hasBooks = sources.length > 0
+
     return <div style={{marginTop: 15}}>
       <div>
         <input type="text" value={this.state.search} placeholder="Search Books" onChange={this.search.bind(this)}/>
       </div>
-      <SimpleGallery sources={sources} />
+
+      <div>{resultsContent}</div>
+
       <hr />
-      <SuggestBook />
+      <AddBook />
+    </div>
+  }
+}
+
+export class AddBook extends React.Component {
+  render():React.Element {
+    return <div>
+      <button className="secondary">
+        <span className="fa fa-plus-circle"></span>
+        <span> Submit a book</span>
+      </button>
     </div>
   }
 }

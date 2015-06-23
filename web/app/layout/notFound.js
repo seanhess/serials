@@ -1,7 +1,7 @@
 // @flow
 import React from 'react'
 import {Link} from 'react-router'
-import {Header, MainContainer} from './main'
+import {MainContainer} from './main'
 import {Routes, transitionTo} from '../router'
 
 export class NotFound extends React.Component {
@@ -14,11 +14,8 @@ export class NotFound extends React.Component {
     }
 
     return <div>
-      <Header />
-      <MainContainer>
-        <p style={{marginTop: 10}}>Page not found</p>
-        <div><Link to={Routes.root}>Home</Link></div>
-      </MainContainer>
+      <p style={{marginTop: 10}}>Page not found</p>
+      <div><Link to={Routes.root}>Home</Link></div>
     </div>
   }
 }

@@ -20,7 +20,7 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Scan
 import Serials.Link.Import (ImportSettings)
 
-data Status = Complete | Active | Disabled | Abandoned deriving (Show, Eq, Generic)
+data Status = Complete | Active | Disabled | Abandoned | Proposed deriving (Show, Eq, Generic)
 
 data Source = Source {
   id :: Text,

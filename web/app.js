@@ -10,14 +10,14 @@ import {Route, DefaultRoute, RouteHandler, NotFoundRoute, Redirect, Link} from '
 
 import {loadAll, run, render} from './app/data/load'
 
-import {Admin, ImportLog, AdminDashboard} from './app/admin/admin'
+import {ImportLog, AdminDashboard} from './app/admin/admin'
 import {Sources} from './app/admin/sources'
 import {Source} from './app/admin/source'
 import {Invites} from './app/admin/invites'
 import {AdminUsers} from './app/admin/users'
 
-import {Main} from './app/books/main'
-import {MainContainer, Header} from './app/layout/main'
+import {Header} from './app/layout/header'
+import {Main} from './app/layout/main'
 import {NotFound} from './app/layout/notFound'
 import {Library} from './app/books/library'
 import {Bookshelf} from './app/books/bookshelf'
@@ -78,7 +78,7 @@ var routes = (
       <Route name={Routes.about} path="about" handler={About} />
     </Route>
 
-    <Route path="admin" handler={Admin}>
+    <Route path="admin" handler={Main}>
       <DefaultRoute name={Routes.admin} handler={AdminDashboard}/>
       <Route name={Routes.sources} handler={Sources}/>
       <Route name={Routes.invites} handler={Invites}/>

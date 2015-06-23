@@ -5,22 +5,11 @@ import React from 'react'
 import {Link} from 'react-router'
 
 import {RouteHandler} from 'react-router'
-import {MainContainer, Header} from '../layout/main'
+import {Header} from '../layout/header'
 import {importLog} from '../model/admin'
 import {settings} from '../model/settings'
 import {FormSection} from '../comp'
 import {Routes} from '../router'
-
-export class Admin extends React.Component {
-  render():React.Element {
-    return <div>
-      <Header {...this.props}/>
-      <MainContainer alert={this.props.alert}>
-        <RouteHandler {...this.props}/>
-      </MainContainer>
-    </div>
-  }
-}
 
 export class ImportLog extends React.Component {
 

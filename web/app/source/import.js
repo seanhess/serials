@@ -91,8 +91,8 @@ export class ImportSettings extends React.Component {
     return <div>
       <label>Import Type</label>
       <select value={settings.tag} onChange={this.changeSettingsType.bind(this)}>
-        <option value={TOC}>TOC</option>
-        <option value={Menu}>Menu</option>
+        <option value={TOC}>TOC - links on a page</option>
+        <option value={Menu}>Menu - dropdown menu</option>
       </select>
       <div>{form}</div>
     </div>

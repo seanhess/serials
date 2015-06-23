@@ -13,14 +13,23 @@ import {displayIf, Colors} from './style'
 // 100x160
 // Blank Image - http://i.imgur.com/bMwt85W.jpg
 
+type Size = {
+  Width: number;
+  Height: number;
+}
+
 export var CoverSize = {
   Width: 150,
   Height: 240,
   Ratio: 1.6
 }
 
+export var CoverThumb = {
+  Width: 50,
+  Height: 80,
+}
 
-export function coverStyle(url:string):Object {
+export function coverStyle(url:string, size:Size = CoverSize):Object {
 
   // otherwise it forgets about the cover. Wait until the image is ready
   if (!url) {
@@ -32,8 +41,8 @@ export function coverStyle(url:string):Object {
   return {
     background: 'url('+url+') no-repeat center center',
     backgroundSize: 'cover',
-    width: CoverSize.Width,
-    height: CoverSize.Height
+    width: size.Width,
+    height: size.Height
   }
 }
 
@@ -54,8 +63,17 @@ export class CoverOverlay extends React.Component {
 }
 
 export class Cover extends React.Component {
+
+  props: {
+    src: string;
+    size?: Size;
+    children: Array<React.Element>;
+  };
+
   render():React.Element {
-    return <div style={assign(coverStyle(this.props.src), {position: 'relative'})}>
+    var size = this.props.size || CoverSize
+
+    return <div style={assign(coverStyle(this.props.src, size), {position: 'relative'})}>
       {this.props.children}
     </div>
   }

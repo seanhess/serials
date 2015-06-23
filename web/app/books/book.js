@@ -12,8 +12,7 @@ import {Alerts} from '../model/alert'
 import {findBookmark, toChapterAndRead, ChapterAndRead} from './bookmark'
 
 import {toDateString} from '../helpers'
-import {SomethingWrong} from './support'
-import {Colors, clickable} from '../style'
+import {Colors, clickable, CollapseBorder, Cell} from '../style'
 import {transitionTo, Routes} from '../router'
 import {BookInfo, CoverColumns, BookArt, BookTitle, BookDetails} from './book-info'
 
@@ -164,7 +163,7 @@ export class Book extends React.Component {
 
         <BookDetails source={source}/>
 
-        <SomethingWrong />
+        <EditBook source={source} />
       </div>
 
       <div style={{height: 50}}> </div>
@@ -203,10 +202,6 @@ export class Book extends React.Component {
 
 var ReadStyle = {
   color:"#AAA"
-}
-
-var CollapseBorder = {
-  marginBottom: -1
 }
 
 export class ChapterRow extends React.Component {
@@ -257,9 +252,7 @@ export class ChapterRow extends React.Component {
       readStyle = ReadStyle
     }
 
-    var border = 'solid 1px #DDD'
-
-    return <div className="row" style={assign({}, CollapseBorder, {borderBottom: border, borderTop: border, padding: 10})}>
+    return <div className="row" style={Cell}>
 
       <div style={{display: 'table-cell', verticalAlign: 'middle', width: 26}}>
         <ReadIcon read={this.props.read} onClick={this.toggleIsRead.bind(this)} isCurrent={this.props.isCurrent}/>
@@ -336,3 +329,18 @@ class ReadIcon extends React.Component {
     </a>
   }
 }
+
+export class EditBook extends React.Component {
+
+  props: {source: Source};
+
+  render():React.Element {
+    return <div>
+      <Link className="secondary button" to={Routes.source} params={this.props.source}>
+        <span className="fa fa-plus-circle"></span>
+        <span> Edit book details</span>
+      </Link>
+    </div>
+  }
+}
+

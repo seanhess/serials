@@ -2,13 +2,14 @@
 
 import React from 'react'
 
-import {RouteHandler} from 'react-router'
+import {RouteHandler, Link} from 'react-router'
 import {SourceModel, Source, isNotHidden, isSearch} from '../model/source'
 
 import {SuggestBook} from './support'
 import {SimpleGallery} from './gallery'
 import {curry} from 'lodash'
 import {displayIf} from '../style'
+import {Routes} from '../router'
 
 export class Library extends React.Component {
 
@@ -57,10 +58,10 @@ export class Library extends React.Component {
 export class AddBook extends React.Component {
   render():React.Element {
     return <div>
-      <button className="secondary">
+      <Link className="secondary button" to={Routes.source} params={{id: 'new'}}>
         <span className="fa fa-plus-circle"></span>
         <span> Submit a book</span>
-      </button>
+      </Link>
     </div>
   }
 }

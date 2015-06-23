@@ -15,13 +15,12 @@ import Data.Aeson
 import Data.Monoid
 import Data.Proxy
 import Data.Text (Text, toUpper, unpack, pack)
-import qualified Data.Text.Lazy.Encoding as TLE
-import qualified Data.Text.Lazy as TL
 import Data.Maybe (fromJust)
 import Data.Pool
-import qualified Data.ByteString.Lazy.Char8 as BL
 import Data.ByteString (ByteString)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import qualified Data.Text.Lazy.Encoding as TLE
+import qualified Data.Text.Lazy as TL
 
 import GHC.Generics
 
@@ -33,6 +32,7 @@ import Network.Wai.Middleware.AddHeaders
 import Network.Wai.Middleware.Static
 
 import Serials.Model.Source (Source(..))
+import Serials.Model.Submission (Submission(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
 import Serials.Model.Invite (Invite(..), EmailAddress)
@@ -42,6 +42,7 @@ import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import qualified Serials.Model.Subscription as Subscription
+import qualified Serials.Model.Submission as Submission
 import Serials.Model.App
 import Serials.Model.Lib.Crud
 import Serials.Scan
@@ -49,9 +50,11 @@ import qualified Serials.Admin as Admin
 import Serials.Read.Test (proxyApp)
 import Serials.Lib.Mail (Email(..))
 
+import Serials.Route.Route
 import Serials.Route.Auth
 import Serials.Route.Invite
 import Serials.Route.UserSignup (UserSignup)
+import Serials.Route.Sources (SourcesAPI, sourcesServer)
 import qualified Serials.Route.UserSignup as UserSignup
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
@@ -65,17 +68,6 @@ import Web.JWT (JWTClaimsSet)
 import Web.Scotty
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 
--- if you use (Maybe a) with liftIO it will return null instead of a 404
--- this is intentional for some routes
-
--- we only read / write JSON
-type Get    a  = Servant.Get    '[JSON] a
-type Post   a  = Servant.Post   '[JSON] a
-type Put    a  = Servant.Put    '[JSON] a
-type Delete a  = Servant.Delete '[JSON] a
-type ReqBody a = Servant.ReqBody '[JSON] a
-
-type Handler a = EitherT ServantErr IO a
 
 
 -- Chapters ---------------------------------------------------
@@ -103,47 +95,35 @@ chaptersServer h =
 
 -- Sources -----------------------------------------------------
 
-type SourcesAPI =
-       Get [Source]
-  :<|> ReqBody Source :> Post Text
-
-  :<|> Capture "id" Text :> Get Source
-  :<|> Capture "id" Text :> ReqBody Source :> Put ()
-
-  :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
-  :<|> Capture "id" Text :> "chapters" :> Post ()
-  :<|> Capture "id" Text :> "chapters" :> Delete ()
-
-sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
-sourcesServer h =
-        sourcesGetAll :<|> sourcesPost
-   :<|> sourcesGet :<|> sourcesPut
-   :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
-
-  where
-
-  sourcesGetAll :: Handler [Source]
-  sourcesGetAll = liftIO $ Source.list h
-
-  sourcesPost :: Source -> Handler Text
-  sourcesPost s = liftIO $ Source.insert h s
-
-  sourcesGet :: Text -> Handler Source
-  sourcesGet id   = liftE  $ Source.find h id
-
-  sourcesPut :: Text -> Source -> Handler ()
-  sourcesPut id s = liftIO $ Source.save h id s
-
-  chaptersGet :: Text -> Handler [Chapter]
-  chaptersGet id = liftIO $ Chapter.bySource h id
-
-  chaptersDel :: Text -> Handler ()
-  chaptersDel id = liftIO $ Chapter.deleteBySource h id
-
-  sourceScan :: Text -> Handler ()
-  sourceScan  id = liftIO $ importSourceId h id
 
 
+-- Submissions ---------------------------------------------------
+
+--type SubmissionsAPI =
+       --Get [Submission]
+  -- :<|> ReqBody Submission :> Post Text
+
+  -- :<|> Capture "id" Text :> Get Submission
+  -- :<|> Capture "id" Text :> ReqBody Submission :> Put ()
+
+--proposalsServer :: Pool RethinkDBHandle -> Server SubmissionsAPI
+--proposalsServer h =
+        --proposalsGetAll :<|> proposalsPost
+   -- :<|> proposalsGet :<|> proposalsPut
+
+  --where
+
+  --proposalsGetAll :: Handler [Submission]
+  --proposalsGetAll = liftIO $ Submission.list h
+
+  --proposalsPost :: Submission -> Handler Text
+  --proposalsPost s = liftIO $ Submission.insert h s
+
+  --proposalsGet :: Text -> Handler Submission
+  --proposalsGet id   = liftE  $ Submission.find h id
+
+  --proposalsPut :: Text -> Submission -> Handler ()
+  --proposalsPut id s = liftIO $ Submission.save h id s
 
 
 -- Admin -------------------------------------------------------
@@ -160,8 +140,6 @@ adminServer h = getPrivate :<|> importLog
   getPrivate = return "Serials Private Route"
 
   importLog n = liftIO $ Admin.importLog n
-
-
 
 
 
@@ -241,8 +219,6 @@ usersServer h =
 
 -- Auth -----------------------------------------------------
 
-type AuthToken = Cookie "token" Text
-
 type AuthAPI =
 
        AuthToken :> Get SecureUser
@@ -310,15 +286,14 @@ invitesServer h = list :<|> add :<|> find :<|> remove :<|> send
 
 -- Server ----------------------------------------------------
 
-
-
 type API =
 
-       "sources"  :> SourcesAPI
-  :<|> "chapters" :> ChaptersAPI
-  :<|> "users"    :> UsersAPI
-  :<|> "auth"     :> AuthAPI
-  :<|> "invites"  :> InvitesAPI
+       "sources"   :> SourcesAPI
+  -- :<|> "submissions" :> SubmissionsAPI
+  :<|> "chapters"  :> ChaptersAPI
+  :<|> "users"     :> UsersAPI
+  :<|> "auth"      :> AuthAPI
+  :<|> "invites"   :> InvitesAPI
 
   :<|> "proxy" :> Raw
 
@@ -330,34 +305,11 @@ type API =
 
   :<|> Raw
 
-rootApp :: Pool RethinkDBHandle -> IO Application
-rootApp h = scottyApp $ do
-  middleware $ staticPolicy (noDots >-> addBase "web")
-
-  get "/app"   $ file "./web/app.html"
-  get "/hello" $ file "./web/hello.html"
-  get "/"      $ file "./web/index.html"
-
-  -- test to see what emails look like
-  get "/emails/invite" $ do
-    -- get an invite, the first one?
-    invs <- liftIO $ Invite.all h
-    env <- liftIO $ readAllEnv
-    let (Email _ body) = inviteEmail (head invs) (endpoint env)
-    html $ renderHtml body
-
-  get "/emails/welcome" $ do
-    -- get an invite, the first one?
-    us <- liftIO $ User.list h
-    env <- liftIO $ readAllEnv
-    let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
-    html $ renderHtml body
-
-
 server :: Pool RethinkDBHandle -> String -> Env -> Application -> Server API
 server h version env root =
 
         sourcesServer h
+
    :<|> chaptersServer h
    :<|> usersServer h
    :<|> authServer h
@@ -391,6 +343,31 @@ server h version env root =
 
     status = liftIO $ appStatus h
 
+rootApp :: Pool RethinkDBHandle -> IO Application
+rootApp h = scottyApp $ do
+  middleware $ staticPolicy (noDots >-> addBase "web")
+
+  get "/app"   $ file "./web/app.html"
+  get "/hello" $ file "./web/hello.html"
+  get "/"      $ file "./web/index.html"
+
+  -- test to see what emails look like
+  get "/emails/invite" $ do
+    -- get an invite, the first one?
+    invs <- liftIO $ Invite.all h
+    env <- liftIO $ readAllEnv
+    let (Email _ body) = inviteEmail (head invs) (endpoint env)
+    html $ renderHtml body
+
+  get "/emails/welcome" $ do
+    -- get an invite, the first one?
+    us <- liftIO $ User.list h
+    env <- liftIO $ readAllEnv
+    let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
+    html $ renderHtml body
+
+
+
 data AppSettings = AppSettings {
   appName :: Text,
   version :: String,
@@ -419,6 +396,7 @@ runApi port p version env = do
   root <- rootApp p
   createDb p
   Source.init p
+  Submission.init p
   Chapter.init p
   User.init p
   Invite.init p
@@ -441,36 +419,3 @@ corsResourcePolicy = CorsResourcePolicy
   , corsIgnoreFailures = False
   }
 
--- ToStatus ------------------------------------------------------
-
-class ToStatus a where
-  toStatus :: a val -> Either ServantErr val
-
-instance ToStatus Maybe where
-  toStatus Nothing  = Left $ err404
-  toStatus (Just v) = Right v
-
-instance Show a => ToStatus (Either a) where
-  toStatus (Left e) = Left $ err500 { errBody = "Server Error: " <> BL.pack (show e) }
-  toStatus (Right v) = Right v
-
-liftE :: ToStatus a => IO (a v) -> EitherT ServantErr IO v
-liftE action = EitherT $ toStatus <$> action
-
-
-
-errUnauthorized :: Text -> ServantErr
-errUnauthorized err = err401 { errReasonPhrase = unpack err }
-
-errText :: ServantErr -> Text -> ServantErr
-errText err txt = err { errBody = TLE.encodeUtf8 $ TL.fromStrict txt }
-
-liftErr :: (err -> ServantErr) -> IO (Either err res) -> EitherT ServantErr IO res
-liftErr toErr action = do
-    eres <- liftIO action
-    case eres of
-      Left err -> left (toErr err)
-      Right res -> return res
-
-liftErrText :: ServantErr -> IO (Either Text res) -> EitherT ServantErr IO res
-liftErrText err = liftErr (errText err)

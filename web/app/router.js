@@ -41,5 +41,7 @@ export var Routes = {
   admin: "admin",
   about: "about",
   login: "login",
-  book: "book"
+  book: "book",
+  submission: "submission",
+  submissions: "submissions",
 }

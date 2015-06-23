@@ -1,6 +1,8 @@
 // @flow
 // styles!
 
+import {assign} from 'lodash'
+
 export var Colors = {
 
   highlight: "#F15D58",
@@ -38,3 +40,16 @@ export function visibleIf(show:boolean):{visibility:string} {
     visibility: (show) ? 'visible' : 'hidden'
   }
 }
+
+export var CollapseBorder = {
+  marginBottom: -1
+}
+
+export var CellBorder = 'solid 1px #DDD'
+
+export var Cell = assign({}, CollapseBorder, {
+  borderBottom: CellBorder,
+  borderTop: CellBorder,
+  padding: 10
+})
+

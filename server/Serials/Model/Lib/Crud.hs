@@ -94,3 +94,22 @@ serialsDb = db serialsDbName
 serialsDbName = "serials"
 
 
+
+------------------------------------------------------------------
+
+docsList :: FromDatum a => Table -> Pool RethinkDBHandle -> IO [a]
+docsList table h = runPool h $ table # orderBy [asc "id"]
+
+docsFind :: FromDatum a => Table -> Pool RethinkDBHandle -> Text -> IO (Maybe a)
+docsFind table h id = runPool h $ table # get (expr id)
+
+docsInsert :: ToDatum a => Table -> Pool RethinkDBHandle -> a -> IO Text
+docsInsert table h s = do
+    r <- runPool h $ table # create s
+    return $ generatedKey r
+
+docsSave :: ToDatum a => Table -> Pool RethinkDBHandle -> Text -> a -> IO ()
+docsSave table h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
+
+docsRemove :: Table -> Pool RethinkDBHandle -> Text -> IO ()
+docsRemove table h id = runPool h $ table # get (expr id) # delete

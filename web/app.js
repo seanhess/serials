@@ -12,7 +12,9 @@ import {loadAll, run, render} from './app/data/load'
 
 import {ImportLog, AdminDashboard} from './app/admin/admin'
 import {Sources} from './app/admin/sources'
-import {Source} from './app/admin/source'
+import {Source} from './app/source/source-form'
+import {SubmissionForm} from './app/submission/submission-form'
+import {Submissions} from './app/submission/submissions'
 import {Invites} from './app/admin/invites'
 import {AdminUsers} from './app/admin/users'
 
@@ -69,13 +71,21 @@ var routes = (
     <Route name={Routes.login} handler={Login}/>
     <Route name={Routes.signup} path="signup/:code" handler={SignupPage}/>
 
-    <Route path="books" handler={Main}>
-      <DefaultRoute name={Routes.library} handler={Library}/>
-      <Route name={Routes.book} path=":id" handler={Book} />
-    </Route>
+    <Route handler={Main}>
 
-    <Route path="pages" handler={Main}>
-      <Route name={Routes.about} path="about" handler={About} />
+      <Route name={Routes.about} path="pages/about" handler={About} />
+
+      <Route path="books">
+        <DefaultRoute name={Routes.library} handler={Library}/>
+        <Route name={Routes.book} path=":id" handler={Book} />
+      </Route>
+
+      <Route name={Routes.submissions}>
+        <DefaultRoute handler={Submissions} />
+        <Route name={Routes.submission} path=":id" handler={SubmissionForm} />
+      </Route>
+
+      <Route name={Routes.source}  path="sources/:id" handler={Source}/>
     </Route>
 
     <Route path="admin" handler={Main}>
@@ -83,7 +93,6 @@ var routes = (
       <Route name={Routes.sources} handler={Sources}/>
       <Route name={Routes.invites} handler={Invites}/>
       <Route name={Routes.users}   handler={AdminUsers}/>
-      <Route name={Routes.source}  path="sources/:id" handler={Source}/>
       <Route path="import-log/:n" handler={ImportLog}/>
     </Route>
 

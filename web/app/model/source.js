@@ -100,11 +100,11 @@ export function emptySource():Source {
     authorUrl: "",
     hidden: false,
     url: "",
-    imageUrl: "",
+    imageUrl: "http://i.imgur.com/bMwt85W.jpg",
     imageArtist: null,
     imageArtistUrl: null,
     imageArtistAboutUrl: null,
-    status: Status.Active,
+    status: Status.Proposed,
     imageMissingTitle: false,
     importSettings: emptyImportSettings(TOC)
   }
@@ -156,3 +156,10 @@ export function isSearch(term:string):(source:Source) => boolean {
     return search.test(source.name.toLowerCase()) || search.test(source.author.toLowerCase())
   }
 }
+
+export var DefaultImageUrl = "http://i.imgur.com/bMwt85W.jpg"
+
+export function defaultImageUrl(value:string):string {
+  return value || DefaultImageUrl
+}
+

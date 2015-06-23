@@ -5,12 +5,13 @@ Milestone: Feedback and Discovery
 
 Simple Discovery Improvements
 -----------------------------
-- [ ] Discovery: form to submit a new book
-- [ ] Discovery: show some metadata for books
-- [ ] Discovery: simple review step for new books (goes to admin queue)
+- [x] Any user can add books
+- [x] Edit link -> any user can edit a book
+- [ ] Full change history
+- [ ] Ability to revert
+- [ ] Admin gets a few extra features: status, hidden
 
-- [ ] Assign moderators to books
-- [ ] Admins and moderators can edit books
+- [ ] Discovery: show some metadata for books
 - [ ] Way to test scanned chapters
 
 - [ ] Improve algorithm so you can just point it at a web page and let it go?
@@ -18,6 +19,8 @@ Simple Discovery Improvements
 Bugs
 ----
 - [x] Root domain redirects to library, instead of bookshelf
+- [ ] chapter updates point to localhost
+- [ ] big covers
 
 Milestone: MVP
 -------------------

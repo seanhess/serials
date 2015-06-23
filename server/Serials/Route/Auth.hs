@@ -12,6 +12,8 @@ import Prelude hiding (id, exp)
 
 import Crypto.BCrypt (validatePassword)
 import Control.Applicative ((<$>))
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Either
 
 import Data.Text (Text, pack, toLower)
 import qualified Data.Text as T
@@ -37,6 +39,8 @@ import Network.Wai
 import Safe (headMay)
 import Servant
 import Servant.Server.Internal
+import Serials.Lib.ServantCookie
+import Serials.Route.Route
 
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
@@ -46,6 +50,7 @@ import System.Locale
 import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims)
 import Web.Cookie
 
+type AuthToken = Cookie "token" Text
 
 data UserLogin = UserLogin {
   email :: Text,
@@ -156,3 +161,12 @@ checkAuth h mt = do
 -- copied from timerep, which wouldn't install :( Stupid cabal
 formatTimeRFC822 :: UTCTime -> Text
 formatTimeRFC822 = pack . formatTime defaultTimeLocale "%a, %d %b %Y %X %z"
+
+------------------------------------------------------------------
+
+currentUser :: Pool RethinkDBHandle -> Maybe Text -> Handler SecureUser
+currentUser h mt = do
+  mu <- liftIO $ checkAuth h mt
+  case mu of
+    Nothing -> EitherT $ return $ Left $ err401 { errBody = "Unauthorized" }
+    Just user -> return $ user

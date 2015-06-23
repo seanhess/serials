@@ -14,13 +14,19 @@ import Data.Time
 
 import GHC.Generics
 import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table, status, toJSON)
+import Database.RethinkDB.NoClash hiding (table, status, toJSON, Change)
 
 import Serials.Model.Lib.Crud
 import Serials.Model.Scan
 import Serials.Link.Import (ImportSettings)
+import Serials.Model.User (SecureUser(..))
+
+instance FromJSON ImportSettings
+instance ToJSON ImportSettings
 
 data Status = Complete | Active | Disabled | Abandoned | Proposed deriving (Show, Eq, Generic)
+instance FromJSON Status
+instance ToJSON Status
 
 data Source = Source {
   id :: Text,
@@ -44,20 +50,28 @@ data Source = Source {
   lastScan :: Maybe Scan
 
 } deriving (Show, Generic)
-
-instance FromJSON Status
-instance ToJSON Status
-
-instance FromJSON ImportSettings
-instance ToJSON ImportSettings
-
 instance FromJSON Source
 instance ToJSON Source
-
 instance FromDatum Source
 instance ToDatum Source
 
+data ChangeKind = Edit | Create deriving (Show, Eq, Generic)
+instance FromJSON ChangeKind
+instance ToJSON ChangeKind
+
+data Change = Change {
+  source :: Source,
+  kind :: ChangeKind,
+  createdAt :: UTCTime,
+  createdBy :: SecureUser
+} deriving (Show, Generic)
+instance FromJSON Change
+instance ToJSON Change
+instance FromDatum Change
+instance ToDatum Change
+
 table = R.table "sources"
+tableChanges = R.table "sources-changes"
 
 list :: Pool RethinkDBHandle -> IO [Source]
 list h = runPool h $ table # orderBy [asc "id"]
@@ -67,14 +81,12 @@ find h id = runPool h $ table # get (expr id)
 
 insert :: Pool RethinkDBHandle -> Source -> IO Text
 insert h s = do
-    r <- runPool h $ table # create s
+    r <- runPool h $ table   # create s
     return $ generatedKey r
 
 save :: Pool RethinkDBHandle -> Text -> Source -> IO ()
-save h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
-
-remove :: Pool RethinkDBHandle -> Text -> IO ()
-remove h id = runPool h $ table # get (expr id) # delete
+save h id s = do
+    runPool h $ table # get (expr id) # replace (const (toDatum s))
 
 updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO (Either RethinkDBError WriteResponse)
 updateLastScan h id s = runPool h $ table # get (expr id) # update (const ["lastScan" := (toDatum s)])
@@ -85,6 +97,17 @@ clearLastScan h id = runPool h $ table # get (expr id) # update (const ["lastSca
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
+    initDb $ runPool h $ tableCreate tableChanges
 
 isActive :: Source -> Bool
 isActive = (== Active) . status
+
+--------------------------------------------------------------
+
+saveChange :: Pool RethinkDBHandle -> Change -> IO ()
+saveChange h c = runPool h $ tableChanges # create c
+
+change :: ChangeKind -> SecureUser -> Source -> IO Change
+change kind user source = do
+    time <- getCurrentTime
+    return $ Change source kind time user

@@ -3,7 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {SourceModel, emptySource, emptyScan, Status} from '../model/source'
+import {SourceModel, emptySource, emptyScan, Status, defaultImageUrl} from '../model/source'
 import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
@@ -20,13 +20,6 @@ type AdminSourceProps = {
   source: Source;
   chapters: Array<Chapter>;
   params: {id: string};
-}
-
-function setImageUrl(source:Source, value:string) {
-  if (!value) {
-    value = "http://i.imgur.com/bMwt85W.jpg"
-  }
-  source.imageUrl = value
 }
 
 export class Source extends React.Component {
@@ -164,15 +157,13 @@ export class Source extends React.Component {
       <div>
         <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
         <span> </span>
-        <a className="secondary button" href="#/admin/sources">Close</a>
-        <span> </span>
         <div className="right">
           <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
         </div>
       </div>
 
-      <FormSection title="Basic Settings">
-        <label>Name</label>
+      <FormSection title="Book Details">
+        <label>Title</label>
         <input type="text"
           value={source.name}
           onChange={update((s, v) => s.name = v)}
@@ -199,15 +190,7 @@ export class Source extends React.Component {
         <div className="row">
           <div className="columns small-12 medium-3">
             <label>Status</label>
-            <select
-              value={source.status}
-              onChange={update((s, v) => s.status = v)}
-            >
-              <option value={Status.Active}>{Status.Active}</option>
-              <option value={Status.Complete}>{Status.Complete}</option>
-              <option value={Status.Disabled}>{Status.Disabled}</option>
-              <option value={Status.Abandoned}>{Status.Abandoned}</option>
-            </select>
+            <StatusSelect update={update} source={source} />
           </div>
 
           <div className="columns small-12 medium-3">
@@ -222,7 +205,7 @@ export class Source extends React.Component {
 
       </FormSection>
 
-      <FormSection title="Image Settings">
+      <FormSection title="Image Details">
 
         <div>
           <div style={{float: 'left', width: 170}}>
@@ -233,7 +216,9 @@ export class Source extends React.Component {
             <label>Image URL</label>
             <input type="text"
               value={source.imageUrl}
-              onChange={update(setImageUrl)}
+              onChange={update(function(s, v) {
+                s.imageUrl = defaultImageUrl(v)
+              })}
             />
 
             <input type="checkbox"
@@ -265,9 +250,10 @@ export class Source extends React.Component {
 
       </FormSection>
 
-      <FormSection title="Import Settings">
-        <label>URL</label>
+      <FormSection title="Scan Settings">
+        <label>Table of Contents URL</label>
         <input type="text"
+          placeholder="https://example.com/table-of-contents/"
           value={source.url}
           onChange={update((s, v) => s.url = v)}
         />
@@ -314,3 +300,22 @@ export class Source extends React.Component {
 
   }
 }
+
+class StatusSelect extends React.Component {
+
+  render():React.Element {
+    var source = this.props.source
+    var update = this.props.update
+    var options = Status.All.map(s => <option value={s}>{s}</option>)
+
+    return <select
+        value={source.status}
+        onChange={update((s, v) => s.status = v)}>
+        {options}
+      </select>
+  }
+}
+
+
+        //<a className="secondary button" href="#/admin/sources">Close</a>
+        //<span> </span>

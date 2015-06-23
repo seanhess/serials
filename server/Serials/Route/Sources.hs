@@ -63,7 +63,7 @@ sourcesServer h =
   sourcesPut id mt s = do
     user <- currentUser h mt
     liftIO $ do
-      Source.saveChange h =<< Source.change Create user s
+      Source.saveChange h =<< Source.change Edit user s
       Source.save h id s
 
   chaptersGet :: Text -> Handler [Chapter]

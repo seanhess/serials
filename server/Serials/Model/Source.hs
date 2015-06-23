@@ -71,7 +71,7 @@ instance FromDatum Change
 instance ToDatum Change
 
 table = R.table "sources"
-tableChanges = R.table "sources-changes"
+tableChanges = R.table "sources_changes"
 
 list :: Pool RethinkDBHandle -> IO [Source]
 list h = runPool h $ table # orderBy [asc "id"]

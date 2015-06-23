@@ -337,7 +337,7 @@ export class EditBook extends React.Component {
   render():React.Element {
     return <div>
       <Link className="secondary button" to={Routes.source} params={this.props.source}>
-        <span className="fa fa-plus-circle"></span>
+        <span className="fa fa-pencil-square-o"></span>
         <span> Edit book details</span>
       </Link>
     </div>

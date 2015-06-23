@@ -60,6 +60,8 @@ data UserLogin = UserLogin {
 instance FromJSON UserLogin
 instance ToJSON UserLogin
 
+-------------------------------------------------------------------
+
 type AuthLookup = JWTClaimsSet -> Bool
 
 data AuthProtected
@@ -84,6 +86,8 @@ instance HasServer rest => HasServer (AuthProtected :> rest) where
             if authLookup cs
               then route (Proxy :: Proxy rest) a request respond
               else respond . succeedWith $ responseLBS status403 [] "Forbidden"
+
+-----------------------------------------------------------------------
 
 checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
 checkCurrentAuth h mjwt = case mjwt of

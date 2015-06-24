@@ -12,9 +12,8 @@ import {loadAll, run, render} from './app/data/load'
 
 import {ImportLog, AdminDashboard} from './app/admin/admin'
 import {Sources} from './app/admin/sources'
-import {Source} from './app/source/source-form'
-import {SubmissionForm} from './app/submission/submission-form'
-import {Submissions} from './app/submission/submissions'
+import {SourceEdit} from './app/source/source-form'
+import {SourceChange} from './app/source/change'
 import {Invites} from './app/admin/invites'
 import {AdminUsers} from './app/admin/users'
 
@@ -80,12 +79,8 @@ var routes = (
         <Route name={Routes.book} path=":id" handler={Book} />
       </Route>
 
-      <Route name={Routes.submissions}>
-        <DefaultRoute handler={Submissions} />
-        <Route name={Routes.submission} path=":id" handler={SubmissionForm} />
-      </Route>
-
-      <Route name={Routes.source}  path="sources/:id" handler={Source}/>
+      <Route name={Routes.source}  path="sources/:id" handler={SourceEdit}/>
+      <Route name={Routes.change}  path="changes/:id" handler={SourceChange}/>
     </Route>
 
     <Route path="admin" handler={Main}>

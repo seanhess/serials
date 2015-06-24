@@ -14,15 +14,17 @@ import Control.Monad.Trans.Either
 import Data.Text (Text)
 import Data.Pool (Pool)
 
-import Database.RethinkDB.NoClash
+import Database.RethinkDB.NoClash hiding (Change)
 
 import Serials.Route.Route
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser)
 
-import Serials.Model.Source (Source(..), Change(..), ChangeKind(..))
+import Serials.Model.Source (Source(..))
+import Serials.Model.Change (Change(..), ChangeKind(..), change)
 import Serials.Model.Chapter (Chapter(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
+import qualified Serials.Model.Change as Change
 import Serials.Scan (importSourceId)
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
@@ -34,6 +36,10 @@ type SourcesAPI =
    :<|> Capture "id" Text :> Get Source
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
 
+   :<|> Capture "id" Text :> "changes" :> Get [Change]
+
+   :<|> Capture "id" Text :> "changes" :> Capture "changeId" Text :> Get Change
+
    :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
    :<|> Capture "id" Text :> "chapters" :> Post ()
    :<|> Capture "id" Text :> "chapters" :> Delete ()
@@ -42,6 +48,7 @@ sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
 sourcesServer h =
         sourcesGetAll :<|> sourcesPost
     :<|> sourcesGet :<|> sourcesPut
+    :<|> changesGet :<|> changeGet
     :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
 
   where
@@ -53,7 +60,7 @@ sourcesServer h =
   sourcesPost mt s = do
     user <- currentUser h mt
     liftIO $ do
-      Source.saveChange h =<< Source.change Create user s
+      Change.save h =<< change Create user s
       Source.insert h s
 
   sourcesGet :: Text -> Handler Source
@@ -63,8 +70,14 @@ sourcesServer h =
   sourcesPut id mt s = do
     user <- currentUser h mt
     liftIO $ do
-      Source.saveChange h =<< Source.change Edit user s
+      Change.save h =<< change Edit user s
       Source.save h id s
+
+  changesGet :: Text -> Handler [Change]
+  changesGet id = liftIO $ Change.findBySourceId h id
+
+  changeGet :: Text -> Text -> Handler Change
+  changeGet id changeId = liftE $ Change.findById h changeId
 
   chaptersGet :: Text -> Handler [Chapter]
   chaptersGet id = liftIO $ Chapter.bySource h id

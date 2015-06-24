@@ -3,12 +3,13 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {SourceModel, emptySource, emptyScan, Status, defaultImageUrl} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, Change, findChanges} from '../model/source'
 import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
 import {Chapters} from './chapters'
 import {ImportSettings} from './import'
+import {SourceChanges} from './changes'
 import {DisabledButton, FormSection} from '../comp'
 
 import {coverStyle, SourceCover} from '../cover'
@@ -16,15 +17,14 @@ import {makeUpdate, checked} from '../data/update'
 import {displayIf} from '../style'
 import {transitionTo, Routes} from '../router'
 
-type AdminSourceProps = {
-  source: Source;
-  chapters: Array<Chapter>;
-  params: {id: string};
-}
+export class SourceEdit extends React.Component {
 
-export class Source extends React.Component {
-
-  props: AdminSourceProps;
+  props: {
+    source: Source;
+    chapters: Array<Chapter>;
+    changes: Array<Change>;
+    params: {id: string};
+  };
 
   static load(params) {
     if (params.id == "new") {
@@ -34,6 +34,7 @@ export class Source extends React.Component {
     return {
       source: SourceModel.find(params.id),
       chapters: ChapterModel.findBySource(params.id),
+      changes: findChanges(params.id),
     }
   }
 
@@ -162,105 +163,11 @@ export class Source extends React.Component {
         </div>
       </div>
 
-      <FormSection title="Book Details">
-        <label>Title</label>
-        <input type="text"
-          value={source.name}
-          onChange={update((s, v) => s.name = v)}
-        />
+      <BookDetails source={source} update={update} />
+      <ImageDetails source={source} update={update} />
+      <ScanSettings source={source} update={update} />
 
-        <div className="row">
-          <div className="columns small-12 medium-6">
-            <label>Author</label>
-            <input type="text"
-              value={source.author}
-              onChange={update((s, v) => s.author = v)}
-            />
-          </div>
-
-          <div className="columns small-12 medium-6">
-            <label>Author URL</label>
-            <input type="text"
-              value={source.authorUrl}
-              onChange={update((s, v) => s.authorUrl = v)}
-            />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="columns small-12 medium-3">
-            <label>Status</label>
-            <StatusSelect update={update} source={source} />
-          </div>
-
-          <div className="columns small-12 medium-3">
-            <label>Hidden</label>
-            <input type="checkbox"
-              checked={source.hidden}
-              onChange={update((s, v) => s.hidden = v, checked)}
-            />
-          </div>
-          <div className="columns medium-9"></div>
-        </div>
-
-      </FormSection>
-
-      <FormSection title="Image Details">
-
-        <div>
-          <div style={{float: 'left', width: 170}}>
-            <SourceCover source={source} />
-          </div>
-
-          <div style={{marginLeft: 170, minHeight: 250}}>
-            <label>Image URL</label>
-            <input type="text"
-              value={source.imageUrl}
-              onChange={update(function(s, v) {
-                s.imageUrl = defaultImageUrl(v)
-              })}
-            />
-
-            <input type="checkbox"
-              checked={source.imageMissingTitle}
-              onChange={update((s, v) => s.imageMissingTitle = v, checked)}
-            />
-            <label>Image Missing Title</label>
-
-            <label>Artist</label>
-            <input type="text"
-              value={source.imageArtist}
-              onChange={update((s, v) => s.imageArtist = v)}
-            />
-
-            <label>Artist URL</label>
-            <input type="text"
-              value={source.imageArtistUrl}
-              onChange={update((s, v) => s.imageArtistUrl = v)}
-            />
-
-            <label>Artist About URL</label>
-            <input type="text"
-              value={source.imageArtistAboutUrl}
-              onChange={update((s, v) => s.imageArtistAboutUrl = v)}
-            />
-
-          </div>
-        </div>
-
-      </FormSection>
-
-      <FormSection title="Scan Settings">
-        <label>Table of Contents URL</label>
-        <input type="text"
-          placeholder="https://example.com/table-of-contents/"
-          value={source.url}
-          onChange={update((s, v) => s.url = v)}
-        />
-
-        <ImportSettings settings={source.importSettings} onUpdate={this.onUpdateSettings.bind(this)} />
-      </FormSection>
-
+      <hr />
 
       <div style={displayIf(!this.isNew())}>
         <h4>{chapters.length} Chapters</h4>
@@ -287,7 +194,6 @@ export class Source extends React.Component {
           <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
         </div>
 
-
         <Chapters chapters={chapters} source={source}
           onSaveChapter={this.onSaveChapter.bind(this)}
           onClearChapter={this.onClearChapter.bind(this)}
@@ -296,8 +202,156 @@ export class Source extends React.Component {
         />
       </div>
 
+      <hr />
+
+      <h4>Changes</h4>
+      <SourceChanges changes={this.props.changes}/>
+
     </div>
 
+  }
+}
+
+export class BookDetails extends React.Component {
+
+  props: {
+    source: Source;
+    update: Function;
+    disabled: boolean;
+  };
+
+  render():React.Element {
+    var source = this.props.source
+    var update = this.props.update
+    return <FormSection title="Book Details">
+      <label>Title</label>
+      <input type="text"
+        value={source.name}
+        onChange={update((s, v) => s.name = v)}
+      />
+
+      <div className="row">
+        <div className="columns small-12 medium-6">
+          <label>Author</label>
+          <input type="text"
+            value={source.author}
+            onChange={update((s, v) => s.author = v)}
+          />
+        </div>
+
+        <div className="columns small-12 medium-6">
+          <label>Author URL</label>
+          <input type="text"
+            value={source.authorUrl}
+            onChange={update((s, v) => s.authorUrl = v)}
+          />
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="columns small-12 medium-3">
+          <label>Status</label>
+          <StatusSelect update={update} source={source} />
+        </div>
+
+        <div className="columns small-12 medium-3">
+          <label>Hidden</label>
+          <input type="checkbox"
+            checked={source.hidden}
+            onChange={update((s, v) => s.hidden = v, checked)}
+          />
+        </div>
+        <div className="columns medium-9"></div>
+      </div>
+
+    </FormSection>
+  }
+}
+
+
+class ImageDetails extends React.Component {
+
+  props: {
+    source: Source;
+    update: Function
+  };
+
+  render():React.Element {
+    var source = this.props.source
+    var update = this.props.update
+
+    return <FormSection title="Image Details">
+
+      <div>
+        <div style={{float: 'left', width: 170}}>
+          <SourceCover source={source} />
+        </div>
+
+        <div style={{marginLeft: 170, minHeight: 250}}>
+          <label>Image URL</label>
+          <input type="text"
+            value={source.imageUrl}
+            onChange={update(function(s, v) {
+              s.imageUrl = defaultImageUrl(v)
+            })}
+          />
+
+          <input type="checkbox"
+            checked={source.imageMissingTitle}
+            onChange={update((s, v) => s.imageMissingTitle = v, checked)}
+          />
+          <label>Image Missing Title</label>
+
+          <label>Artist</label>
+          <input type="text"
+            value={source.imageArtist}
+            onChange={update((s, v) => s.imageArtist = v)}
+          />
+
+          <label>Artist URL</label>
+          <input type="text"
+            value={source.imageArtistUrl}
+            onChange={update((s, v) => s.imageArtistUrl = v)}
+          />
+
+          <label>Artist About URL</label>
+          <input type="text"
+            value={source.imageArtistAboutUrl}
+            onChange={update((s, v) => s.imageArtistAboutUrl = v)}
+          />
+
+        </div>
+      </div>
+
+    </FormSection>
+  }
+}
+
+class ScanSettings extends React.Component {
+
+  props: {
+    source: Source;
+    update: Function
+  };
+
+  render():React.Element {
+    var source = this.props.source
+    var update = this.props.update
+
+    return <FormSection title="Scan Settings">
+      <label>Table of Contents URL</label>
+      <input type="text"
+        placeholder="https://example.com/table-of-contents/"
+        value={source.url}
+        onChange={update((s, v) => s.url = v)}
+      />
+
+      <ImportSettings
+        settings={source.importSettings}
+        onUpdate={update((s, v) => s.importSettings = v)}
+      />
+
+    </FormSection>
   }
 }
 
@@ -317,5 +371,5 @@ class StatusSelect extends React.Component {
 }
 
 
-        //<a className="secondary button" href="#/admin/sources">Close</a>
-        //<span> </span>
+
+

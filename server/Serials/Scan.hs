@@ -11,6 +11,7 @@ import Database.RethinkDB.NoClash
 import Data.Either (lefts)
 import Data.Pool
 import Data.Monoid ((<>))
+import Data.Maybe (isNothing)
 import Data.Time
 import Data.List (nubBy)
 import Debug.Trace
@@ -36,7 +37,7 @@ import System.IO
 
 import Data.HashMap.Strict (HashMap, fromList, lookup)
 
-data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
+data MergeResult = New | Updated | Edited | Removed | Same deriving (Show, Eq)
 
 data ScanResult = ScanResult {
   allChapters :: [Chapter],
@@ -46,6 +47,10 @@ data ScanResult = ScanResult {
 
 scanSourceContent :: Source -> IO [Content]
 scanSourceContent s = importContent (Source.url s) (importSettings s)
+
+contentsChapters :: Text -> UTCTime -> [Content] -> [Chapter]
+contentsChapters sid time content = nubBy idEqual $ map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
+  where idEqual a b = Chapter.id a == Chapter.id b
 
 -- this only turns a Link into a chapter, not a Title
 linkToChapter :: Text -> UTCTime -> Int -> Content -> Chapter
@@ -79,15 +84,12 @@ skipSource source = do
 scanResult :: Source -> UTCTime -> [Content] -> ScanResult
 scanResult source time content = ScanResult all new ups
   where
-  scannedChapters = map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
-  edits = chapterMap $ Source.chapters source
-  merged = mergeAll edits $ nubBy idEqual scannedChapters
+  merged = mergeAll (Source.chapters source) (contentsChapters sid time content)
   new = map snd $ filter (isMergeType New) merged
   ups = map snd $ filter (isMergeType Updated) merged
   all = map snd $ merged
 
   sid = Source.id source
-  idEqual a b = Chapter.id a == Chapter.id b
 
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
@@ -145,17 +147,26 @@ importAllSources h = do
 
 -- Merging ---------------------------------------------------
 
+-- none of these are new. We're mapping through the old ones
+-- wait the only one that matters is when new /= old and not edited
 mergeChapter :: Maybe Chapter -> Chapter -> (MergeResult, Chapter)
-mergeChapter Nothing c = (New, c)
-mergeChapter (Just old) c
-  | Chapter.edited old                  = (Edited,  old)
-  | Chapter.content old /= Chapter.content c  = (Updated, c)
-  | otherwise                           = (Same,    old)
+-- if it doesn't exist in the scan map, it's been removed
+mergeChapter Nothing old = (Same, old)
+mergeChapter (Just new) old
+  | Chapter.edited  old                        = (Edited, old)
+  | Chapter.content new /= Chapter.content old = (Updated, new)
+  | otherwise                                  = (Same, old)
 
-mergeAll :: HashMap Text Chapter -> [Chapter] -> [(MergeResult, Chapter)]
-mergeAll cm cs = map merge cs
+mergeAll :: [Chapter] -> [Chapter] -> [(MergeResult, Chapter)]
+mergeAll sourceCs scanCs = current <> new
   where
-    merge c = mergeChapter (lookup (Chapter.id c) cm) c
+    current = map merge sourceCs
+    new     = map (\c -> (New, c)) $ filter isNew scanCs
+
+    isNew c = isNothing $ lookup (Chapter.id c) sourceMap
+    merge c = mergeChapter (lookup (Chapter.id c) scanMap) c
+    scanMap = chapterMap scanCs
+    sourceMap = chapterMap sourceCs
 
 chapterMap :: [Chapter] -> HashMap Text Chapter
 chapterMap = fromList . map (\c -> (Chapter.id c, c))

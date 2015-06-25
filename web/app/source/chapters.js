@@ -2,7 +2,7 @@
 
 import React from 'react'
 import url from 'url'
-import {cloneDeep, findIndex} from 'lodash'
+import {cloneDeep, findIndex, assign} from 'lodash'
 import {toDateString} from '../helpers'
 import {makeUpdate, number} from '../data/update'
 import {isLink, emptyChapter, Chapter, setContentText, contentText, chapterContentURL} from '../model/chapter'
@@ -144,18 +144,16 @@ export class ChapterRow extends React.Component {
 
   renderEdit():?React.Element {
 
-    var chapter:any = this.state.editing || emptyChapter("")
+    var chapter:any = this.state.editing || emptyChapter()
 
     var update = makeUpdate(chapter, (v) => {
       this.setState({editing: v})
     })
 
-    var nameValue = (isLink(chapter)) ? chapter.content.linkText : chapter.content.titleText
-
     return <tr key={chapter.id}>
       <td colSpan="5">
         <label>Name</label>
-        <input type="text" value={nameValue}
+        <input type="text" value={contentText(chapter)}
           onChange={update((c, v) => setContentText(c, v))}/>
         <div style={displayIf(isLink(chapter))}>
           <label>URL</label>
@@ -213,17 +211,26 @@ export class ChapterRow extends React.Component {
       }
     }
 
+    var contentStyle = {}
+    if (!isLink(chapter)) {
+      contentStyle = {
+        background: Colors.light
+      }
+    }
+
     return <tr key={chapter.id} onDragOver={onDragOver} style={rowStyle}>
       <td draggable="true" onDragStart={onDragStart}><span className="fa fa-bars"></span></td>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
       <td><a onClick={this.toggleHidden.bind(this)} style={style}>
         <span className="fa fa-eye"></span></a>
       </td>
-      <td style={style}>
+      <td style={assign({}, style, contentStyle)}>
         {contentText(chapter)}
       </td>
       <td>
-        <a href={chapterContentURL(chapter)} style={style}><span className="fa fa-external-link"></span></a>
+        <a href={chapterContentURL(chapter)} style={assign(displayIf(isLink(chapter)), style)}>
+          <span className="fa fa-external-link"></span>
+        </a>
       </td>
       <td>{toDateString(chapter.added)}</td>
     </tr>

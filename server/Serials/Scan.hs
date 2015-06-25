@@ -147,8 +147,6 @@ importAllSources h = do
 
 -- Merging ---------------------------------------------------
 
--- none of these are new. We're mapping through the old ones
--- wait the only one that matters is when new /= old and not edited
 mergeChapter :: Maybe Chapter -> Chapter -> (MergeResult, Chapter)
 -- if it doesn't exist in the scan map, it's been removed
 mergeChapter Nothing old = (Same, old)

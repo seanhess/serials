@@ -39,10 +39,9 @@ export function chapterContentURL(chapter:Chapter):string {
 }
 
 
-export function emptyChapter(sourceId:string, link:Content = emptyLink()):Chapter {
+export function emptyChapter(link:Content = emptyLink()):Chapter {
   return {
     id: shortid.generate(),
-    sourceId: sourceId,
     edited: false,
     name: "",
     number: 0,

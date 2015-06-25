@@ -37,6 +37,8 @@ data Source = Source {
   authorUrl :: Text,
   hidden :: Bool,
 
+  changeId :: Maybe Text,
+
   status :: Status,
 
   imageUrl :: Text,
@@ -52,7 +54,7 @@ data Source = Source {
 
   chapters :: [Chapter]
 
-} deriving (Show, Generic)
+} deriving (Show, Generic, Eq)
 
 instance FromJSON Source
 instance ToJSON Source

@@ -1,26 +1,34 @@
-Milestone: Feedback and Discovery
----------------------------------
-- [x] add a good TOS
-- [x] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
-
-Simple Discovery Improvements
------------------------------
-- [x] Any user can add books
-- [x] Edit link -> any user can edit a book
-- [ ] Full change history
-- [ ] Ability to revert
-- [ ] Admin gets a few extra features: status, hidden
-
-- [ ] Discovery: show some metadata for books
-- [ ] Way to test scanned chapters
-
-- [ ] Improve algorithm so you can just point it at a web page and let it go?
-
 Bugs
 ----
 - [x] Root domain redirects to library, instead of bookshelf
 - [ ] chapter updates point to localhost
-- [ ] big covers
+- [ ] big covers in form and gallery?
+
+Milestone: Better Library
+-------------------------
+- [ ] Users can edit books
+- [ ] Users can add  books
+- [ ] Full change history for auditing
+- [ ] Search by author or title
+- [ ] Search by tag
+- [ ] Track total number of subscribers
+- [ ] Show more in the library: subscribed
+- [ ] Sort by # subscribers
+
+USER GENERATED LIBRARY
+- [x] Any user can add books
+- [x] Edit link -> any user can edit a book
+- [ ] Store changes whenever source is saved
+- [ ] Don't store a change if it is the same
+- [ ] only admin can set hidden and or status
+- [ ] View changes
+- [ ] BUG: should do something even without a root selector
+- [ ] BUG: validation when they don't put in a URL
+
+Milestone: Feedback and Discovery
+---------------------------------
+- [x] add a good TOS
+- [x] keep tracking down authors. Post on /r/webfiction. Ask for feedback specifically from authors. Ask for feedback specifically from authors.
 
 Milestone: MVP
 -------------------

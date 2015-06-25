@@ -11,6 +11,7 @@ import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
 
+import Data.Time
 import Data.Text (Text)
 import Data.Pool (Pool)
 import Data.Maybe (fromMaybe)
@@ -21,7 +22,7 @@ import Serials.Route.Route
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser)
 
 import Serials.Model.Source (Source(..), SourceThumbnail(..))
-import Serials.Model.Change (Change(..), ChangeKind(..), change)
+import Serials.Model.Change (Change(..), change)
 import Serials.Model.Chapter (Chapter(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
@@ -70,14 +71,26 @@ sourcesServer h =
   sourcesGet id   = liftE  $ Source.find h id
 
   sourcesPut :: Text -> Maybe Text -> Source -> Handler ()
-  sourcesPut id mt s = do
-    user <- currentUser h mt
-    liftE $ do
-      --Change.save h =<< change Edit user s
-      Source.save h id s
+  sourcesPut sourceId mt source = do
+    old <- liftE $ Source.find h sourceId
+
+    -- if they are equal just return a 200 status code
+    if old == source
+    then return ()
+
+    else do
+      -- save the change
+      user <- currentUser h mt
+      time <- liftIO $ getCurrentTime
+      let c = change (Source.changeId old) source time user
+      cid <- liftIO $ Change.insert h c
+
+      -- save the source
+      let source' = source { changeId = Just cid }
+      liftE $ Source.save h sourceId source'
 
   changesGet :: Text -> Handler [Change]
-  changesGet id = return [] -- liftIO $ Change.findBySourceId h id
+  changesGet id = liftIO $ Change.findBySourceId h id
 
   changeGet :: Text -> Text -> Handler Change
   changeGet id changeId = liftE $ Change.findById h changeId

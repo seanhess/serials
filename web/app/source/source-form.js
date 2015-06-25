@@ -107,15 +107,13 @@ export class SourceEdit extends React.Component {
   }
 
   addNewLink() {
-    console.log("NEW LINK")
-    //var chapter = emptyChapter(this.state.source.id)
-    //ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
+    var chapter = emptyChapter()
+    this.updateChapters(this.state.source.chapters.concat([chapter]))
   }
 
   addNewTitle() {
-    console.log("NEW CHAPTER")
-    //var chapter = emptyChapter(this.state.source.id, emptyTitle())
-    //ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
+    var chapter = emptyChapter(emptyTitle())
+    this.updateChapters(this.state.source.chapters.concat([chapter]))
   }
 
   render():?React.Element {
@@ -135,7 +133,7 @@ export class SourceEdit extends React.Component {
         <h3>Source</h3>
 
         <div>
-          <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
+          <button className="" onClick={this.onSaveClick.bind(this)}>Save Changes</button>
           <span> </span>
           <Link to={Routes.book} params={{id: source.id}} className="button secondary">Cancel</Link>
           <span> </span>
@@ -153,15 +151,9 @@ export class SourceEdit extends React.Component {
         <div>
           <h4>{chapters.length} Chapters</h4>
 
-          <div>
-            Last Scan
-            <ul>
-              <li>Date: {toDateString(lastScan.date)}</li>
-              <li>Total: {lastScan.total}</li>
-              <li>New: {lastScan.new.length}</li>
-              <li>Updated: {lastScan.updated.length}</li>
-            </ul>
-          </div>
+          <p>
+            Last Scan: {toDateString(lastScan.date)}
+          </p>
 
           <div className="right">
             <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>

@@ -17,14 +17,10 @@ import Serials.Model.Source (Source(..))
 import Serials.Model.User (SecureUser(..))
 import Serials.Model.Lib.Crud
 
-data ChangeKind = Edit | Create deriving (Show, Eq, Generic)
-instance FromJSON ChangeKind
-instance ToJSON ChangeKind
-
 data Change = Change {
   id :: Text,
+  baseId :: Maybe Text,
   source :: Source,
-  kind :: ChangeKind,
   createdAt :: UTCTime,
   createdBy :: SecureUser
 } deriving (Show, Generic)
@@ -46,13 +42,11 @@ init h = do
 findById :: Pool RethinkDBHandle -> Text -> IO (Maybe Change)
 findById = docsFind table
 
-save :: Pool RethinkDBHandle -> Change -> IO ()
-save h c = runPool h $ table # create c
+insert :: Pool RethinkDBHandle -> Change -> IO Text
+insert = docsInsert table
 
-change :: ChangeKind -> SecureUser -> Source -> IO Change
-change kind user source = do
-    time <- getCurrentTime
-    return $ Change "" source kind time user
+change :: Maybe Text -> Source -> UTCTime -> SecureUser -> Change
+change = Change ""
 
 findBySourceId :: Pool RethinkDBHandle -> Text -> IO [Change]
 findBySourceId h id = runPool h $ table # getAll sourceIndex [expr id] # orderBy [desc "createdAt"]

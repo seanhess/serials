@@ -83,6 +83,11 @@ export function findChange(sourceId: string, changeId:string):Promise<Array<Chan
   return Get(url('sources', sourceId, 'changes', changeId))
 }
 
+/////////////////////////////////////////////////////////
+
+export function scannedChapters(source:Source):Promise<Array<Chapter>> {
+  return Post(url('sources', 'scan'), source)
+}
 
 //////////////////////////////////////////////////////////
 

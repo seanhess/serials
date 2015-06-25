@@ -38,8 +38,14 @@ import Data.HashMap.Strict (HashMap, fromList, lookup)
 
 data MergeResult = New | Updated | Edited | Same deriving (Show, Eq)
 
-scanSource :: Source -> IO [Content]
-scanSource s = importContent (Source.url s) (importSettings s)
+data ScanResult = ScanResult {
+  allChapters :: [Chapter],
+  newChapters :: [Chapter],
+  updatedChapters :: [Chapter]
+} deriving (Eq, Show)
+
+scanSourceContent :: Source -> IO [Content]
+scanSourceContent s = importContent (Source.url s) (importSettings s)
 
 -- this only turns a Link into a chapter, not a Title
 linkToChapter :: Text -> UTCTime -> Int -> Content -> Chapter
@@ -60,9 +66,28 @@ importSourceId h sourceId = do
     Just source <- Source.find h sourceId
     importSource h source
 
+scanSourceChapters :: Source -> IO [Chapter]
+scanSourceChapters source = do
+  content <- scanSourceContent source
+  time <- getCurrentTime
+  return $ allChapters $ scanResult source time content
+
 skipSource :: Source -> IO ()
 skipSource source = do
   putStrLn $ " skip  " <> scanShowSource source
+
+scanResult :: Source -> UTCTime -> [Content] -> ScanResult
+scanResult source time content = ScanResult all new ups
+  where
+  scannedChapters = map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
+  edits = chapterMap $ Source.chapters source
+  merged = mergeAll edits $ nubBy idEqual scannedChapters
+  new = map snd $ filter (isMergeType New) merged
+  ups = map snd $ filter (isMergeType Updated) merged
+  all = map snd $ merged
+
+  sid = Source.id source
+  idEqual a b = Chapter.id a == Chapter.id b
 
 importSource :: Pool RethinkDBHandle -> Source -> IO ()
 importSource h source = do
@@ -70,20 +95,13 @@ importSource h source = do
   -- update last scan saying it started
   Source.clearLastScan h sid
 
-  content <- scanSource source
+  content <- scanSourceContent source
   time <- getCurrentTime
 
-  let scannedChapters = map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
+  let ScanResult all new ups = scanResult source time content
+      scan = Scan time (length all) (map Chapter.id new) (map Chapter.id ups)
 
-  let edits = chapterMap $ Source.chapters source
-      merged = mergeAll edits $ nubBy idEqual scannedChapters
-      new = map snd $ filter (isMergeType New) merged
-      ups = map snd $ filter (isMergeType Updated) merged
-      scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
-      source' = source {
-                  chapters = map snd $ merged,
-                  lastScan = Just scan
-                }
+  let source' = source { chapters = all, lastScan = Just scan }
 
   mapM (log " updated ") ups
   mapM (log "     new ") new
@@ -93,7 +111,7 @@ importSource h source = do
   -- notify all
   -- skip this step if all the chapters are new.
   -- or if the book is inactive
-  when (length new < length merged && Source.status source == Active) $ do
+  when (length new < length all && Source.status source == Active) $ do
     notifyChapters h source new
 
   -- this means it actually completed, so go last?
@@ -154,4 +172,3 @@ checkErr action = do
       Left err -> throwIO $ (userError $ show err)
       Right _  -> return ()
     return ()
-

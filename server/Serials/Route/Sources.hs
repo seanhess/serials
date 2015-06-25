@@ -26,13 +26,15 @@ import Serials.Model.Chapter (Chapter(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.Change as Change
-import Serials.Scan (importSourceId)
+import Serials.Scan (importSourceId, scanSourceChapters)
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 
 type SourcesAPI =
        Get [SourceThumbnail]
    :<|> AuthToken :> ReqBody Source :> Post Text
+
+   :<|> "scan" :> ReqBody Source :> Post [Chapter]
 
    :<|> Capture "id" Text :> Get Source
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
@@ -42,15 +44,14 @@ type SourcesAPI =
    :<|> Capture "id" Text :> "changes" :> Capture "changeId" Text :> Get Change
 
    :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
-   :<|> Capture "id" Text :> "chapters" :> Post ()
-   :<|> Capture "id" Text :> "chapters" :> Delete ()
 
 sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
 sourcesServer h =
-        sourcesGetAll :<|> sourcesPost
+         sourcesGetAll :<|> sourcesPost
+    :<|> sourceScan
     :<|> sourcesGet :<|> sourcesPut
     :<|> changesGet :<|> changeGet
-    :<|> chaptersGet :<|> sourceScan :<|> chaptersDel
+    :<|> chaptersGet
 
   where
 
@@ -82,13 +83,9 @@ sourcesServer h =
   changeGet id changeId = liftE $ Change.findById h changeId
 
   chaptersGet :: Text -> Handler [Chapter]
-  chaptersGet id = liftIO $ do
-    source <- Source.find h id
-    return $ fromMaybe [] $ Source.chapters <$> source
+  chaptersGet id = do
+    source <- liftE $ Source.find h id
+    liftIO $ scanSourceChapters source
 
-  chaptersDel :: Text -> Handler ()
-  chaptersDel id = liftIO $ Source.deleteChapters h id
-
-  sourceScan :: Text -> Handler ()
-  sourceScan  id = liftIO $ importSourceId h id
-
+  sourceScan :: Source -> Handler [Chapter]
+  sourceScan source = liftIO $ scanSourceChapters source

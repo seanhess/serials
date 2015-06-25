@@ -3,11 +3,11 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, Change, findChanges} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, Change, findChanges, scannedChapters} from '../model/source'
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
-import {Chapters} from './chapters'
+import {ChaptersList} from './chapters'
 import {ImportSettings} from './import'
 import {SourceChanges} from './changes'
 import {DisabledButton, FormSection} from '../comp'
@@ -25,6 +25,11 @@ export class SourceEdit extends React.Component {
     params: {id: string};
   };
 
+  state: {
+    source: Source;
+    scanning: boolean;
+  };
+
   static load(params) {
     if (params.id == "new") {
       return {
@@ -40,7 +45,7 @@ export class SourceEdit extends React.Component {
 
   constructor(props:any) {
     super(props)
-    this.state = {source: emptySource(), scanning: false, chapters: []}
+    this.state = {source: emptySource(), scanning: false}
   }
 
   componentWillReceiveProps(props:any) {
@@ -63,44 +68,10 @@ export class SourceEdit extends React.Component {
     return this.props.params.id == "new"
   }
 
-  onSaveChapter(chapter:Chapter) {
-    console.log("SAVE CHAPTER")
-    // need to update my chapters in my state?
-    // yeah...
-    //ChapterModel.save(chapter)
-    //.then(this.reloadChapters.bind(this))
-  }
-
-  //reloadChapters() {
-    //return ChapterModel.findBySource(this.props.params.id)
-    //.then((chapters) => {
-      //this.setState({chapters: chapters})
-    //})
-  //}
-
-  onClearChapter(chapter:Chapter) {
-    console.log("CLEAR CHAPTER")
-    //ChapterModel.clear(chapter)
-    //.then(this.reloadChapters.bind(this))
-  }
-
-  onDeleteChapter(chapter:Chapter) {
-    console.log("DELETE CHAPTER")
-    //ChapterModel.delete(chapter.id)
-    //.then(this.reloadChapters.bind(this))
-  }
-
-  onHiddenChapter(chapter:Chapter, hidden:boolean) {
-    console.log("HIDDEN CHAPTER")
-    // I need to update the chapter with... hidden!
-    // but I need to know which chapter it is!
-    // hmm... give it an update function instead?
-    //ChapterModel.hidden(chapter, hidden)
-    //.then(this.reloadChapters.bind(this))
-  }
-
-  updateChapters(chapters:Array<Chapters>) {
-    this.setState({chapters: chapters})
+  updateChapters(chapters:Array<Chapter>) {
+    var source:Source = this.state.source
+    source.chapters = chapters;
+    this.setState({source: source})
   }
 
   save() {
@@ -116,24 +87,17 @@ export class SourceEdit extends React.Component {
   }
 
   runScan() {
-    console.log("RUN SCAN")
-    //if (this.isNew()) {
-      //throw new Error("Cannot scan new source")
-    //}
-
-    //// save first
-    //this.save()
-    //.then(() => this.setState({scanning: true}))
-    //.then(() => ChapterModel.importSource(this.props.params.id))
-    //.then(() => this.setState({scanning: false}))
-    //.then(this.reloadChapters.bind(this))
-    //.then(() => Alerts.update("success", "Scan complete"))
+    this.setState({scanning: true})
+    scannedChapters(this.state.source)
+    .then((cs) => this.updateChapters(cs))
+    .then(() => this.setState({scanning: false}))
+    .then(() => Alerts.update("success", "Scan complete"))
   }
 
   deleteAllChapters() {
-    console.log("DELETE ALL CHAPTERS")
-    //ChapterModel.deleteBySource(this.props.params.id)
-    //.then(this.reloadChapters.bind(this))
+    var source = this.state.source
+    source.chapters = []
+    this.setState({source: source})
   }
 
   onUpdateSettings(settings:ImportSettings) {
@@ -156,7 +120,7 @@ export class SourceEdit extends React.Component {
 
   render():?React.Element {
     var source:Source = this.state.source || {}
-    var chapters = this.state.chapters || []
+    var chapters = source.chapters || []
     var lastScan = source.lastScan || emptyScan()
 
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
@@ -172,6 +136,8 @@ export class SourceEdit extends React.Component {
 
         <div>
           <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
+          <span> </span>
+          <Link to={Routes.book} params={{id: source.id}} className="button secondary">Cancel</Link>
           <span> </span>
           <div className="right">
             <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
@@ -209,7 +175,7 @@ export class SourceEdit extends React.Component {
             <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
           </div>
 
-          <Chapters chapters={chapters} source={source}
+          <ChaptersList chapters={chapters} source={source}
             update={this.updateChapters.bind(this)}
           />
         </div>

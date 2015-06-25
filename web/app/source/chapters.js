@@ -8,7 +8,7 @@ import {makeUpdate, number} from '../data/update'
 import {isLink, emptyChapter, Chapter, setContentText, contentText, chapterContentURL} from '../model/chapter'
 import {displayIf, Colors} from '../style'
 
-export class Chapters extends React.Component {
+export class ChaptersList extends React.Component {
 
   props: {
     update: Function;
@@ -21,7 +21,6 @@ export class Chapters extends React.Component {
   }
 
   onDragChapter(chapter:Chapter) {
-    //console.log("DRAGGING", chapter)
     this.setState({dragging: chapter})
   }
 
@@ -52,9 +51,9 @@ export class Chapters extends React.Component {
       update(cs)
     }
 
-    function deleteChapter(chapter:Chapter) {
-      update(chapters.filter(c => c.id !== chapter.id))
-    }
+    //function deleteChapter(chapter:Chapter) {
+      //update(chapters.filter(c => c.id !== chapter.id))
+    //}
 
     var row = c => (
       <ChapterRow key={c.id}
@@ -93,7 +92,6 @@ export class ChapterRow extends React.Component {
     chapter:Chapter;
     update:Function;
     onDragChapter:Function;
-    onDropChapter:Function;
     onDragOver:Function;
   };
 
@@ -118,10 +116,6 @@ export class ChapterRow extends React.Component {
     chapter.edited = false
     this.setState({editing: null})
     this.props.update(chapter)
-  }
-
-  delete() {
-    this.save()
   }
 
   edit() {
@@ -162,9 +156,6 @@ export class ChapterRow extends React.Component {
             onChange={update((c, v) => c.content.linkURL = v)}
           />
         </div>
-        <div className="right">
-          <button className="secondary" onClick={this.delete.bind(this)}>Delete</button>
-        </div>
         <div>
           <button onClick={this.save.bind(this)}>Done</button>
           <span> </span>
@@ -173,6 +164,10 @@ export class ChapterRow extends React.Component {
         </div>
       </td>
     </tr>
+
+        //<div className="right">
+          //<button className="secondary" onClick={this.delete.bind(this)}>Delete</button>
+        //</div>
 
   }
 
@@ -201,7 +196,6 @@ export class ChapterRow extends React.Component {
     }
 
     var onDragStart = () => {
-      console.log("DRAG START")
       this.props.onDragChapter(chapter)
     }
 

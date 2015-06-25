@@ -5,7 +5,7 @@ import {Link, RouteHandler} from 'react-router'
 import {last, groupBy, values, curry, dropWhile, takeWhile, tail, assign} from 'lodash'
 
 import {SourceModel, Source, emptySource, SourceStatus, Status} from '../model/source'
-import {ChapterModel, showChapter, isLink, proxyURL, chapterContentURL, contentText, Chapter} from '../model/chapter'
+import {showChapter, isLink, proxyURL, chapterContentURL, contentText, Chapter} from '../model/chapter'
 import {Users, loadSubscription} from '../model/user'
 import {setSubscribed, SubChapter, Subscription, markAsRead, saveSubscription, newSubscription} from '../model/subscription'
 import {Alerts} from '../model/alert'
@@ -22,13 +22,11 @@ export class Book extends React.Component {
   props: {
     params: {id: string};
     source: Source;
-    chapters: Array<Chapter>;
   };
 
   static load(params) {
     return {
-      source: SourceModel.find(params.id),
-      chapters: ChapterModel.findBySource(params.id)
+      source: SourceModel.find(params.id)
     }
   }
 
@@ -121,7 +119,7 @@ export class Book extends React.Component {
     var sub = this.state.subscription
 
     var source:Source = this.props.source || emptySource()
-    var chapters = this.props.chapters || []
+    var chapters = source.chapters || []
     var shown = chapters.filter(showChapter)
 
     var readChapters = {}
@@ -130,7 +128,7 @@ export class Book extends React.Component {
     }
 
     var chaptersAndSubs = shown.map(toChapterAndRead(readChapters))
-    var lastChapter = last(this.props.chapters) || {}
+    var lastChapter = last(chapters) || {}
 
     //var current = chaptersAndSubs.filter(unread)[0]
     var current:?ChapterAndRead = findBookmark(chaptersAndSubs)

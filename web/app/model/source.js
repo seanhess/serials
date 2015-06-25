@@ -2,6 +2,7 @@
 
 import {Get, Post, Put, Del, url} from '../api'
 import {User} from './user'
+import {Chapter} from './chapter'
 
 
 // SourceModel //////////////////////////////////////
@@ -34,6 +35,7 @@ export type Source = {
   imageArtistAboutUrl: ?string;
   lastScan?: Scan;
   status: SourceStatus;
+  chapters: Array<Chapter>;
 }
 
 export type Scan = {
@@ -128,7 +130,8 @@ export function emptySource():Source {
     imageArtistAboutUrl: null,
     status: Status.Proposed,
     imageMissingTitle: false,
-    importSettings: emptyImportSettings(TOC)
+    importSettings: emptyImportSettings(TOC),
+    chapters: []
   }
 }
 

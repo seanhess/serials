@@ -2,6 +2,7 @@
 
 import {Get, Post, Put, Del, url} from '../api'
 import shortid from 'shortid'
+import {deepClone} from 'lodash'
 
 
 // ChapterModel /////////////////////////////////////
@@ -9,9 +10,7 @@ import shortid from 'shortid'
 
 export type Chapter = {
   id: string;
-  sourceId: string;
   added: Date;
-  number: number;
   edited: bool;
   content: Content;
   hidden: bool;
@@ -30,37 +29,8 @@ export type ContentTitle = {
   titleText: string;
 }
 
-export var ChapterModel = {
-  findBySource(id:string) {
-    return Get(url('sources', id, 'chapters'))
-  },
-
-  importSource(id:string) {
-    return Post(url('sources', id, 'chapters'), {})
-  },
-
-  save(chapter:Chapter) {
-    chapter.edited = true
-    return Put(url('chapters', chapter.id), chapter)
-  },
-
-  clear(chapter:Chapter) {
-    chapter.edited = false
-    return Put(url('chapters', chapter.id), chapter)
-  },
-
-  hidden(chapter:Chapter, hidden:bool) {
-    chapter.hidden = hidden
-    return Put(url('chapters', chapter.id), chapter)
-  },
-
-  delete(id:string) {
-    return Del(url('chapters', id))
-  },
-
-  deleteBySource(id:string) {
-    return Del(url('sources', id, 'chapters'))
-  }
+export function importSource(id:string) {
+  return Post(url('sources', id, 'chapters'), {})
 }
 
 export function chapterContentURL(chapter:Chapter):string {
@@ -125,6 +95,17 @@ export function contentText(chapter:Chapter):string {
   else {
     var title:ContentTitle = (chapter.content : any)
     return title.titleText
+  }
+}
+
+export function setContentText(chapter:Chapter, text:string):void {
+  if (chapter.content.tag === "Link") {
+    var link:ContentLink = (chapter.content : any)
+    link.linkText = text
+  }
+  else {
+    var title:ContentTitle = (chapter.content : any)
+    title.titleText = text
   }
 }
 

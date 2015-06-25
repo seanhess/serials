@@ -2,34 +2,83 @@
 
 import React from 'react'
 import url from 'url'
-import {cloneDeep} from 'lodash'
+import {cloneDeep, findIndex} from 'lodash'
 import {toDateString} from '../helpers'
 import {makeUpdate, number} from '../data/update'
-import {isLink, emptyChapter, Chapter} from '../model/chapter'
+import {isLink, emptyChapter, Chapter, setContentText, contentText, chapterContentURL} from '../model/chapter'
+import {displayIf, Colors} from '../style'
 
 export class Chapters extends React.Component {
+
+  props: {
+    update: Function;
+    chapters: Array<Chapter>;
+  };
+
+  constructor(props:any) {
+    super(props)
+    this.state = {dragging: null}
+  }
+
+  onDragChapter(chapter:Chapter) {
+    //console.log("DRAGGING", chapter)
+    this.setState({dragging: chapter})
+  }
+
+  onDrop() {
+    this.setState({dragging: null})
+  }
+
+  onDragOver(chapter:Chapter) {
+    var chapters = this.props.chapters || []
+    var toIndex = findIndex(chapters, c => c.id === chapter.id)
+    var fromIndex = findIndex(chapters, c => c.id === this.state.dragging.id)
+    // I need to remove it from the array, and splice into the other place
+    chapters.splice(toIndex, 0, chapters.splice(fromIndex, 1)[0])
+    this.props.update(chapters)
+  }
+
   render():?React.Element {
     var chapters = this.props.chapters || []
-    var onUpdate = this.props.onUpdate
-    //var source = this.props.source
+    var update = this.props.update
+
+    function updateChapter(chapter:Chapter) {
+      var cs = chapters.map(function(c) {
+        if (c.id === chapter.id) {
+          return chapter
+        }
+        return c
+      })
+      update(cs)
+    }
+
+    function deleteChapter(chapter:Chapter) {
+      update(chapters.filter(c => c.id !== chapter.id))
+    }
 
     var row = c => (
-      <ChapterRow chapter={c}
-        onSaveChapter={this.props.onSaveChapter}
-        onClearChapter={this.props.onClearChapter}
-        onDeleteChapter={this.props.onDeleteChapter}
-        onHiddenChange={this.props.onHiddenChange}
+      <ChapterRow key={c.id}
+        isDragging={this.state.dragging && this.state.dragging.id == c.id}
+        chapter={c}
+        update={updateChapter}
+        onDragChapter={this.onDragChapter.bind(this)}
+        onDragOver={this.onDragOver.bind(this)}
       />
     )
 
-    return <div>
-      <table>
-        <tr>
-          <th></th>
-          <th></th>
-          <th>Number</th>
+    var small = {
+      width: 10
+    }
+
+    return <div onDrop={this.onDrop.bind(this)}>
+      <table style={{width: '100%'}}>
+        <tr style={{width: '100%'}}>
+          <th style={small}></th>
+          <th style={small}></th>
+          <th style={small}></th>
           <th>Content</th>
-          <th>Added</th>
+          <th style={small}></th>
+          <th>First Scanned</th>
         </tr>
         {chapters.map(row)}
       </table>
@@ -37,40 +86,16 @@ export class Chapters extends React.Component {
   }
 }
 
-export class LinkContent extends React.Component {
-  render():?React.Element {
-    var content = this.props.content
-    return <div>
-      <span>{content.linkText}</span>
-      <span> - </span>
-      <span><a href={content.linkURL}>{urlPath(content.linkURL)}</a></span>
-    </div>
-  }
-}
-
-export class TitleContent extends React.Component {
-  render():?React.Element {
-    var content = this.props.content
-    return <div>{content.titleText}</div>
-  }
-}
-
-export class Content extends React.Component {
-  render():?React.Element {
-    var content = this.props.content
-    var inner = ""
-    if (content.tag == "Link") {
-      inner = <LinkContent content={content} />
-    }
-    else {
-      inner = <TitleContent content={content} />
-    }
-    return <div>{inner}</div>
-  }
-}
-
-
 export class ChapterRow extends React.Component {
+
+  props: {
+    isDragging: boolean;
+    chapter:Chapter;
+    update:Function;
+    onDragChapter:Function;
+    onDropChapter:Function;
+    onDragOver:Function;
+  };
 
   constructor(props:any) {
     super(props)
@@ -89,15 +114,14 @@ export class ChapterRow extends React.Component {
   }
 
   clear() {
-    var chapter = this.props.chapter
+    var chapter = this.state.editing
+    chapter.edited = false
     this.setState({editing: null})
-    this.props.onClearChapter(chapter)
+    this.props.update(chapter)
   }
 
   delete() {
-    var chapter = this.props.chapter
-    this.setState({editing: null})
-    this.props.onDeleteChapter(chapter)
+    this.save()
   }
 
   edit() {
@@ -106,13 +130,15 @@ export class ChapterRow extends React.Component {
 
   toggleHidden() {
     var chapter = this.props.chapter
-    this.props.onHiddenChange(chapter, !chapter.hidden)
+    chapter.hidden = !chapter.hidden
+    this.props.update(chapter)
   }
 
   save() {
     var chapter = this.state.editing
     this.setState({editing: null})
-    this.props.onSaveChapter(chapter)
+    chapter.edited = true
+    this.props.update(chapter)
   }
 
   renderEdit():?React.Element {
@@ -123,38 +149,14 @@ export class ChapterRow extends React.Component {
       this.setState({editing: v})
     })
 
-    function updateName(chapter:any, value) {
-      if (isLink(chapter)) {
-        chapter.content.linkText = value
-      }
-
-      else {
-        chapter.content.titleText = value
-      }
-    }
-
     var nameValue = (isLink(chapter)) ? chapter.content.linkText : chapter.content.titleText
 
-    var urlFieldStyle = {
-      display: (isLink(chapter)) ? 'block' : 'none'
-    }
-
     return <tr key={chapter.id}>
-      <td colSpan="6">
-        <div className="row">
-          <div className="columns small-2">
-            <label>Number</label>
-            <input type="number" value={chapter.number}
-              onChange={update((c, v) => c.number = v, number)}
-            />
-          </div>
-          <div className="columns small-10">
-            <label>Name</label>
-            <input type="text" value={nameValue}
-              onChange={update(updateName)}/>
-          </div>
-        </div>
-        <div style={urlFieldStyle}>
+      <td colSpan="5">
+        <label>Name</label>
+        <input type="text" value={nameValue}
+          onChange={update((c, v) => setContentText(c, v))}/>
+        <div style={displayIf(isLink(chapter))}>
           <label>URL</label>
           <input type="text" value={chapter.content.linkURL}
             onChange={update((c, v) => c.content.linkURL = v)}
@@ -164,13 +166,14 @@ export class ChapterRow extends React.Component {
           <button className="secondary" onClick={this.delete.bind(this)}>Delete</button>
         </div>
         <div>
-          <button onClick={this.save.bind(this)}>Save</button>
+          <button onClick={this.save.bind(this)}>Done</button>
           <span> </span>
           <button className="secondary" onClick={this.clear.bind(this)}>Revert to Scan</button>
           <span> </span>
         </div>
       </td>
     </tr>
+
   }
 
   renderView():?React.Element {
@@ -192,18 +195,41 @@ export class ChapterRow extends React.Component {
       fontWeight: weight
     }
 
+    var onDragOver = (e) => {
+      e.preventDefault();
+      this.props.onDragOver(chapter)
+    }
 
-    return <tr key={chapter.id}>
+    var onDragStart = () => {
+      console.log("DRAG START")
+      this.props.onDragChapter(chapter)
+    }
+
+    var rowStyle = {}
+    if (this.props.isDragging) {
+      rowStyle = {
+        outline: "solid 1px " + Colors.paperLine,
+        background: Colors.paper
+      }
+    }
+
+    return <tr key={chapter.id} onDragOver={onDragOver} style={rowStyle}>
+      <td draggable="true" onDragStart={onDragStart}><span className="fa fa-bars"></span></td>
       <td><a onClick={this.edit.bind(this)}>Edit</a></td>
       <td><a onClick={this.toggleHidden.bind(this)} style={style}>
         <span className="fa fa-eye"></span></a>
       </td>
-      <td style={style}>{chapter.number}</td>
-      <td style={style}><Content content={chapter.content}/></td>
+      <td style={style}>
+        {contentText(chapter)}
+      </td>
+      <td>
+        <a href={chapterContentURL(chapter)} style={style}><span className="fa fa-external-link"></span></a>
+      </td>
       <td>{toDateString(chapter.added)}</td>
     </tr>
   }
 }
+
 
 function urlPath(u) {
   var uri = url.parse(u, false, false)

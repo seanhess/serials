@@ -13,7 +13,11 @@ export var Colors = {
 
   offWhite: "#F8FBFB",
   white: "#FFF",
-  light: "#DCDDCD"
+  light: "#DCDDCD",
+
+  info: "#A0D3E8",
+  paper: "#FFFBE6",
+  paperLine: "#FFF5C2",
 }
 
 export var background = {

@@ -4,7 +4,7 @@ import React from 'react'
 import {Link} from 'react-router'
 
 import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, Change, findChanges} from '../model/source'
-import {ChapterModel, Chapter, emptyChapter, emptyTitle} from '../model/chapter'
+import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
 import {Chapters} from './chapters'
@@ -21,19 +21,19 @@ export class SourceEdit extends React.Component {
 
   props: {
     source: Source;
-    chapters: Array<Chapter>;
     changes: Array<Change>;
     params: {id: string};
   };
 
   static load(params) {
     if (params.id == "new") {
-      return {source: emptySource(), chapters:[]}
+      return {
+        source: emptySource()
+      }
     }
 
     return {
       source: SourceModel.find(params.id),
-      chapters: ChapterModel.findBySource(params.id),
       changes: findChanges(params.id),
     }
   }
@@ -44,13 +44,10 @@ export class SourceEdit extends React.Component {
   }
 
   componentWillReceiveProps(props:any) {
-    this.setState({
-      // store them locally so you can refresh them!
-      source: props.source || emptySource(),
-      chapters: props.chapters || []
-    })
+    var source = props.source || emptySource()
+    var chapters = source.chapters
+    this.setState({source, chapters})
   }
-
 
   onSaveClick() {
     if (this.isNew()) {
@@ -67,30 +64,43 @@ export class SourceEdit extends React.Component {
   }
 
   onSaveChapter(chapter:Chapter) {
-    ChapterModel.save(chapter)
-    .then(this.reloadChapters.bind(this))
+    console.log("SAVE CHAPTER")
+    // need to update my chapters in my state?
+    // yeah...
+    //ChapterModel.save(chapter)
+    //.then(this.reloadChapters.bind(this))
   }
 
-  reloadChapters() {
-    return ChapterModel.findBySource(this.props.params.id)
-    .then((chapters) => {
-      this.setState({chapters: chapters})
-    })
-  }
+  //reloadChapters() {
+    //return ChapterModel.findBySource(this.props.params.id)
+    //.then((chapters) => {
+      //this.setState({chapters: chapters})
+    //})
+  //}
 
   onClearChapter(chapter:Chapter) {
-    ChapterModel.clear(chapter)
-    .then(this.reloadChapters.bind(this))
+    console.log("CLEAR CHAPTER")
+    //ChapterModel.clear(chapter)
+    //.then(this.reloadChapters.bind(this))
   }
 
   onDeleteChapter(chapter:Chapter) {
-    ChapterModel.delete(chapter.id)
-    .then(this.reloadChapters.bind(this))
+    console.log("DELETE CHAPTER")
+    //ChapterModel.delete(chapter.id)
+    //.then(this.reloadChapters.bind(this))
   }
 
   onHiddenChapter(chapter:Chapter, hidden:boolean) {
-    ChapterModel.hidden(chapter, hidden)
-    .then(this.reloadChapters.bind(this))
+    console.log("HIDDEN CHAPTER")
+    // I need to update the chapter with... hidden!
+    // but I need to know which chapter it is!
+    // hmm... give it an update function instead?
+    //ChapterModel.hidden(chapter, hidden)
+    //.then(this.reloadChapters.bind(this))
+  }
+
+  updateChapters(chapters:Array<Chapters>) {
+    this.setState({chapters: chapters})
   }
 
   save() {
@@ -106,22 +116,24 @@ export class SourceEdit extends React.Component {
   }
 
   runScan() {
-    if (this.isNew()) {
-      throw new Error("Cannot scan new source")
-    }
+    console.log("RUN SCAN")
+    //if (this.isNew()) {
+      //throw new Error("Cannot scan new source")
+    //}
 
-    // save first
-    this.save()
-    .then(() => this.setState({scanning: true}))
-    .then(() => ChapterModel.importSource(this.props.params.id))
-    .then(() => this.setState({scanning: false}))
-    .then(this.reloadChapters.bind(this))
-    .then(() => Alerts.update("success", "Scan complete"))
+    //// save first
+    //this.save()
+    //.then(() => this.setState({scanning: true}))
+    //.then(() => ChapterModel.importSource(this.props.params.id))
+    //.then(() => this.setState({scanning: false}))
+    //.then(this.reloadChapters.bind(this))
+    //.then(() => Alerts.update("success", "Scan complete"))
   }
 
   deleteAllChapters() {
-    ChapterModel.deleteBySource(this.props.params.id)
-    .then(this.reloadChapters.bind(this))
+    console.log("DELETE ALL CHAPTERS")
+    //ChapterModel.deleteBySource(this.props.params.id)
+    //.then(this.reloadChapters.bind(this))
   }
 
   onUpdateSettings(settings:ImportSettings) {
@@ -131,13 +143,15 @@ export class SourceEdit extends React.Component {
   }
 
   addNewLink() {
-    var chapter = emptyChapter(this.state.source.id)
-    ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
+    console.log("NEW LINK")
+    //var chapter = emptyChapter(this.state.source.id)
+    //ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
   }
 
   addNewTitle() {
-    var chapter = emptyChapter(this.state.source.id, emptyTitle())
-    ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
+    console.log("NEW CHAPTER")
+    //var chapter = emptyChapter(this.state.source.id, emptyTitle())
+    //ChapterModel.save(chapter).then(this.reloadChapters.bind(this))
   }
 
   render():?React.Element {
@@ -152,61 +166,60 @@ export class SourceEdit extends React.Component {
       this.setState({source: v})
     })
 
-    return <div>
-      <h3>Source</h3>
-
-      <div>
-        <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
-        <span> </span>
-        <div className="right">
-          <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
-        </div>
-      </div>
-
-      <BookDetails source={source} update={update} />
-      <ImageDetails source={source} update={update} />
-      <ScanSettings source={source} update={update} />
-
-      <hr />
-
-      <div style={displayIf(!this.isNew())}>
-        <h4>{chapters.length} Chapters</h4>
+    return <div className="row">
+      <div className="columns small-12">
+        <h3>Source</h3>
 
         <div>
-          Last Scan
-          <ul>
-            <li>Date: {toDateString(lastScan.date)}</li>
-            <li>Total: {lastScan.total}</li>
-            <li>New: {lastScan.new.length}</li>
-            <li>Updated: {lastScan.updated.length}</li>
-          </ul>
-        </div>
-
-        <div className="right">
-          <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
+          <button className="" onClick={this.onSaveClick.bind(this)}>Save</button>
           <span> </span>
-          <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
+          <div className="right">
+            <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
+          </div>
         </div>
 
-        <div className="">
-          <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
-          <span> </span>
-          <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
+        <BookDetails source={source} update={update} />
+        <ImageDetails source={source} update={update} />
+        <ScanSettings source={source} update={update} />
+
+        <hr />
+
+        <div>
+          <h4>{chapters.length} Chapters</h4>
+
+          <div>
+            Last Scan
+            <ul>
+              <li>Date: {toDateString(lastScan.date)}</li>
+              <li>Total: {lastScan.total}</li>
+              <li>New: {lastScan.new.length}</li>
+              <li>Updated: {lastScan.updated.length}</li>
+            </ul>
+          </div>
+
+          <div className="right">
+            <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
+            <span> </span>
+            <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
+          </div>
+
+          <div className="">
+            <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
+            <span> </span>
+            <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
+          </div>
+
+          <Chapters chapters={chapters} source={source}
+            update={this.updateChapters.bind(this)}
+          />
         </div>
 
-        <Chapters chapters={chapters} source={source}
-          onSaveChapter={this.onSaveChapter.bind(this)}
-          onClearChapter={this.onClearChapter.bind(this)}
-          onDeleteChapter={this.onDeleteChapter.bind(this)}
-          onHiddenChange={this.onHiddenChapter.bind(this)}
-        />
+        <hr />
+
+        <h4>Changes</h4>
+        <SourceChanges changes={this.props.changes}/>
+
       </div>
-
-      <hr />
-
-      <h4>Changes</h4>
-      <SourceChanges changes={this.props.changes}/>
-
     </div>
 
   }
@@ -360,7 +373,7 @@ class StatusSelect extends React.Component {
   render():React.Element {
     var source = this.props.source
     var update = this.props.update
-    var options = Status.All.map(s => <option value={s}>{s}</option>)
+    var options = Status.All.map(s => <option value={s} key={s}>{s}</option>)
 
     return <select
         value={source.status}

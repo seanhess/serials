@@ -13,13 +13,14 @@ import Control.Monad.Trans.Either
 
 import Data.Text (Text)
 import Data.Pool (Pool)
+import Data.Maybe (fromMaybe)
 
 import Database.RethinkDB.NoClash hiding (Change)
 
 import Serials.Route.Route
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser)
 
-import Serials.Model.Source (Source(..))
+import Serials.Model.Source (Source(..), SourceThumbnail(..))
 import Serials.Model.Change (Change(..), ChangeKind(..), change)
 import Serials.Model.Chapter (Chapter(..))
 import qualified Serials.Model.Source as Source
@@ -30,8 +31,8 @@ import Serials.Scan (importSourceId)
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 
 type SourcesAPI =
-       Get [Source]
-  :<|> AuthToken :> ReqBody Source :> Post Text
+       Get [SourceThumbnail]
+   :<|> AuthToken :> ReqBody Source :> Post Text
 
    :<|> Capture "id" Text :> Get Source
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
@@ -53,14 +54,15 @@ sourcesServer h =
 
   where
 
-  sourcesGetAll :: Handler [Source]
-  sourcesGetAll = liftIO $ Source.list h
+  -- i need to serialize them WITHOUT all the fancy fields
+  sourcesGetAll :: Handler [SourceThumbnail]
+  sourcesGetAll = liftIO $ map SourceThumbnail <$> Source.list h
 
   sourcesPost :: Maybe Text -> Source -> Handler Text
   sourcesPost mt s = do
     user <- currentUser h mt
     liftIO $ do
-      Change.save h =<< change Create user s
+      --Change.save h =<< change Create user s
       Source.insert h s
 
   sourcesGet :: Text -> Handler Source
@@ -69,21 +71,23 @@ sourcesServer h =
   sourcesPut :: Text -> Maybe Text -> Source -> Handler ()
   sourcesPut id mt s = do
     user <- currentUser h mt
-    liftIO $ do
-      Change.save h =<< change Edit user s
+    liftE $ do
+      --Change.save h =<< change Edit user s
       Source.save h id s
 
   changesGet :: Text -> Handler [Change]
-  changesGet id = liftIO $ Change.findBySourceId h id
+  changesGet id = return [] -- liftIO $ Change.findBySourceId h id
 
   changeGet :: Text -> Text -> Handler Change
   changeGet id changeId = liftE $ Change.findById h changeId
 
   chaptersGet :: Text -> Handler [Chapter]
-  chaptersGet id = liftIO $ Chapter.bySource h id
+  chaptersGet id = liftIO $ do
+    source <- Source.find h id
+    return $ fromMaybe [] $ Source.chapters <$> source
 
   chaptersDel :: Text -> Handler ()
-  chaptersDel id = liftIO $ Chapter.deleteBySource h id
+  chaptersDel id = liftIO $ Source.deleteChapters h id
 
   sourceScan :: Text -> Handler ()
   sourceScan  id = liftIO $ importSourceId h id

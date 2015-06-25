@@ -13,6 +13,7 @@ import Data.Text (Text, unpack)
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Text.Lazy as TL
+import qualified Database.RethinkDB as RethinkDB
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 import qualified Servant

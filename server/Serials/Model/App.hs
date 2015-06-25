@@ -19,6 +19,7 @@ import Network.URI
 
 import Serials.Model.Lib.Crud
 import qualified Serials.Model.Source as Source
+import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Source (Source)
 import Serials.Model.Scan (Scan)
 import qualified Serials.Model.Scan as Scan

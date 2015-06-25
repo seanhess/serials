@@ -23,8 +23,7 @@ instance ToJSON ChangeKind
 
 data Change = Change {
   id :: Text,
-  oldSource :: Source,
-  newSource :: Source,
+  source :: Source,
   kind :: ChangeKind,
   createdAt :: UTCTime,
   createdBy :: SecureUser

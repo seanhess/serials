@@ -70,31 +70,6 @@ import Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 
--- Chapters ---------------------------------------------------
-type ChaptersAPI =
-       Capture "id" Text :> Get Chapter
-  :<|> Capture "id" Text :> ReqBody Chapter :> Put ()
-  :<|> Capture "id" Text :> Delete ()
-
-chaptersServer :: Pool RethinkDBHandle -> Server ChaptersAPI
-chaptersServer h =
-  chapterGet  :<|> chapterPut :<|> chapterDel
-
-  where
-  chapterGet :: Text -> Handler Chapter
-  chapterGet id   = liftE $ Chapter.find h id
-
-  chapterPut :: Text -> Chapter -> Handler ()
-  chapterPut id c = liftE $ Chapter.save h c
-
-  chapterDel :: Text -> Handler ()
-  chapterDel id   = liftIO $ Chapter.remove h id
-
-
-
-
--- Sources -----------------------------------------------------
-
 
 
 -- Submissions ---------------------------------------------------
@@ -290,7 +265,6 @@ type API =
 
        "sources"   :> SourcesAPI
   -- :<|> "submissions" :> SubmissionsAPI
-  :<|> "chapters"  :> ChaptersAPI
   :<|> "users"     :> UsersAPI
   :<|> "auth"      :> AuthAPI
   :<|> "invites"   :> InvitesAPI
@@ -310,7 +284,6 @@ server h version env root =
 
         sourcesServer h
 
-   :<|> chaptersServer h
    :<|> usersServer h
    :<|> authServer h
    :<|> invitesServer h
@@ -397,7 +370,6 @@ runApi port p version env = do
   createDb p
   Source.init p
   Submission.init p
-  Chapter.init p
   User.init p
   Invite.init p
   Subscription.init p

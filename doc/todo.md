@@ -132,6 +132,7 @@ MIGRATIONS
 - [x] r.db('serials').table('sources').update({hidden: false})
 - [x] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
 - [x] r.db('serials').table('subscriptions').update({subscribed: true})
+- [ ] r.db('serials').table('sources').update({chapters:[]})
 
 FOLLOW UP
 ---------

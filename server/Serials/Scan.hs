@@ -46,9 +46,7 @@ linkToChapter :: Text -> UTCTime -> Int -> Content -> Chapter
 linkToChapter sid time n content =
   Chapter {
     Chapter.id       = makeId content,
-    Chapter.sourceId = sid,
     Chapter.added = time,
-    Chapter.number = n,
     Chapter.edited    = False,
     Chapter.hidden   = False,
     Chapter.content = content
@@ -77,23 +75,20 @@ importSource h source = do
 
   let scannedChapters = map (uncurry $ linkToChapter sid time) (zip [10,20..] content)
 
-  edits <- chapterMap <$> Chapter.bySource h sid
-
-  let merged = mergeAll edits $ nubBy idEqual scannedChapters
+  let edits = chapterMap $ Source.chapters source
+      merged = mergeAll edits $ nubBy idEqual scannedChapters
       new = map snd $ filter (isMergeType New) merged
       ups = map snd $ filter (isMergeType Updated) merged
       scan = Scan time (length merged) (map Chapter.id new) (map Chapter.id ups)
+      source' = source {
+                  chapters = map snd $ merged,
+                  lastScan = Just scan
+                }
 
   mapM (log " updated ") ups
   mapM (log "     new ") new
 
-  -- TODO download all chapters
-  -- proxy it, getting the text.
-  -- save to the right place
-
-  -- save all 
-  checkErr $ Chapter.saveAll h new
-  checkErr $ Chapter.saveAll h ups
+  print source'
 
   -- notify all
   -- skip this step if all the chapters are new.
@@ -101,9 +96,8 @@ importSource h source = do
   when (length new < length merged && Source.status source == Active) $ do
     notifyChapters h source new
 
-
   -- this means it actually completed, so go last?
-  checkErr $ Source.updateLastScan h sid scan
+  checkErr $ Source.save h sid source'
 
   where
     sid = Source.id source
@@ -160,5 +154,4 @@ checkErr action = do
       Left err -> throwIO $ (userError $ show err)
       Right _  -> return ()
     return ()
-
 

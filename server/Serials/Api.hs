@@ -202,11 +202,6 @@ type AuthAPI =
 
   :<|> "jwt"     :> AuthToken :> Get (Maybe JWTClaimsSet)
 
-addAuth :: User -> Handler (Headers CookieHeader SecureUser)
-addAuth u = do
-  claims <- liftIO $ userClaims u
-  return $ (addAuthHeader claims (SecureUser u))
-
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
 authServer h = current :<|> logout :<|> login :<|> jwt
 
@@ -339,7 +334,6 @@ rootApp h = scottyApp $ do
     env <- liftIO $ readAllEnv
     let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
     html $ renderHtml body
-
 
 
 data AppSettings = AppSettings {

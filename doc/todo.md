@@ -1,8 +1,9 @@
 Bugs
 ----
 - [x] Root domain redirects to library, instead of bookshelf
-- [ ] chapter updates point to localhost
-- [ ] big covers in form and gallery?
+- [x] chapter updates point to localhost
+- [x] big covers in form and gallery?
+- [ ] Security: put secret key auth into an environment variable
 
 Tweaks
 ------
@@ -14,24 +15,12 @@ Milestone: Better Library
 - [x] Users can edit books
 - [x] Users can add  books
 
-- [x] Full change history for auditing
+- [ ] Admin audit queue / full change history
 - [ ] Search by author or title
 - [ ] Search by tag
 - [ ] Track total number of subscribers
 - [ ] Show more in the library: subscribed
 - [ ] Sort by # subscribers
-
-USER GENERATED LIBRARY
-- [x] Any user can add books
-- [x] Edit link -> any user can edit a book
-- [x] Store changes whenever source is saved
-- [x] Don't store a change if it is the same
-- [x] only admin sees hidden and status
-- [ ] admin can delete books
-- [ ] not logged in and try to save...
-- [x] View changes
-- [ ] BUG: should do something even without a root selector
-- [ ] BUG: validation when they don't put in a URL
 
 Milestone: Feedback and Discovery
 ---------------------------------

@@ -76,7 +76,8 @@ data Env = Env {
   db :: (String, Integer),
   mandrill :: Text,
   endpoint :: Endpoint,
-  environment :: AppEnvironment
+  environment :: AppEnvironment,
+  authSecret :: Text
 } deriving (Show)
 
 readAllEnv :: IO Env
@@ -86,9 +87,10 @@ readAllEnv = do
     endpoint <- defEnv "ENDPOINT" "http://localhost:3001"
     db <- lookupDb
     mm <- lookupEnv "MANDRILL_API_KEY"
+    s <- defEnv "AUTH_SECRET" "not a secret"
     case mm of
       Nothing -> error "missing env MANDRILL_API_KEY"
-      Just m  -> return $ Env port db (pack m) (pack endpoint) environment
+      Just m  -> return $ Env port db (pack m) (pack endpoint) environment (pack s)
 
 lookupDb :: IO (String, Integer)
 lookupDb = do

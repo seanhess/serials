@@ -76,14 +76,11 @@ defaultClaims id unc = do
       unregisteredClaims = unc
     }
 
-signClaims :: JWTClaimsSet -> JSON
-signClaims cs = encodeSigned HS256 jwtSecret cs
+signClaims :: Secret -> JWTClaimsSet -> JSON
+signClaims secret cs = encodeSigned HS256 secret cs
 
-jwtSecret :: Secret
-jwtSecret = secret "6aefad90e7a41c1d9267feccc0ee763ebd8ef9c3496a2d84b5c36e6ff4b7534dce5dbb705254d6a0253f3ccf36300bb0f1b6e1c4ab805c3c85884e3df3dbd0c7"
-
-verifyJwt :: JSON -> IO (Maybe (JWT VerifiedJWT))
-verifyJwt j = case verify jwtSecret =<< decode j of
+verifyJwt :: Secret -> JSON -> IO (Maybe (JWT VerifiedJWT))
+verifyJwt secret j = case verify secret =<< decode j of
   Nothing -> return Nothing
   Just j -> do
     exp <- hasExpired j

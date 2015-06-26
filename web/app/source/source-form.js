@@ -3,7 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scannedChapters} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scannedChapters, validate, DefaultImageUrl} from '../model/source'
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {findChanges, Change}  from '../model/change'
 import {Alerts} from '../model/alert'
@@ -36,7 +36,7 @@ export class SourceEdit extends React.Component {
   static load(params) {
     if (params.id == "new") {
       return {
-        source: emptySource()
+        source: emptySource(DefaultImageUrl)
       }
     }
 
@@ -59,6 +59,14 @@ export class SourceEdit extends React.Component {
   }
 
   onSaveClick() {
+
+    var res = validate(this.state.source)
+
+    if (res) {
+      Alerts.update("error", res)
+      return
+    }
+
     if (this.isNew()) {
       return this.create()
     }
@@ -100,7 +108,6 @@ export class SourceEdit extends React.Component {
     var source = this.state.source
     return SourceModel.create(source)
     .then((id) => {
-      console.log("CREATED", id)
       Alerts.update("success", "Created!", true)
       transitionTo(Routes.book, {id})
     })
@@ -120,12 +127,6 @@ export class SourceEdit extends React.Component {
     this.setState({source: source})
   }
 
-  onUpdateSettings(settings:ImportSettings) {
-    var source = this.state.source
-    source.importSettings = settings
-    this.setState({source: source, updated: true})
-  }
-
   addNewLink() {
     var chapter = emptyChapter()
     this.updateChapters(this.state.source.chapters.concat([chapter]))
@@ -136,6 +137,10 @@ export class SourceEdit extends React.Component {
     this.updateChapters(this.state.source.chapters.concat([chapter]))
   }
 
+  updateSource(source:Source) {
+    this.setState({source})
+  }
+
   render():?React.Element {
     var source:Source = this.state.source || {}
     var chapters = source.chapters || []
@@ -144,9 +149,7 @@ export class SourceEdit extends React.Component {
     var scanningDisabled = (this.state.scanning) ? "disabled" : ""
     var scanningText = (this.state.scanning) ? "Scanning..." : "Scan Now"
 
-    var update = makeUpdate(source, (v) => {
-      this.setState({source: v})
-    })
+    var update = makeUpdate(source, this.updateSource.bind(this))
 
     var cancelRoute = (this.isNew()) ? Routes.library : Routes.book
     var title = (this.isNew()) ? "New Book" : "Edit Book"
@@ -168,7 +171,7 @@ export class SourceEdit extends React.Component {
 
         <BookDetails source={source} update={update} />
         <ImageDetails source={source} update={update} />
-        <ScanSettings source={source} update={update} />
+        <ScanSettings source={source} update={this.updateSource.bind(this)} />
 
         <hr />
 
@@ -196,10 +199,11 @@ export class SourceEdit extends React.Component {
           />
         </div>
 
-        <hr />
-
-        <h4>Changes</h4>
-        <SourceChanges changes={this.state.changes}/>
+        <div style={displayIf(this.state.changes.length > 0)}>
+          <hr />
+          <h4>Changes</h4>
+          <SourceChanges changes={this.state.changes}/>
+        </div>
 
       </div>
     </div>
@@ -218,6 +222,7 @@ export class BookDetails extends React.Component {
   render():React.Element {
     var source = this.props.source
     var update = this.props.update
+
     return <FormSection title="Book Details">
       <label>Title</label>
       <input type="text"
@@ -329,9 +334,19 @@ class ScanSettings extends React.Component {
     update: Function
   };
 
+  updateSettings(value) {
+    var source = this.props.source
+    source.importSettings = value
+    this.props.update(source)
+  }
+
   render():React.Element {
     var source = this.props.source
     var update = this.props.update
+
+    var update = makeUpdate(source, (v) => {
+      this.props.update(v)
+    })
 
     return <FormSection title="Scan Settings">
       <label>Table of Contents URL</label>
@@ -343,7 +358,7 @@ class ScanSettings extends React.Component {
 
       <ImportSettings
         settings={source.importSettings}
-        onUpdate={update((s, v) => s.importSettings = v)}
+        onUpdate={this.updateSettings.bind(this)}
       />
 
     </FormSection>

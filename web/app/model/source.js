@@ -106,7 +106,7 @@ export var SourceModel = {
 
 
 
-export function emptySource():Source {
+export function emptySource(imageUrl:string = ""):Source {
   return {
     id: "",
     name: "",
@@ -114,7 +114,7 @@ export function emptySource():Source {
     authorUrl: "",
     hidden: false,
     url: "",
-    imageUrl: "http://i.imgur.com/bMwt85W.jpg",
+    imageUrl: imageUrl,
     imageArtist: null,
     imageArtistUrl: null,
     imageArtistAboutUrl: null,
@@ -178,3 +178,26 @@ export function defaultImageUrl(value:string):string {
   return value || DefaultImageUrl
 }
 
+
+export function validate(source:Source):?string {
+  if (!source.name)         return "Title is required"
+  if (!source.author)        return "Author is required"
+  if (!source.authorUrl)        return "Author URL is required"
+  if (!source.imageUrl)      return "Image URL is required"
+  if (!source.imageArtist)   return "Artist is required"
+  if (!source.imageArtistUrl) return "Artist URL is required"
+  if (!source.url)           return "Table of Contents URL is required"
+
+  if (!source.chapters.length) return "Scan Chapters before saving"
+
+  if (source.importSettings.tag === "MenuSettings") {
+    var menuSettings:MenuSettings = (source.importSettings : any)
+    if (!menuSettings.menuBase) return "Base URL is required"
+    if (!menuSettings.menuOpen) return "Open Selector is required"
+  }
+
+  else {
+    var toc:TOCSettings = (source.importSettings : any)
+    if (!toc.tocSelector) return "Root Selector is required"
+  }
+}

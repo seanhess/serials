@@ -24,13 +24,13 @@ export class MenuSettings extends React.Component {
     var update = makeUpdate(settings, this.props.onUpdate)
 
     return <div>
-      <label placeholder="twigserial.wordpress.com/?cat=">Base URL</label>
-      <input type="text" value={settings.menuBase} onChange={update((s, v) => s.menuBase = v)} />
+      <label>Base URL</label>
+      <input type="text" placeholder="http://fanfiction.net/s/11117811/" value={settings.menuBase} onChange={update((s, v) => s.menuBase = v)} />
 
       <div className="row">
-        <div className="small-12 columns">
-          <label placeholder="#chap_select">Open Selector</label>
-          <input type="text" value={settings.menuOpen} onChange={update((s, v) => s.menuOpen = v)} />
+        <div className="columns small-12">
+          <label>Open Selector</label>
+          <input placeholder="#chap_select" type="text" value={settings.menuOpen} onChange={update((s, v) => s.menuOpen = v)} />
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@ export class TOCSettings extends React.Component {
 
     return <div>
       <div className="row">
-        <div className="columns small-6">
+        <div className="columns small-12 medium-6">
           <label>Root Selector</label>
           <input placeholder="#toc" type="text"
             value={settings.tocSelector}
@@ -55,7 +55,7 @@ export class TOCSettings extends React.Component {
           />
         </div>
 
-        <div className="columns small-6">
+        <div className="columns small-12 medium-6">
           <label>Title Selector</label>
           <input placeholder="(leave blank for none)" type="text"
             value={settings.titleSelector}

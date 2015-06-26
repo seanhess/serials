@@ -33,9 +33,7 @@ export function coverStyle(url:string, size:Size = CoverSize):Object {
 
   // otherwise it forgets about the cover. Wait until the image is ready
   if (!url) {
-    return {
-
-    }
+    return {}
   }
 
   return {

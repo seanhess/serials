@@ -45,9 +45,11 @@ import Serials.Route.Route
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
 import qualified Serials.Model.User as User hiding (User())
+import Serials.Model.App (readAllEnv, Env(..))
+
 import System.Locale
 
-import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims)
+import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims, Secret, secret)
 import Web.Cookie
 
 type AuthToken = Cookie "token" Text
@@ -93,7 +95,8 @@ checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
 checkCurrentAuth h mjwt = case mjwt of
   Nothing -> return Nothing
   Just jwt -> do
-    mt <- verifyJwt jwt -- IO
+    secret <- jwtSecret
+    mt <- verifyJwt secret jwt -- IO
     case mt of -- Maybe
       Nothing -> return Nothing
       Just t  -> do
@@ -115,20 +118,25 @@ userLogin h u = do
     Just user -> do
       let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
       let pass = encodeUtf8 $ password u
-      -- jwt <- userJWT user
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"
         True -> return $ Right user
 
 verifyClaims :: Text -> IO (Maybe JWTClaimsSet)
 verifyClaims t = do
-    jwt <- verifyJwt t
+    secret <- jwtSecret
+    jwt <- verifyJwt secret t
     return $ fmap claims jwt
 
-userJWT :: User -> IO Text
-userJWT user = do
-    claims <- userClaims user
-    return $ signClaims claims
+--userJWT :: User -> IO Text
+--userJWT user = do
+    --claims <- userClaims user
+    --return $ signClaims secret claims
+
+jwtSecret :: IO Secret
+jwtSecret = do
+    env <- readAllEnv
+    return $ secret $ authSecret env
 
 userClaims :: User -> IO JWTClaimsSet
 userClaims user = defaultClaims (id user) $ fromList [adminClaim]
@@ -139,13 +147,19 @@ userClaims user = defaultClaims (id user) $ fromList [adminClaim]
 
 type CookieHeader = '[Header "Set-Cookie" Text]
 
-addAuthHeader :: JWTClaimsSet -> a -> Headers CookieHeader a
-addAuthHeader claims a = addHeader header a
+addAuthHeader :: Secret -> JWTClaimsSet -> a -> Headers CookieHeader a
+addAuthHeader secret claims a = addHeader header a
   where
   header = "token=" <> token <> "; path=/; HttpOnly; expires=" <> expires
-  token   = signClaims claims
+  token   = signClaims secret claims
   expTime = toUTCTime $ fromJust $ exp claims
   expires = formatTimeRFC822 expTime
+
+addAuth :: User -> Handler (Headers CookieHeader SecureUser)
+addAuth u = do
+  claims <- liftIO $ userClaims u
+  secret <- liftIO $ jwtSecret
+  return $ (addAuthHeader secret claims (SecureUser u))
 
 clearAuthHeader :: Headers CookieHeader ()
 clearAuthHeader = addHeader ("token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT") ()

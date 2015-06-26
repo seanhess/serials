@@ -7,6 +7,7 @@ import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, sc
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {findChanges, Change}  from '../model/change'
 import {Alerts} from '../model/alert'
+import {User, Users} from '../model/user'
 import {toDateString} from '../helpers'
 import {ChaptersList} from './chapters'
 import {ImportSettings} from './import'
@@ -65,6 +66,14 @@ export class SourceEdit extends React.Component {
     else {
       return this.save()
     }
+  }
+
+  onDelete() {
+    return SourceModel.delete(this.props.params.id)
+    .then(function() {
+      Alerts.update("success", "Source has been deleted", true)
+      transitionTo(Routes.library)
+    })
   }
 
   isNew():boolean {
@@ -152,8 +161,8 @@ export class SourceEdit extends React.Component {
 
           <Link to={cancelRoute} params={{id: source.id}} className="button secondary">Cancel</Link>
           <span> </span>
-          <div className="right" style={displayIf(false)}>
-            <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
+          <div className="right" style={displayIf(Users.isAdmin())}>
+            <button className="secondary" onClick={this.onDelete.bind(this)}>Delete</button>
           </div>
         </div>
 
@@ -234,7 +243,7 @@ export class BookDetails extends React.Component {
         </div>
       </div>
 
-      <div className="row">
+      <div className="row" style={displayIf(Users.isAdmin())}>
         <div className="columns small-12 medium-3">
           <label>Status</label>
           <StatusSelect update={update} source={source} />

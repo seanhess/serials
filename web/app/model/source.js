@@ -97,6 +97,10 @@ export var SourceModel = {
 
   save(id:string, source:Source) {
     return Put(url('sources', id), source)
+  },
+
+  delete(id:string) {
+    return Del(url('sources', id))
   }
 }
 

@@ -38,6 +38,7 @@ type SourcesAPI =
    :<|> "scan" :> ReqBody Source :> Post [Chapter]
 
    :<|> Capture "id" Text :> Get Source
+   :<|> Capture "id" Text :> Delete ()
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
 
    :<|> Capture "id" Text :> "changes" :> Get [Change]
@@ -48,7 +49,7 @@ sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
 sourcesServer h =
          sourcesGetAll :<|> sourcesPost
     :<|> sourceScan
-    :<|> sourcesGet :<|> sourcesPut
+    :<|> sourcesGet :<|> sourcesDel :<|> sourcesPut
     :<|> changesGet
     :<|> chaptersGet
 
@@ -61,15 +62,26 @@ sourcesServer h =
   sourcesPost :: Maybe Text -> Source -> Handler Text
   sourcesPost mt s = do
     user <- currentUser h mt
-    liftIO $ do
-      --Change.save h =<< change Create user s
-      Source.insert h s
+
+    -- save the change
+    time <- liftIO $ getCurrentTime
+    let c = change Nothing s time user
+    cid <- liftIO $ Change.insert h c
+
+    -- save the source
+    liftIO $ Source.insert h s
 
   sourcesGet :: Text -> Handler Source
   sourcesGet id   = liftE  $ Source.find h id
 
+  sourcesDel :: Text -> Handler ()
+  sourcesDel id   = liftIO $ Source.delete h id
+
   sourcesPut :: Text -> Maybe Text -> Source -> Handler ()
   sourcesPut sourceId mt source = do
+
+    user <- currentUser h mt
+
     old <- liftE $ Source.find h sourceId
 
     -- if they are equal just return a 200 status code
@@ -78,7 +90,6 @@ sourcesServer h =
 
     else do
       -- save the change
-      user <- currentUser h mt
       time <- liftIO $ getCurrentTime
       let c = change (Source.changeId old) source time user
       cid <- liftIO $ Change.insert h c

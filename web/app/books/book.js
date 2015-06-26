@@ -40,14 +40,10 @@ export class Book extends React.Component {
 
   // really, I should call a lifecycle function when the url loads. That makes way more sense
 
-  forceLogin() {
-    transitionTo(Routes.login, {}, {to: 'book', id: this.props.params.id})
-  }
-
   toggleSubscribe() {
 
     if (!Users.isLoggedIn()) {
-      this.forceLogin()
+      forceLogin(this.props.params.id)
       return
     }
 
@@ -332,9 +328,16 @@ export class EditBook extends React.Component {
 
   props: {source: Source};
 
+  onClick(e:Event) {
+    if (!Users.isLoggedIn()) {
+      transitionTo(Routes.login, {}, {to: Routes.source, id: this.props.source.id})
+      e.preventDefault()
+    }
+  }
+
   render():React.Element {
     return <div>
-      <Link className="secondary button" to={Routes.source} params={this.props.source}>
+      <Link className="secondary button" to={Routes.source} params={this.props.source} onClick={this.onClick.bind(this)}>
         <span className="fa fa-pencil-square-o"></span>
         <span> Edit book details</span>
       </Link>
@@ -342,3 +345,8 @@ export class EditBook extends React.Component {
   }
 }
 
+
+
+function forceLogin(sourceId:string) {
+  transitionTo(Routes.login, {}, {to: 'book', id: sourceId})
+}

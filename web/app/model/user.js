@@ -17,6 +17,7 @@ export type User = {
   email: string;
   token: string;
   created: Date;
+  admin: boolean;
 }
 
 export type Login = {
@@ -31,6 +32,7 @@ export function emptyUser():User {
     lastName: "",
     email: "",
     token: "",
+    admin: false,
     created: new Date()
   }
 }
@@ -75,6 +77,11 @@ export class UserModel {
   currentUserId():string {
     if (!this.currentUser) return ""
     return this.currentUser.id
+  }
+
+  isAdmin():boolean {
+    if (!this.currentUser) return false
+    return this.currentUser.admin
   }
 
   //// Admin ////////////////////////////////

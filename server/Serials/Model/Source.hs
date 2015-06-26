@@ -88,6 +88,9 @@ save h id s = do
     er <- runPool h $ table # get (expr id) # replace (const (toDatum s)) :: IO (Either RethinkDBError WriteResponse)
     return $ fmap (return ()) er
 
+delete :: Pool RethinkDBHandle -> Text -> IO ()
+delete = docsRemove table
+
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table

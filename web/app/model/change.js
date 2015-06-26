@@ -24,6 +24,10 @@ export function emptyChange():Change {
   }
 }
 
+export function allChanges():Promise<Array<Change>> {
+  return Get(url('changes'))
+}
+
 export function findChanges(sourceId:string):Promise<Array<Change>> {
   return Get(url('sources', sourceId, 'changes'))
 }

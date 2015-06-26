@@ -70,13 +70,18 @@ sourcesServer h =
   sourcesPost mt s = do
     user <- currentUser h mt
 
-    -- save the change
+    -- save the source
+    sourceId <- liftIO $ Source.insert h s
+
+    -- save the change, with the new source id attached
     time <- liftIO $ getCurrentTime
-    let c = change Nothing s time user
+    let s' = s { Source.id = sourceId }
+        c = change Nothing s' time user
     cid <- liftIO $ Change.insert h c
 
-    -- save the source
-    liftIO $ Source.insert h s
+    return sourceId
+
+
 
   sourcesGet :: Text -> Handler Source
   sourcesGet id   = liftE  $ Source.find h id
@@ -116,12 +121,17 @@ sourcesServer h =
 
 ---------------------------------------------------------------
 
-type ChangesAPI = Capture "id" Text :> Get Change
+type ChangesAPI =
+       Get [Change]
+  :<|> Capture "id" Text :> Get Change
 
 changesServer :: Pool RethinkDBHandle -> Server ChangesAPI
-changesServer h = changeGet
+changesServer h = getAll :<|> getOne
 
   where
 
-  changeGet :: Text -> Handler Change
-  changeGet id = liftE $ Change.findById h id
+  getAll :: Handler [Change]
+  getAll = liftIO $ Change.list h
+
+  getOne :: Text -> Handler Change
+  getOne id = liftE $ Change.findById h id

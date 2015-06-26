@@ -16,6 +16,7 @@ import {SourceEdit} from './app/source/source-form'
 import {SourceChange} from './app/source/change'
 import {Invites} from './app/admin/invites'
 import {AdminUsers} from './app/admin/users'
+import {ChangeFeed} from './app/admin/change-feed'
 
 import {Header} from './app/layout/header'
 import {Main} from './app/layout/main'
@@ -87,6 +88,7 @@ var routes = (
       <Route name={Routes.sources} handler={Sources}/>
       <Route name={Routes.invites} handler={Invites}/>
       <Route name={Routes.users}   handler={AdminUsers}/>
+      <Route name={Routes.changeFeed} handler={ChangeFeed}/>
       <Route path="import-log/:n" handler={ImportLog}/>
     </Route>
 

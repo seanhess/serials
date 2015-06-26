@@ -3,24 +3,40 @@ Bugs
 - [x] Root domain redirects to library, instead of bookshelf
 - [x] chapter updates point to localhost
 - [x] big covers in form and gallery?
-- [ ] Security: put secret key auth into an environment variable
-
-Tweaks
-------
-- [x] better top bar. Menu button? Slide out?
-- [ ] switch to fixed-height cover overlays
+- [x] Security: put secret key auth into an environment variable
 
 Milestone: Better Library
 -------------------------
 - [x] Users can edit books
 - [x] Users can add  books
-
 - [ ] Admin audit queue / full change history
+
 - [ ] Search by author or title
 - [ ] Search by tag
 - [ ] Track total number of subscribers
 - [ ] Show more in the library: subscribed
 - [ ] Sort by # subscribers
+
+Tweaks
+------
+- [x] better top bar. Menu button? Slide out?
+
+- [ ] switch to fixed-height cover overlays
+
+BACKLOG
+----
+- [ ] Center on larger screens
+- [ ] Only show "Updated <date>" if the book is still active
+- [ ] Book chapter links should work on hover. Set the href and override?
+- [ ] Sort gallery by chapters read per week
+- [ ] Sort library by title?
+- [ ] Update RethinkDB
+- [ ] Update GHC
+- [ ] Switch to stack
+- [ ] Login not autofilling
+- [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
+- [ ] Icon for new chapters. (How do I define new? It should be per-user. Whether they've "seen" them or not? Within the last week? Deviation from the rest of the chapters?)
+- [ ] Library: show progress in the gallery. Show badges for ... new chapters? Or unread?
 
 Milestone: Feedback and Discovery
 ---------------------------------
@@ -94,22 +110,6 @@ ART PERMISSION
 - [x] YES Mother of Learning
 - [x] NO  DA. Pact
 - [x] YES The Metropolitan Man
-
-BACKLOG
-----
-- [ ] Center on larger screens
-- [ ] Only show "Updated <date>" if the book is still active
-- [ ] Book chapter links should work on hover. Set the href and override?
-- [ ] Sort gallery by chapters read per week
-- [ ] Sort library by title?
-- [ ] Update RethinkDB
-- [ ] Update GHC
-- [ ] Switch to stack
-- [ ] Login not autofilling
-- [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
-
-- [ ] Icon for new chapters. (How do I define new? It should be per-user. Whether they've "seen" them or not? Within the last week? Deviation from the rest of the chapters?)
-- [ ] Library: show progress in the gallery. Show badges for ... new chapters? Or unread?
 
 OPTIMIZATIONS
 -------------

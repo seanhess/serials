@@ -43,4 +43,5 @@ export var Routes = {
   login: "login",
   book: "book",
   change: "change",
+  changeFeed: "changeFeed",
 }

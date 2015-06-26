@@ -61,6 +61,13 @@ export class AdminDashboard extends React.Component {
                 <span className="fa fa-book"></span>
                 <span> Sources</span>
               </Link>
+
+              <span> </span>
+
+              <Link className="button secondary" to={Routes.changeFeed}>
+                <span className="fa fa-list"></span>
+                <span> Change Feed</span>
+              </Link>
             </div>
             <div><a href="#/admin/import-log/500">Import Log</a></div>
           </FormSection>

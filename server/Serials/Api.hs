@@ -38,6 +38,7 @@ import Serials.Model.User (User(..), SecureUser(..), secure)
 import Serials.Model.Invite (Invite(..), EmailAddress)
 import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
+import qualified Serials.Model.Change as Change
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
@@ -364,6 +365,7 @@ runApi port p version env = do
   root <- rootApp p
   createDb p
   Source.init p
+  Change.init p
   Submission.init p
   User.init p
   Invite.init p

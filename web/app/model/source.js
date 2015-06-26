@@ -184,8 +184,8 @@ export function validate(source:Source):?string {
   if (!source.author)        return "Author is required"
   if (!source.authorUrl)        return "Author URL is required"
   if (!source.imageUrl)      return "Image URL is required"
-  if (!source.imageArtist)   return "Artist is required"
-  if (!source.imageArtistUrl) return "Artist URL is required"
+  //if (!source.imageArtist)   return "Artist is required"
+  //if (!source.imageArtistUrl) return "Artist URL is required"
   if (!source.url)           return "Table of Contents URL is required"
 
   if (!source.chapters.length) return "Scan Chapters before saving"

@@ -12,6 +12,7 @@ import {Alerts} from '../model/alert'
 import {Routes, transitionTo} from '../router'
 import {Header, SiteTitle} from './header'
 import {OffCanvas, MenuHeader, MenuLinkStyle} from './offcanvas'
+import {SubmitLink} from '../source/submit-link'
 
 export class Main extends React.Component {
   render():React.Element {
@@ -57,6 +58,7 @@ var MenuIcon = {
 //}
 
 export class MainMenu extends React.Component {
+
   render():React.Element {
     var user = this.props.currentUser
     var userContent = ""
@@ -78,6 +80,11 @@ export class MainMenu extends React.Component {
           <span style={MenuIcon} className="fa fa-book"></span>
           <span> Library</span>
         </Link></li>
+
+        <li><SubmitLink style={MenuLinkStyle}>
+          <span style={MenuIcon} className="fa fa-plus-circle"></span>
+          <span> Submit a book</span>
+        </SubmitLink></li>
 
         <li><Link to={Routes.about} style={MenuLinkStyle}>About</Link></li>
       </div>

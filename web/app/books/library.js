@@ -4,12 +4,14 @@ import React from 'react'
 
 import {RouteHandler, Link} from 'react-router'
 import {SourceModel, Source, isNotHidden, isSearch} from '../model/source'
+import {Users} from '../model/user'
 
 import {SuggestBook} from './support'
 import {SimpleGallery} from './gallery'
 import {curry} from 'lodash'
 import {displayIf} from '../style'
-import {Routes} from '../router'
+import {Routes, transitionTo} from '../router'
+import {SubmitLink} from '../source/submit-link'
 
 export class Library extends React.Component {
 
@@ -50,19 +52,11 @@ export class Library extends React.Component {
       <div>{resultsContent}</div>
 
       <hr />
-      <AddBook />
-    </div>
-  }
-}
 
-export class AddBook extends React.Component {
-  render():React.Element {
-    return <div>
-      <Link className="secondary button" to={Routes.source} params={{id: 'new'}}>
+      <SubmitLink className="secondary button">
         <span className="fa fa-plus-circle"></span>
         <span> Submit a book</span>
-      </Link>
+      </SubmitLink>
     </div>
   }
 }
-

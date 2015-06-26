@@ -7,9 +7,10 @@ Bugs
 
 Milestone: Better Library
 -------------------------
-- [ ] Users can edit books
+- [x] Users can edit books
 - [ ] Users can add  books
-- [ ] Full change history for auditing
+
+- [x] Full change history for auditing
 - [ ] Search by author or title
 - [ ] Search by tag
 - [ ] Track total number of subscribers
@@ -19,10 +20,10 @@ Milestone: Better Library
 USER GENERATED LIBRARY
 - [x] Any user can add books
 - [x] Edit link -> any user can edit a book
-- [ ] Store changes whenever source is saved
-- [ ] Don't store a change if it is the same
+- [x] Store changes whenever source is saved
+- [x] Don't store a change if it is the same
 - [ ] only admin can set hidden and or status
-- [ ] View changes
+- [x] View changes
 - [ ] BUG: should do something even without a root selector
 - [ ] BUG: validation when they don't put in a URL
 

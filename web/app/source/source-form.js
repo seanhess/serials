@@ -29,6 +29,7 @@ export class SourceEdit extends React.Component {
   state: {
     source: Source;
     scanning: boolean;
+    changes: Array<Change>;
   };
 
   static load(params) {
@@ -46,13 +47,14 @@ export class SourceEdit extends React.Component {
 
   constructor(props:any) {
     super(props)
-    this.state = {source: emptySource(), scanning: false}
+    this.state = {source: emptySource(), scanning: false, changes:[]}
   }
 
   componentWillReceiveProps(props:any) {
     var source = props.source || emptySource()
     var chapters = source.chapters
-    this.setState({source, chapters})
+    var changes = props.changes || []
+    this.setState({source, chapters, changes})
   }
 
   onSaveClick() {
@@ -75,16 +77,24 @@ export class SourceEdit extends React.Component {
     this.setState({source: source})
   }
 
+  // need to reload the change...
   save() {
     var source = this.state.source
     return SourceModel.save(this.props.source.id, source)
-    .then(() => Alerts.update("success", "Saved!"))
+    .then(() => {
+      Alerts.update("success", "Saved!", true)
+      transitionTo(Routes.book, this.state.source)
+    })
   }
 
   create() {
     var source = this.state.source
     return SourceModel.create(source)
-    .then(() => transitionTo(Routes.sources))
+    .then((id) => {
+      console.log("CREATED", id)
+      Alerts.update("success", "Created!", true)
+      transitionTo(Routes.book, {id})
+    })
   }
 
   runScan() {
@@ -129,16 +139,20 @@ export class SourceEdit extends React.Component {
       this.setState({source: v})
     })
 
+    var cancelRoute = (this.isNew()) ? Routes.library : Routes.book
+    var title = (this.isNew()) ? "New Book" : "Edit Book"
+
     return <div className="row">
       <div className="columns small-12">
-        <h3>Source</h3>
+        <h3>{title}</h3>
 
         <div>
           <button className="" onClick={this.onSaveClick.bind(this)}>Save Changes</button>
           <span> </span>
-          <Link to={Routes.book} params={{id: source.id}} className="button secondary">Cancel</Link>
+
+          <Link to={cancelRoute} params={{id: source.id}} className="button secondary">Cancel</Link>
           <span> </span>
-          <div className="right">
+          <div className="right" style={displayIf(false)}>
             <Link to={Routes.book} params={{id: source.id}}>View Book</Link>
           </div>
         </div>
@@ -176,7 +190,7 @@ export class SourceEdit extends React.Component {
         <hr />
 
         <h4>Changes</h4>
-        <SourceChanges changes={this.props.changes}/>
+        <SourceChanges changes={this.state.changes}/>
 
       </div>
     </div>

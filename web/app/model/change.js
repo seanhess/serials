@@ -45,7 +45,7 @@ export function diffBasic(from:Source, to:Source):Array<FieldChange> {
   // or I could just make one that is nested, right?
   // no because chapters need to be handled completely differently
   var basicFields = Object.keys(to).filter(function(key) {
-    return key !== "chapters" && key !== "importSettings" && key !== "changeId" && key !== "lastScan"
+    return key !== "chapters" && key !== "importSettings" && key !== "changeId" && key !== "lastScan" && key !== "id"
   })
 
   return diffFields(from, to, basicFields)

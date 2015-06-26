@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react'
-import url from 'url'
 import {cloneDeep, findIndex, assign} from 'lodash'
 import {toDateString} from '../helpers'
 import {makeUpdate, number} from '../data/update'
@@ -235,12 +234,5 @@ export class ChapterRow extends React.Component {
       <td>{toDateString(chapter.added)}</td>
     </tr>
   }
-}
-
-
-function urlPath(u) {
-  var uri = url.parse(u, false, false)
-  var out = uri.path
-  return out
 }
 

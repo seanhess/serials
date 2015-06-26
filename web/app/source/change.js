@@ -4,7 +4,7 @@ import React from 'react'
 import {Link} from 'react-router'
 import {Source} from '../model/source'
 import {findChange, emptyChange, diffImport, diffChapter, changeUrl, FieldChange, diffChapters, ChapterDiff, emptyChapterDiff} from '../model/change'
-import {Chapter, contentText, chapterContentURL, emptyChapter} from '../model/chapter'
+import {Chapter, contentText, chapterContentURL, emptyChapter, urlPath} from '../model/chapter'
 import {FormSection} from '../comp'
 import {diffBasic} from '../model/change'
 import {toDateString} from '../helpers'
@@ -23,7 +23,14 @@ export class SourceChange extends React.Component {
 
     return {
       change: fc,
-      base: fc.then(c => findChange(c.baseId))
+      base: fc.then(function(c) {
+        if (c.baseId) {
+          return findChange(c.baseId)
+        }
+        else {
+          return c
+        }
+      })
     }
   }
 
@@ -108,13 +115,13 @@ export class SourceChange extends React.Component {
     return <div className="row" style={{marginBottom: 15}}>
       <div className="columns small-6">
         <ChangeBox title={title(from)}>
-          <div>{from.url}</div>
+          <div>{urlPath(from.url || "")}</div>
         </ChangeBox>
       </div>
 
       <div className="columns small-6">
         <ChangeBox title={title(to)} change={change.change}>
-          <div>{to.url}</div>
+          <div>{urlPath(to.url || "")}</div>
           <ChangeArrow />
         </ChangeBox>
       </div>
@@ -208,7 +215,7 @@ class ChangeBox extends React.Component {
     }
 
     var valueStyle = {
-      float: 'right'
+      display: 'inline-block'
     }
 
     var style = {

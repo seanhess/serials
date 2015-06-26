@@ -1,6 +1,7 @@
 // @flow
 
 import {Get, Post, Put, Del, url} from '../api'
+import {parse as parseURL} from 'url'
 import shortid from 'shortid'
 import {deepClone} from 'lodash'
 
@@ -109,5 +110,8 @@ export function setContentText(chapter:Chapter, text:string):void {
 }
 
 
-
-
+export function urlPath(u:string):string {
+  var uri = parseURL(u, false, false)
+  var out = uri.path || u
+  return out
+}

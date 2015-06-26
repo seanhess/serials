@@ -18,6 +18,12 @@ export var Colors = {
   info: "#A0D3E8",
   paper: "#FFFBE6",
   paperLine: "#FFF5C2",
+
+  code: '#F4F7FB',
+  codeTone: '#D2DFF0',
+
+  diffAdd: '#EAFFEA',
+  diffRemove: '#FFECEC'
 }
 
 export var background = {

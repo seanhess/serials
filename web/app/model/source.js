@@ -1,7 +1,6 @@
 // @flow
 
 import {Get, Post, Put, Del, url} from '../api'
-import {User} from './user'
 import {Chapter} from './chapter'
 
 
@@ -63,24 +62,6 @@ export type TOCSettings = {
   tag: "TOCSettings";
   tocSelector: string;
   titleSelector: string;
-}
-
-////////////////////////////////////////////////////////////
-
-export type Change = {
-  id: string;
-  source: Source;
-  kind: "Edit" | "Create";
-  createdAt: string;
-  createdBy: User;
-}
-
-export function findChanges(sourceId:string):Promise<Array<Change>> {
-  return Get(url('sources', sourceId, 'changes'))
-}
-
-export function findChange(sourceId: string, changeId:string):Promise<Array<Change>> {
-  return Get(url('sources', sourceId, 'changes', changeId))
 }
 
 /////////////////////////////////////////////////////////

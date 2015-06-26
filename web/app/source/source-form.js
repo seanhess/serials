@@ -3,8 +3,9 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, Change, findChanges, scannedChapters} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scannedChapters} from '../model/source'
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
+import {findChanges, Change}  from '../model/change'
 import {Alerts} from '../model/alert'
 import {toDateString} from '../helpers'
 import {ChaptersList} from './chapters'
@@ -103,7 +104,7 @@ export class SourceEdit extends React.Component {
   onUpdateSettings(settings:ImportSettings) {
     var source = this.state.source
     source.importSettings = settings
-    this.setState({source: source})
+    this.setState({source: source, updated: true})
   }
 
   addNewLink() {

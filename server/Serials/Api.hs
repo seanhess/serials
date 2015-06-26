@@ -54,7 +54,7 @@ import Serials.Route.Route
 import Serials.Route.Auth
 import Serials.Route.Invite
 import Serials.Route.UserSignup (UserSignup)
-import Serials.Route.Sources (SourcesAPI, sourcesServer)
+import Serials.Route.Sources (SourcesAPI, sourcesServer, ChangesAPI, changesServer)
 import qualified Serials.Route.UserSignup as UserSignup
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
@@ -264,7 +264,7 @@ invitesServer h = list :<|> add :<|> find :<|> remove :<|> send
 type API =
 
        "sources"   :> SourcesAPI
-  -- :<|> "submissions" :> SubmissionsAPI
+  :<|> "changes"   :> ChangesAPI
   :<|> "users"     :> UsersAPI
   :<|> "auth"      :> AuthAPI
   :<|> "invites"   :> InvitesAPI
@@ -283,6 +283,7 @@ server :: Pool RethinkDBHandle -> String -> Env -> Application -> Server API
 server h version env root =
 
         sourcesServer h
+   :<|> changesServer h
 
    :<|> usersServer h
    :<|> authServer h

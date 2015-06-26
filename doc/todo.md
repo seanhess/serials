@@ -3,6 +3,7 @@ Bugs
 - [x] Root domain redirects to library, instead of bookshelf
 - [ ] chapter updates point to localhost
 - [ ] big covers in form and gallery?
+- [ ] switch to fixed-height cover overlays
 
 Milestone: Better Library
 -------------------------

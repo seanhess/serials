@@ -42,8 +42,6 @@ type SourcesAPI =
 
    :<|> Capture "id" Text :> "changes" :> Get [Change]
 
-   :<|> Capture "id" Text :> "changes" :> Capture "changeId" Text :> Get Change
-
    :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
 
 sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
@@ -51,7 +49,7 @@ sourcesServer h =
          sourcesGetAll :<|> sourcesPost
     :<|> sourceScan
     :<|> sourcesGet :<|> sourcesPut
-    :<|> changesGet :<|> changeGet
+    :<|> changesGet
     :<|> chaptersGet
 
   where
@@ -92,9 +90,6 @@ sourcesServer h =
   changesGet :: Text -> Handler [Change]
   changesGet id = liftIO $ Change.findBySourceId h id
 
-  changeGet :: Text -> Text -> Handler Change
-  changeGet id changeId = liftE $ Change.findById h changeId
-
   chaptersGet :: Text -> Handler [Chapter]
   chaptersGet id = do
     source <- liftE $ Source.find h id
@@ -102,3 +97,16 @@ sourcesServer h =
 
   sourceScan :: Source -> Handler [Chapter]
   sourceScan source = liftIO $ scanSourceChapters source
+
+
+---------------------------------------------------------------
+
+type ChangesAPI = Capture "id" Text :> Get Change
+
+changesServer :: Pool RethinkDBHandle -> Server ChangesAPI
+changesServer h = changeGet
+
+  where
+
+  changeGet :: Text -> Handler Change
+  changeGet id = liftE $ Change.findById h id

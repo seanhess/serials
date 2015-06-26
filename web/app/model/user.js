@@ -24,6 +24,17 @@ export type Login = {
   password:string;
 }
 
+export function emptyUser():User {
+  return {
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    token: "",
+    created: new Date()
+  }
+}
+
 // methods for logging in and out
 // also currently logged in state
 declare var SETTINGS;

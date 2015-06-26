@@ -19,7 +19,7 @@ import Data.Maybe (fromMaybe)
 import Database.RethinkDB.NoClash hiding (Change)
 
 import Serials.Route.Route
-import Serials.Route.Auth (AuthToken, checkAuth, currentUser)
+import Serials.Route.Auth (AuthToken, checkAuth, currentUser, AuthProtected, protected, hasClaimAdmin)
 
 import Serials.Model.Source (Source(..), SourceThumbnail(..))
 import Serials.Model.Change (Change(..), change)
@@ -38,22 +38,29 @@ type SourcesAPI =
    :<|> "scan" :> ReqBody Source :> Post [Chapter]
 
    :<|> Capture "id" Text :> Get Source
-   :<|> Capture "id" Text :> Delete ()
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
 
    :<|> Capture "id" Text :> "changes" :> Get [Change]
 
    :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
 
+   :<|> AuthProtected :> SourcesAdminAPI
+
+type SourcesAdminAPI = Capture "id" Text :> Delete ()
+
 sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
 sourcesServer h =
          sourcesGetAll :<|> sourcesPost
     :<|> sourceScan
-    :<|> sourcesGet :<|> sourcesDel :<|> sourcesPut
+    :<|> sourcesGet :<|> sourcesPut
     :<|> changesGet
     :<|> chaptersGet
+    :<|> protected hasClaimAdmin (sourcesDel)
 
   where
+
+  sourcesDel :: Text -> Handler ()
+  sourcesDel id   = liftIO $ Source.delete h id
 
   -- i need to serialize them WITHOUT all the fancy fields
   sourcesGetAll :: Handler [SourceThumbnail]
@@ -73,9 +80,6 @@ sourcesServer h =
 
   sourcesGet :: Text -> Handler Source
   sourcesGet id   = liftE  $ Source.find h id
-
-  sourcesDel :: Text -> Handler ()
-  sourcesDel id   = liftIO $ Source.delete h id
 
   sourcesPut :: Text -> Maybe Text -> Source -> Handler ()
   sourcesPut sourceId mt source = do

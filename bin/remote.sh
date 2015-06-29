@@ -15,10 +15,8 @@ echo "MANDRILL_API_KEY = $MANDRILL_API_KEY"
 
 # compile application
 echo "-- cabal ----------------"
-cabal sandbox init
-cabal update
-cabal install --only-dependencies
-cabal install
+stack setup
+stack build
 
 # install upstart script
 echo "-- cron ----------------"

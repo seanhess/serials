@@ -85,4 +85,4 @@ insert h u = do
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack emailIndexName) (!expr emailIndexName)
+    initDb $ runPool h $ table # indexCreate (emailIndexName) (!expr emailIndexName)

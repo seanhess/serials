@@ -37,7 +37,7 @@ sourceIndex = Index sourceIndexName
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack sourceIndexName) (\row -> expr (row ! "source" ! "id"))
+    initDb $ runPool h $ table # indexCreate (sourceIndexName) (\row -> expr (row ! "source" ! "id"))
 
 list :: Pool RethinkDBHandle -> IO [Change]
 list h = runPool h $ table # orderBy [desc "createdAt"]

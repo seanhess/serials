@@ -1,0 +1,7 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+- rethinkdb-2.0.0.0
+- iso8601-time-0.1.3
+resolver: nightly-2015-06-29

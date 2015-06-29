@@ -107,7 +107,7 @@ markSent h code = do
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack codeIndexName) (!expr codeIndexName)
+    initDb $ runPool h $ table # indexCreate (codeIndexName) (!expr codeIndexName)
 
 --------------------------------------
 -- code

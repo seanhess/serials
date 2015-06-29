@@ -88,9 +88,12 @@ connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
 -- DB -----------------------------------------------------------
 
 createDb :: Pool RethinkDBHandle -> IO ()
-createDb p = initDb $ runPool p $ dbCreate $ unpack serialsDbName
+createDb p = initDb $ runPool p $ dbCreate $ serialsDbName
 
+serialsDb :: Database
 serialsDb = db serialsDbName
+
+serialsDbName :: Text
 serialsDbName = "serials"
 
 

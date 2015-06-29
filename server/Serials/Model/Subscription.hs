@@ -100,5 +100,5 @@ subId userId sourceId = userId <> "-" <> sourceId
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (unpack userField) (!expr userField)
-    initDb $ runPool h $ table # indexCreate (unpack sourceField) (!expr sourceField)
+    initDb $ runPool h $ table # indexCreate (userField) (!expr userField)
+    initDb $ runPool h $ table # indexCreate (sourceField) (!expr sourceField)

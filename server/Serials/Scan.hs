@@ -17,7 +17,6 @@ import Data.List (nubBy)
 import Debug.Trace
 
 import Control.Applicative
-import Control.Concurrent.PooledIO.Independent
 import Control.Concurrent
 import Control.Monad
 import Control.Exception

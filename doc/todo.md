@@ -1,7 +1,10 @@
 NEXT
 - switch to stack and ghc 7.10
-- switch to rethinkdb 2.0
+- password reset
 - admin can see proposed books and check them off as lookin' good
+- use fanfiction as the source for that draco book
+- add a few discovery features
+- switch to rethinkdb 2.0
 
 Bugs
 ----
@@ -44,6 +47,17 @@ BACKLOG
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 - [ ] Icon for new chapters. (How do I define new? It should be per-user. Whether they've "seen" them or not? Within the last week? Deviation from the rest of the chapters?)
 - [ ] Library: show progress in the gallery. Show badges for ... new chapters? Or unread?
+
+Feedback
+------------
+- hire a designer
+- weekly email newsletter of books?
+- automatically distribute content to kindle
+- confusion about the "subscription" idea. Why do that? Landing page wording unclear
+- change homepage: just be a list of stories? Get people right in, instead of al anding page.
+- simpler submissions (advanced, maybe?)
+- iframe (like stumbleupon)
+
 
 Milestone: Feedback and Discovery
 ---------------------------------

@@ -8,7 +8,7 @@ import Debug.Trace
 
 import Safe
 import Data.Maybe
-import Data.Text (Text, strip, null, length, uncons)
+import Data.Text (Text, strip, null, length, uncons, unpack, pack)
 import Data.Monoid ((<>), mconcat)
 import Data.List (unfoldr, find, tails)
 
@@ -31,15 +31,15 @@ cssSelectorName (ID id)  = id
 cssSelectorName (Class cls) = cls
 cssSelectorName (Tag tag) = tag
 
-selector :: Text -> Selector Text
+selector :: Text -> Selector
 selector = soupSelector . css
 
-soupSelector :: CSSSelector -> Selector Text
+soupSelector :: CSSSelector -> Selector
 soupSelector = sel
   where
-    sel (ID id)     = Any @: [("id" :: Text) @= id]
-    sel (Class cls) = Any @: [hasClass cls] 
-    sel (Tag tag)   = tag @: []
+    sel (ID id)     = Any @: [("id" :: String) @= unpack id]
+    sel (Class cls) = Any @: [hasClass $ unpack cls]
+    sel (Tag tag)   = unpack tag @: []
 
 select :: CSSSelector -> [Tag] -> [Tag]
 select css = fromMaybe [] . headMay . Scalpel.select (soupSelector css)
@@ -59,7 +59,7 @@ matchSelector :: CSSSelector -> (Tag -> Bool)
 matchSelector c = (~== sel c)
   where
     sel (ID id)     = TagOpen "" [("id", id)]
-    sel (Class cls) = TagOpen "" [("class", cls)]    
+    sel (Class cls) = TagOpen "" [("class", cls)]
     sel (Tag tag)   = TagOpen tag []
 
 -------------------------------------------------------

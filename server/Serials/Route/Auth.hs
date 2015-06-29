@@ -47,8 +47,6 @@ import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
 import qualified Serials.Model.User as User hiding (User())
 import Serials.Model.App (readAllEnv, Env(..))
 
-import System.Locale
-
 import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims, Secret, secret)
 import Web.Cookie
 

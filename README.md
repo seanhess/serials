@@ -36,9 +36,9 @@ Let's talk! Contact me, submit an issue or PR with your proposed changes, or pic
 Development
 -----------
 
-* Install [RethinkDB 1.16](rethinkdb.com)
-* Install GHC 7.8 and Cabal 1.22
-* Install Node and `npm install webpack`
+* Install [RethinkDB 2](rethinkdb.com)
+* Install [Haskell with Stack](https://github.com/commercialhaskell/stack)
+* Install Node and `npm install -g webpack`
 
 Run Database
 
@@ -46,9 +46,8 @@ Run Database
 
 Haskell Server
 
-    cabal sandbox init
-    cabal install --only-dependencies
-    cabal run
+    stack build
+    stack run
 
 Front-end application
 

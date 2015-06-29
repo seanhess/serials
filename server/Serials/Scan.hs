@@ -108,8 +108,6 @@ importSource h source = do
   mapM (log " updated ") ups
   mapM (log "     new ") new
 
-  print source'
-
   -- notify all
   -- skip this step if all the chapters are new.
   -- or if the book is inactive

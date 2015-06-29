@@ -4,12 +4,14 @@ Bugs
 - [x] chapter updates point to localhost
 - [x] big covers in form and gallery?
 - [x] Security: put secret key auth into an environment variable
+- [ ] Scan health: when they add new books, they don't have a last scan date.
 
 Milestone: Better Library
 -------------------------
 - [x] Users can edit books
 - [x] Users can add  books
 - [ ] Admin audit queue / full change history
+- [ ] Password reset
 
 - [ ] Search by author or title
 - [ ] Search by tag

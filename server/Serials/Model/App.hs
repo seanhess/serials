@@ -35,17 +35,25 @@ instance FromJSON AppInfo
 instance ToJSON AppInfo
 
 data AppStatus = AppStatus {
-  database :: Bool,
-  scans :: Bool
+  okDatabase :: Bool,
+  okScans :: Bool,
+  scans :: [ScannedSource]
 } deriving (Generic)
-
 instance ToJSON AppStatus
+
+data ScannedSource = ScannedSource {
+  sourceId :: Text,
+  sourceName :: Text,
+  sourceStatus :: Source.Status,
+  lastScan :: Maybe Scan
+} deriving (Generic)
+instance ToJSON ScannedSource
 
 appStatus :: Pool RethinkDBHandle -> IO AppStatus
 appStatus h = do
   dbh <- checkDbHealth h
-  sh  <- checkScanHealth h
-  return $ AppStatus dbh sh
+  scans <- lastScans h
+  return $ AppStatus dbh (isOkScans scans) scans
 
 health :: Text -> Bool -> Maybe Text
 health msg healthy = if healthy then Just msg else Nothing
@@ -54,15 +62,22 @@ health msg healthy = if healthy then Just msg else Nothing
 
 checkDbHealth :: Pool RethinkDBHandle -> IO Bool
 checkDbHealth h = do
-  runPool h $ table "sources" # status :: IO (Either RethinkDBError Datum)
+  r <- runPool h $ table "sources" # status :: IO (Either RethinkDBError Datum)
+  print r
   return $ True
 
-checkScanHealth :: Pool RethinkDBHandle -> IO Bool
-checkScanHealth h = do
+lastScans :: Pool RethinkDBHandle -> IO [ScannedSource]
+lastScans h = do
   sources <- Source.list h
-  let scans = map Source.lastScan sources
-  return $ all isJust scans
-  -- get all the sources, make sure all of them have a last import set
+  time <- getCurrentTime
+  let scans = map scannedSource $ filter Source.isActive sources
+  return scans
+
+isOkScans :: [ScannedSource] -> Bool
+isOkScans ss = True
+
+scannedSource :: Source -> ScannedSource
+scannedSource s = ScannedSource (Source.id s) (Source.name s) (Source.status s) (Source.lastScan s)
 
 --------------------------------------------------------
 

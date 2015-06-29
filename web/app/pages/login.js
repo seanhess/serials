@@ -24,8 +24,8 @@ var emptyLogin = function():LoginData {
 
 export class LogoPage extends React.Component {
   render():React.Element {
-    return <div>
-      <div style={{padding: 25}} className="row small-12 columns">
+    return <div className="row">
+      <div style={{padding: 25}} className="small-12 columns">
         <div style={{textAlign: 'center'}}>
           <Logo />
         </div>

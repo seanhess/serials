@@ -1,3 +1,8 @@
+NEXT
+- switch to stack and ghc 7.10
+- switch to rethinkdb 2.0
+- admin can see proposed books and check them off as lookin' good
+
 Bugs
 ----
 - [x] Root domain redirects to library, instead of bookshelf

@@ -30,8 +30,8 @@ export class MainContainer extends React.Component {
 
       <MainMenu key="menu" currentUser={this.props.currentUser}/>
 
-      <div>
-        <div className="row columns small-12" style={background}>
+      <div className="row">
+        <div className="columns small-12" style={background}>
           {this.props.children}
         </div>
         <AlertView alert={this.props.alert}/>

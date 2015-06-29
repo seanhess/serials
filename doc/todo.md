@@ -1,10 +1,11 @@
 NEXT
-- switch to stack and ghc 7.10
-- password reset
+- √ switch to stack and ghc 7.10
+- √ switch to rethinkdb 2.0
+- get it all working on the real server
 - admin can see proposed books and check them off as lookin' good
+- password reset
 - use fanfiction as the source for that draco book
 - add a few discovery features
-- switch to rethinkdb 2.0
 
 Bugs
 ----

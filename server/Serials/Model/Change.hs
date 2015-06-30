@@ -15,14 +15,23 @@ import GHC.Generics
 
 import Serials.Model.Source (Source(..))
 import Serials.Model.User (SecureUser(..))
+import qualified Serials.Model.User as User
 import Serials.Model.Lib.Crud
+
+data ChangeUser = ChangeUser {
+  userId :: Text,
+  firstName :: Text,
+  lastName :: Text
+} deriving (Show, Generic)
+instance ToJSON ChangeUser
+instance FromJSON ChangeUser
 
 data Change = Change {
   id :: Text,
   baseId :: Maybe Text,
   source :: Source,
   createdAt :: UTCTime,
-  createdBy :: SecureUser
+  createdBy :: ChangeUser
 } deriving (Show, Generic)
 instance FromJSON Change
 instance ToJSON Change
@@ -49,7 +58,8 @@ insert :: Pool RethinkDBHandle -> Change -> IO Text
 insert = docsInsert table
 
 change :: Maybe Text -> Source -> UTCTime -> SecureUser -> Change
-change = Change ""
+change baseId source time (SecureUser user) = Change "" baseId source time cu
+  where cu = ChangeUser (User.id user) (User.firstName user) (User.lastName user)
 
 findBySourceId :: Pool RethinkDBHandle -> Text -> IO [Change]
 findBySourceId h id = runPool h $ table # getAll sourceIndex [expr id] # orderBy [desc "createdAt"]

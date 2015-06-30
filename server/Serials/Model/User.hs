@@ -51,10 +51,10 @@ instance ToDatum User where
 -- use SecureUser when you want to hide the hashedPassword
 newtype SecureUser = SecureUser User deriving (Show, Generic)
 
-instance FromJSON SecureUser
 instance ToJSON SecureUser where
   toJSON (SecureUser user) = Object $ foldr HashMap.delete obj ["resetToken", "hashedPassword"]
     where (Object obj) = toJSON user
+
 
 table = R.table "users"
 

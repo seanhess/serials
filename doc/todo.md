@@ -4,7 +4,8 @@ NEXT
 - √ get it all working on the real server
 - √ admin can see proposed books and check them off as lookin' good
 - √ use fanfiction as the source for that draco book
-- password reset
+- √ password reset
+- able to add books without setting root selector
 - add a few discovery features
 
 Bugs

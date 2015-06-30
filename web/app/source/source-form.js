@@ -319,11 +319,13 @@ class ImageDetails extends React.Component {
             onChange={update((s, v) => s.imageArtistUrl = v)}
           />
 
-          <label>Artist About URL</label>
-          <input type="text"
-            value={source.imageArtistAboutUrl}
-            onChange={update((s, v) => s.imageArtistAboutUrl = v)}
-          />
+          <div style={displayIf(Users.isAdmin())}>
+            <label>Artist About URL</label>
+            <input type="text"
+              value={source.imageArtistAboutUrl}
+              onChange={update((s, v) => s.imageArtistAboutUrl = v)}
+            />
+          </div>
 
         </div>
       </div>

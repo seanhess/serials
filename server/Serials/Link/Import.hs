@@ -54,6 +54,12 @@ importContent url set = fetchLinks set
     fetchLinks (TOCSettings root title) = tocContent url (css root) (emptySelector title)
     emptySelector t = if null t then Nothing else Just (css t)
 
+-- guesses the import method based on the url and other content
+-- make better algorithms for figuring it out
+--importContentFromURL :: URL -> IO [Content]
+--importContentFromURL url = undefined
+-- if fanfiction, or fimfiction, use the menu content method and the correct settings
+
 --test = do
     --body <- downloadBody "http://www.fimfiction.net/story/62074/friendship-is-optimal"
     --let tags = parseTags body

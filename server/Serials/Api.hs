@@ -32,7 +32,6 @@ import Network.Wai.Middleware.AddHeaders
 import Network.Wai.Middleware.Static
 
 import Serials.Model.Source (Source(..))
-import Serials.Model.Submission (Submission(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
 import Serials.Model.Invite (Invite(..))
@@ -44,7 +43,6 @@ import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import qualified Serials.Model.Subscription as Subscription
-import qualified Serials.Model.Submission as Submission
 import Serials.Model.App
 import Serials.Model.Lib.Crud
 import Serials.Scan
@@ -74,33 +72,6 @@ import Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 
--- Submissions ---------------------------------------------------
-
---type SubmissionsAPI =
-       --Get [Submission]
-  -- :<|> ReqBody Submission :> Post Text
-
-  -- :<|> Capture "id" Text :> Get Submission
-  -- :<|> Capture "id" Text :> ReqBody Submission :> Put ()
-
---proposalsServer :: Pool RethinkDBHandle -> Server SubmissionsAPI
---proposalsServer h =
-        --proposalsGetAll :<|> proposalsPost
-   -- :<|> proposalsGet :<|> proposalsPut
-
-  --where
-
-  --proposalsGetAll :: Handler [Submission]
-  --proposalsGetAll = liftIO $ Submission.list h
-
-  --proposalsPost :: Submission -> Handler Text
-  --proposalsPost s = liftIO $ Submission.insert h s
-
-  --proposalsGet :: Text -> Handler Submission
-  --proposalsGet id   = liftE  $ Submission.find h id
-
-  --proposalsPut :: Text -> Submission -> Handler ()
-  --proposalsPut id s = liftIO $ Submission.save h id s
 
 
 -- Admin -------------------------------------------------------
@@ -378,7 +349,6 @@ runApi port p version env = do
   createDb p
   Source.init p
   Change.init p
-  Submission.init p
   User.init p
   Invite.init p
   Subscription.init p

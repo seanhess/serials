@@ -9,4 +9,4 @@
 # export RETHINKDB_PORT_28015_TCP=tcp://localhost:28015
 # export ENDPOINT=http://webfiction.co
 
-/usr/bin/env - `cat /etc/environment` cd /opt/serials/ && /usr/bin/stack exec serials scan >> /var/log/serials.log 2>&1
+/usr/bin/env - `cat /etc/environment` cd /opt/serials/ && /root/.local/bin/serials scan >> /var/log/serials.log 2>&1

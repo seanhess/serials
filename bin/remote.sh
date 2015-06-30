@@ -17,6 +17,7 @@ echo "MANDRILL_API_KEY = $MANDRILL_API_KEY"
 echo "-- cabal ----------------"
 stack setup
 stack build
+stack install
 
 # install upstart script
 echo "-- cron ----------------"

@@ -158,13 +158,14 @@ export class SourceEdit extends React.Component {
 
     var cancelRoute = (this.isNew()) ? Routes.library : Routes.book
     var title = (this.isNew()) ? "New Book" : "Edit Book"
+    var submitText = (this.isNew()) ? "Submit Book" : "Save Changes"
 
     return <div className="row">
       <div className="columns small-12">
         <h3>{title}</h3>
 
         <div>
-          <button className="" onClick={this.onSaveClick.bind(this)}>Save Changes</button>
+          <button className="" onClick={this.onSaveClick.bind(this)}>{submitText}</button>
           <span> </span>
 
           <Link to={cancelRoute} params={{id: source.id}} className="button secondary">Cancel</Link>
@@ -176,32 +177,37 @@ export class SourceEdit extends React.Component {
 
         <BookDetails source={source} update={update} />
         <ImageDetails source={source} update={update} />
-        <ScanSettings source={source} update={this.updateSource.bind(this)} />
+
+        <div style={displayIf(Users.isAdmin())}>
+          <ScanSettings source={source} update={this.updateSource.bind(this)} />
+        </div>
 
         <hr />
 
         <div>
-          <h4>{chapters.length} Chapters</h4>
+          <h4 style={displayIf(chapters.length > 0)}>{chapters.length} Chapters</h4>
 
-          <p>
+          <p style={displayIf(Users.isAdmin())}>
             Last Scan: {toDateString(lastScan.date)}
           </p>
 
-          <div className="right">
+          <div className="right" style={displayIf(chapters.length > 0)}>
             <button className="secondary" onClick={this.addNewTitle.bind(this)}>Add Title</button>
             <span> </span>
             <button className="secondary" onClick={this.addNewLink.bind(this)}>Add Chapter</button>
           </div>
 
-          <div className="">
+          <div className="" style={displayIf(Users.isAdmin())}>
             <button className={scanningDisabled} onClick={this.runScan.bind(this)}>{scanningText}</button>
             <span> </span>
             <button className="secondary" onClick={this.deleteAllChapters.bind(this)}>Delete All</button>
           </div>
 
-          <ChaptersList chapters={chapters} source={source}
-            update={this.updateChapters.bind(this)}
-          />
+          <div style={displayIf(chapters.length > 0)}>
+            <ChaptersList chapters={chapters} source={source}
+              update={this.updateChapters.bind(this)}
+            />
+          </div>
         </div>
 
         <div style={displayIf(this.state.changes.length > 0)}>
@@ -229,6 +235,7 @@ export class BookDetails extends React.Component {
     var update = this.props.update
 
     return <FormSection title="Book Details">
+
       <label>Title</label>
       <input type="text"
         value={source.name}
@@ -268,6 +275,14 @@ export class BookDetails extends React.Component {
         </div>
         <div className="columns medium-9"></div>
       </div>
+
+      <label>Table of Contents URL</label>
+      <input type="text"
+        placeholder="https://example.com/table-of-contents/"
+        value={source.url}
+        onChange={update((s, v) => s.url = v)}
+      />
+
 
     </FormSection>
   }
@@ -356,12 +371,6 @@ class ScanSettings extends React.Component {
     })
 
     return <FormSection title="Scan Settings">
-      <label>Table of Contents URL</label>
-      <input type="text"
-        placeholder="https://example.com/table-of-contents/"
-        value={source.url}
-        onChange={update((s, v) => s.url = v)}
-      />
 
       <ImportSettings
         settings={source.importSettings}

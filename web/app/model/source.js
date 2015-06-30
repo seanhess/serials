@@ -142,7 +142,7 @@ export function emptyImportSettings(type:string):ImportSettings {
 function emptyTOCSettings():TOCSettings {
   return {
     tag: TOC,
-    tocSelector: "",
+    tocSelector: "body",
     titleSelector: ""
   }
 }
@@ -193,16 +193,16 @@ export function validate(source:Source):?string {
   //if (!source.imageArtistUrl) return "Artist URL is required"
   if (!source.url)           return "Table of Contents URL is required"
 
-  if (!source.chapters.length) return "Scan Chapters before saving"
+  //if (!source.chapters.length) return "Scan Chapters before saving"
 
-  if (source.importSettings.tag === "MenuSettings") {
-    var menuSettings:MenuSettings = (source.importSettings : any)
-    if (!menuSettings.menuBase) return "Base URL is required"
-    if (!menuSettings.menuOpen) return "Open Selector is required"
-  }
+  //if (source.importSettings.tag === "MenuSettings") {
+    //var menuSettings:MenuSettings = (source.importSettings : any)
+    //if (!menuSettings.menuBase) return "Base URL is required"
+    //if (!menuSettings.menuOpen) return "Open Selector is required"
+  //}
 
-  else {
-    var toc:TOCSettings = (source.importSettings : any)
-    if (!toc.tocSelector) return "Root Selector is required"
-  }
+  //else {
+    //var toc:TOCSettings = (source.importSettings : any)
+    //if (!toc.tocSelector) return "Root Selector is required"
+  //}
 }

@@ -3,7 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scannedChapters, validate, DefaultImageUrl} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scan, validate, DefaultImageUrl, ScanResult} from '../model/source'
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {findChanges, Change}  from '../model/change'
 import {Alerts} from '../model/alert'
@@ -115,8 +115,13 @@ export class SourceEdit extends React.Component {
 
   runScan() {
     this.setState({scanning: true})
-    scannedChapters(this.state.source)
-    .then((cs) => this.updateChapters(cs))
+    scan(this.state.source)
+    .then((res:ScanResult) => {
+      var source:Source = this.state.source
+      source.chapters = res.allChapters
+      source.lastScan = res.scan
+      this.setState({source: source})
+    })
     .then(() => this.setState({scanning: false}))
     .then(() => Alerts.update("success", "Scan complete"))
   }

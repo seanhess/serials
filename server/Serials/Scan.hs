@@ -1,9 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Serials.Scan where
 
 import Prelude hiding (id, lookup)
 
+import Data.Aeson (ToJSON)
 import Data.Char (isAlphaNum)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -20,6 +22,8 @@ import Control.Applicative
 import Control.Concurrent
 import Control.Monad
 import Control.Exception
+
+import GHC.Generics
 
 import Serials.Model.Lib.Crud
 import Serials.Link
@@ -39,10 +43,12 @@ import Data.HashMap.Strict (HashMap, fromList, lookup)
 data MergeResult = New | Updated | Edited | Removed | Same deriving (Show, Eq)
 
 data ScanResult = ScanResult {
+  scan :: Scan,
   allChapters :: [Chapter],
   newChapters :: [Chapter],
   updatedChapters :: [Chapter]
-} deriving (Eq, Show)
+} deriving (Eq, Show, Generic)
+instance ToJSON ScanResult
 
 scanSourceContent :: Source -> IO [Content]
 scanSourceContent s = importContent (Source.url s) (importSettings s)
@@ -70,23 +76,24 @@ importSourceId h sourceId = do
     Just source <- Source.find h sourceId
     importSource h source
 
-scanSourceChapters :: Source -> IO [Chapter]
-scanSourceChapters source = do
+scanSourceResult :: Source -> IO ScanResult
+scanSourceResult source = do
   content <- scanSourceContent source
   time <- getCurrentTime
-  return $ allChapters $ scanResult source time content
+  return $ scanResult source time content
 
 skipSource :: Source -> IO ()
 skipSource source = do
   putStrLn $ " skip  " <> scanShowSource source
 
 scanResult :: Source -> UTCTime -> [Content] -> ScanResult
-scanResult source time content = ScanResult all new ups
+scanResult source time content = ScanResult scan all new ups
   where
   merged = mergeAll (Source.chapters source) (contentsChapters sid time content)
   new = map snd $ filter (isMergeType New) merged
   ups = map snd $ filter (isMergeType Updated) merged
   all = map snd $ merged
+  scan = Scan time (length all) (map Chapter.id new) (map Chapter.id ups)
 
   sid = Source.id source
 
@@ -99,8 +106,7 @@ importSource h source = do
   content <- scanSourceContent source
   time <- getCurrentTime
 
-  let ScanResult all new ups = scanResult source time content
-      scan = Scan time (length all) (map Chapter.id new) (map Chapter.id ups)
+  let ScanResult scan all new ups = scanResult source time content
 
   let source' = source { chapters = all, lastScan = Just scan }
 

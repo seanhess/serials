@@ -1,8 +1,8 @@
 NEXT
 - √ switch to stack and ghc 7.10
 - √ switch to rethinkdb 2.0
-- get it all working on the real server
-- admin can see proposed books and check them off as lookin' good
+- √ get it all working on the real server
+- √ admin can see proposed books and check them off as lookin' good
 - password reset
 - use fanfiction as the source for that draco book
 - add a few discovery features
@@ -13,7 +13,7 @@ Bugs
 - [x] chapter updates point to localhost
 - [x] big covers in form and gallery?
 - [x] Security: put secret key auth into an environment variable
-- [ ] Scan health: when they add new books, they don't have a last scan date.
+- [x] Scan health: when they add new books, they don't have a last scan date.
 
 Milestone: Better Library
 -------------------------

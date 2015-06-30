@@ -63,7 +63,6 @@ health msg healthy = if healthy then Just msg else Nothing
 checkDbHealth :: Pool RethinkDBHandle -> IO Bool
 checkDbHealth h = do
   r <- runPool h $ table "sources" # status :: IO (Either RethinkDBError Datum)
-  print r
   return $ True
 
 lastScans :: Pool RethinkDBHandle -> IO [ScannedSource]
@@ -74,7 +73,7 @@ lastScans h = do
   return scans
 
 isOkScans :: [ScannedSource] -> Bool
-isOkScans ss = True
+isOkScans ss = all (isJust . lastScan) ss
 
 scannedSource :: Source -> ScannedSource
 scannedSource s = ScannedSource (Source.id s) (Source.name s) (Source.status s) (Source.lastScan s)

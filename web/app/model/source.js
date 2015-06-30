@@ -44,6 +44,11 @@ export type Scan = {
   updated: Array<string>;
 }
 
+export type ScanResult = {
+  scan: Scan;
+  allChapters: Array<Chapter>;
+}
+
 ////////////////////////////////////////////////////////////////
 
 export type ImportSettings = MenuSettings | TOCSettings;
@@ -66,7 +71,7 @@ export type TOCSettings = {
 
 /////////////////////////////////////////////////////////
 
-export function scannedChapters(source:Source):Promise<Array<Chapter>> {
+export function scan(source:Source):Promise<ScanResult> {
   return Post(url('sources', 'scan'), source)
 }
 

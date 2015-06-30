@@ -11,6 +11,7 @@ import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
 
+import Data.Aeson (ToJSON)
 import Data.Time
 import Data.Text (Text)
 import Data.Pool (Pool)
@@ -18,16 +19,19 @@ import Data.Maybe (fromMaybe)
 
 import Database.RethinkDB.NoClash hiding (Change)
 
+import GHC.Generics
+
 import Serials.Route.Route
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser, AuthProtected, protected, hasClaimAdmin)
 
 import Serials.Model.Source (Source(..), SourceThumbnail(..))
 import Serials.Model.Change (Change(..), change)
+import Serials.Model.Scan (Scan(..))
 import Serials.Model.Chapter (Chapter(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.Change as Change
-import Serials.Scan (importSourceId, scanSourceChapters)
+import Serials.Scan (importSourceId, scanSourceResult, ScanResult, allChapters)
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 
@@ -35,14 +39,12 @@ type SourcesAPI =
        Get [SourceThumbnail]
    :<|> AuthToken :> ReqBody Source :> Post Text
 
-   :<|> "scan" :> ReqBody Source :> Post [Chapter]
+   :<|> "scan" :> ReqBody Source :> Post ScanResult
 
    :<|> Capture "id" Text :> Get Source
    :<|> Capture "id" Text :> AuthToken :> ReqBody Source :> Put ()
 
    :<|> Capture "id" Text :> "changes" :> Get [Change]
-
-   :<|> Capture "id" Text :> "chapters" :> Get [Chapter]
 
    :<|> AuthProtected :> SourcesAdminAPI
 
@@ -54,7 +56,6 @@ sourcesServer h =
     :<|> sourceScan
     :<|> sourcesGet :<|> sourcesPut
     :<|> changesGet
-    :<|> chaptersGet
     :<|> protected hasClaimAdmin (sourcesDel)
 
   where
@@ -110,13 +111,8 @@ sourcesServer h =
   changesGet :: Text -> Handler [Change]
   changesGet id = liftIO $ Change.findBySourceId h id
 
-  chaptersGet :: Text -> Handler [Chapter]
-  chaptersGet id = do
-    source <- liftE $ Source.find h id
-    liftIO $ scanSourceChapters source
-
-  sourceScan :: Source -> Handler [Chapter]
-  sourceScan source = liftIO $ scanSourceChapters source
+  sourceScan :: Source -> Handler ScanResult
+  sourceScan source = liftIO $ scanSourceResult source
 
 
 ---------------------------------------------------------------

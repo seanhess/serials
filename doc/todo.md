@@ -3,8 +3,8 @@ NEXT
 - √ switch to rethinkdb 2.0
 - √ get it all working on the real server
 - √ admin can see proposed books and check them off as lookin' good
+- √ use fanfiction as the source for that draco book
 - password reset
-- use fanfiction as the source for that draco book
 - add a few discovery features
 
 Bugs
@@ -48,6 +48,7 @@ BACKLOG
 - [ ] Beta invites: generate an invite code without an associated email address. Can sign up usinga ny email from there.
 - [ ] Icon for new chapters. (How do I define new? It should be per-user. Whether they've "seen" them or not? Within the last week? Deviation from the rest of the chapters?)
 - [ ] Library: show progress in the gallery. Show badges for ... new chapters? Or unread?
+- [ ] User security: password reset, and subscriptions. Only the user should be able to edit them
 
 Feedback
 ------------

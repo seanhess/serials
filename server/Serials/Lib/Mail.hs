@@ -27,6 +27,7 @@ import Serials.Model.Invite (Invite)
 import qualified Serials.Model.Invite as I
 
 import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+import Serials.Model.Types (EmailAddress(..), emailValue)
 
 import Text.Blaze.Html5 hiding (style, map)
 import Text.Blaze.Html5.Attributes
@@ -36,15 +37,15 @@ data Email = Email {
   emailBody :: Html
 }
 
-isValidAddress :: Text -> Bool
-isValidAddress = isValid . encodeUtf8
+isValidAddress :: EmailAddress -> Bool
+isValidAddress = isValid . encodeUtf8 . emailValue
 
-sendMail :: [Text] -> Email -> IO ()
+sendMail :: [EmailAddress] -> Email -> IO ()
 sendMail to (Email subj msg) = do
   env <- readAllEnv
   runMandrill (mandrill env) $ do
     let from = fromJust $ emailAddress "webfiction@orbit.al"
-        tos  = map (fromJust . emailAddress . encodeUtf8) to
+        tos  = map (fromJust . emailAddress . encodeUtf8 . emailValue) to
     res <- sendEmail (newHtmlMessage from tos subj msg)
     case res of
       MandrillSuccess k -> liftIO (print k)

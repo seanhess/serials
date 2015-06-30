@@ -35,7 +35,8 @@ import Serials.Model.Source (Source(..))
 import Serials.Model.Submission (Submission(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
-import Serials.Model.Invite (Invite(..), EmailAddress)
+import Serials.Model.Invite (Invite(..))
+import Serials.Model.Types (EmailAddress(..))
 import Serials.Model.Subscription (Subscription(..))
 import qualified Serials.Model.Source as Source
 import qualified Serials.Model.Change as Change
@@ -54,7 +55,7 @@ import Serials.Lib.Mail (Email(..))
 import Serials.Route.Route
 import Serials.Route.Auth
 import Serials.Route.Invite
-import Serials.Route.UserSignup (UserSignup)
+import Serials.Route.UserSignup (UserSignup, forgotPassword, resetPassword)
 import Serials.Route.Sources (SourcesAPI, sourcesServer, ChangesAPI, changesServer)
 import qualified Serials.Route.UserSignup as UserSignup
 
@@ -203,8 +204,12 @@ type AuthAPI =
 
   :<|> "jwt"     :> AuthToken :> Get (Maybe JWTClaimsSet)
 
+  :<|> "password" :> ReqBody EmailAddress :> Post ()
+  :<|> "password" :> Capture "token" Text :> ReqBody Text :> Post ()
+
+
 authServer :: Pool RethinkDBHandle -> Server AuthAPI
-authServer h = current :<|> logout :<|> login :<|> jwt
+authServer h = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
 
   where
 
@@ -223,6 +228,13 @@ authServer h = current :<|> logout :<|> login :<|> jwt
   jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
     Just t  -> verifyClaims t
+
+  forgot :: EmailAddress -> Handler ()
+  forgot email = liftIO $ forgotPassword h email
+
+  reset :: Text -> Text -> Handler()
+  reset token pw = resetPassword h token pw
+
 
 -- Invites ----------------------------------------
 

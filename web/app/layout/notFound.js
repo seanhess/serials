@@ -13,9 +13,11 @@ export class NotFound extends React.Component {
       transitionTo(Routes.library)
     }
 
-    return <div>
-      <p style={{marginTop: 10}}>Page not found</p>
-      <div><Link to={Routes.root}>Home</Link></div>
+    return <div className="row">
+      <div className="small-12 columns">
+        <p style={{marginTop: 10}}>Page not found</p>
+        <div><Link to={Routes.root}>Home</Link></div>
+      </div>
     </div>
   }
 }

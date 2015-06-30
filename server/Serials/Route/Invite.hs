@@ -9,13 +9,14 @@ import Data.Monoid ((<>))
 import Database.RethinkDB.NoClash (RethinkDBHandle)
 
 import qualified Serials.Model.Invite as Invite
-import Serials.Model.Invite (EmailAddress, Invite, InviteCode)
+import Serials.Model.Invite (Invite, InviteCode)
 import Serials.Lib.Mail
 
 import Servant.Server (ServantErr(..), err400)
 import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+import Serials.Model.Types (EmailAddress(..))
 
 import Text.Blaze.Html5 hiding (style)
 import Text.Blaze.Html5.Attributes

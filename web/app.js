@@ -25,6 +25,7 @@ import {Library} from './app/books/library'
 import {Bookshelf} from './app/books/bookshelf'
 import {Book} from './app/books/book'
 import {Login} from './app/pages/login'
+import {ForgotPassword, ResetPassword} from './app/pages/password'
 import {SignupPage} from './app/pages/signup'
 import {About} from './app/pages/about'
 
@@ -67,6 +68,8 @@ var routes = (
 
     <Redirect from="/" to={Routes.bookshelf} params={{id: Users.currentUserId()}}/>
 
+    <Route name={Routes.forgotPassword} path="password/forgot"      handler={ForgotPassword}/>
+    <Route name={Routes.resetPassword} path="password/reset/:token" handler={ResetPassword}/>
     <Route name={Routes.login} handler={Login}/>
     <Route name={Routes.signup} path="signup/:code" handler={SignupPage}/>
 

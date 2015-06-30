@@ -110,6 +110,8 @@ export class Login extends React.Component {
       </form>
 
       <p>Don't have an account? <a href="/hello">Sign up for Early Access</a></p>
+
+      <p><Link to={Routes.forgotPassword}>Forgot your password?</Link></p>
     </LogoPage>
   }
 }

@@ -66,7 +66,7 @@ newtype SourceThumbnail = SourceThumbnail Source deriving (Show, Generic)
 
 instance FromJSON SourceThumbnail
 instance ToJSON SourceThumbnail where
-  toJSON (SourceThumbnail source) = Object $ HashMap.delete "chapters" $ HashMap.delete "lastScan" $ HashMap.delete "importSettings" $ obj
+  toJSON (SourceThumbnail source) = Object $ foldr HashMap.delete obj ["chapters", "lastScan", "importSettings"]
     where (Object obj) = toJSON source
 
 table = R.table "sources"

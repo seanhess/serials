@@ -44,4 +44,6 @@ export var Routes = {
   book: "book",
   change: "change",
   changeFeed: "changeFeed",
+  resetPassword: "resetPassword",
+  forgotPassword: "forgotPassword",
 }

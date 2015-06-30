@@ -114,7 +114,7 @@ userLogin h u = do
   case mu of
     Nothing -> return $ Left "Invalid email address"
     Just user -> do
-      let hashPass = encodeUtf8 . fromJust $ User.hashedPassword user
+      let hashPass = encodeUtf8 $ User.hashedPassword user
       let pass = encodeUtf8 $ password u
       case validatePassword hashPass pass of
         False -> return $ Left "Invalid password"

@@ -26,6 +26,7 @@ import qualified Database.RethinkDB.NoClash as R
 import Database.RethinkDB.NoClash hiding (table, Object, toJSON)
 
 import Serials.Model.Lib.Crud
+import Serials.Model.Types (EmailAddress(..))
 import Serials.Lib.JWT
 
 import Web.JWT (JWTClaimsSet)
@@ -34,8 +35,9 @@ data User = User {
   id :: Text,
   firstName :: Text,
   lastName :: Text,
-  email :: Text,
-  hashedPassword :: Maybe Text,
+  email :: EmailAddress,
+  hashedPassword :: Text,
+  resetToken :: Maybe Text,
   admin :: Bool,
   created :: UTCTime
 } deriving (Show, Generic)
@@ -51,7 +53,7 @@ newtype SecureUser = SecureUser User deriving (Show, Generic)
 
 instance FromJSON SecureUser
 instance ToJSON SecureUser where
-  toJSON (SecureUser user) = Object $ HashMap.delete "hashedPassword" obj
+  toJSON (SecureUser user) = Object $ foldr HashMap.delete obj ["resetToken", "hashedPassword"]
     where (Object obj) = toJSON user
 
 table = R.table "users"
@@ -59,11 +61,17 @@ table = R.table "users"
 emailIndexName = "email"
 emailIndex = Index emailIndexName
 
+resetIndexName = "resetToken"
+resetIndex = Index resetIndexName
+
 list :: Pool RethinkDBHandle -> IO [User]
 list h = runPool h $ table # orderBy [asc "id"]
 
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
 find h id = runPool h $ table # get (expr id)
+
+save :: Pool RethinkDBHandle -> Text -> User -> IO ()
+save = docsSave table
 
 findByEmail :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
 findByEmail h email = do
@@ -82,7 +90,20 @@ insert h u = do
     let user = u {id = generatedKey r}
     return $ user
 
+--------------------------------------------------
+
+addResetToken :: Pool RethinkDBHandle -> EmailAddress -> Text -> IO ()
+addResetToken h (EmailAddress e) token = runPool h $ table # getAll emailIndex [expr e] # update (const ["resetToken" := expr token])
+
+findByToken :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
+findByToken h token = do
+  us <- runPool h $ table # getAll resetIndex [expr token]
+  return $ headMay us
+
+--------------------------------------------------
+
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
     initDb $ runPool h $ table # indexCreate (emailIndexName) (!expr emailIndexName)
+    initDb $ runPool h $ table # indexCreate (resetIndexName) (!expr resetIndexName)

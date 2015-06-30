@@ -6,6 +6,8 @@ module Serials.Route.UserSignup where
 import Prelude hiding (id)
 
 import Control.Applicative
+import Control.Monad.Trans.Either
+import Control.Monad.IO.Class (liftIO)
 import Crypto.BCrypt (hashPasswordUsingPolicy, HashingPolicy(..))
 
 import Data.Text (Text, pack, unpack, toLower)
@@ -21,12 +23,17 @@ import Data.Monoid ((<>))
 import GHC.Generics
 import Database.RethinkDB.NoClash (RethinkDBHandle, FromDatum(..), ToDatum(..))
 
+import Serials.Route.Route
+
 import qualified Serials.Model.User as User
 import Serials.Model.User (User)
 import qualified Serials.Model.Invite as Invite
 import Serials.Lib.Mail
 import Serials.Model.Invite (Invite)
+import Serials.Model.Types (EmailAddress(..))
 import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+
+import Servant.Server
 
 import Text.Blaze.Html5 hiding (code)
 import Text.Blaze.Html5.Attributes
@@ -47,34 +54,36 @@ instance ToDatum UserSignup
 
 signup :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text User)
 signup h u = validate (validateSignup h u) $ do
-  mu <- newUser u
-  case mu of
+  time <- getCurrentTime
+  mhash <- hashPassword (password u)
+  case mhash of
     Nothing -> return $ Left "Could not hash user password"
-    Just user -> do
+    Just hash -> do
+      let user = newUser u time hash
       createdUser <- User.insert h user
       Invite.markUsed h (code u) (User.id createdUser)
       sendWelcomeEmail createdUser
       return $ Right createdUser
 
-newUser :: UserSignup -> IO (Maybe User)
-newUser u = do
-  created <- getCurrentTime
-  hashPass <- hashPasswordUsingPolicy customHashPolicy $ encodeUtf8 (password u)
-
-  case hashPass of
-    Nothing -> return Nothing
-    Just pass -> return $ Just $ User.User {
-      User.id             = pack "",
-      User.firstName      = firstName u,
-      User.lastName       = lastName u,
-      User.email          = toLower $ email u,
-      User.hashedPassword = Just $ decodeUtf8 pass,
-      User.admin          = False,
-      User.created        = created
-    }
+newUser :: UserSignup -> UTCTime -> Text -> User
+newUser u time hash = User.User {
+    User.id             = pack "",
+    User.firstName      = firstName u,
+    User.lastName       = lastName u,
+    User.email          = EmailAddress $ toLower $ email u,
+    User.resetToken     = Nothing,
+    User.hashedPassword = hash,
+    User.admin          = False,
+    User.created        = time
+  }
 
 customHashPolicy :: HashingPolicy
 customHashPolicy = HashingPolicy 10 "$2b$"
+
+hashPassword :: Text -> IO (Maybe Text)
+hashPassword pw = do
+  hash <- hashPasswordUsingPolicy customHashPolicy $ encodeUtf8 pw
+  return $ decodeUtf8 <$> hash
 
 -- Email -----------------------------------------------------------
 
@@ -91,8 +100,36 @@ welcomeEmail ep u = Email "Your account is active!" $ do
       a ! href (textValue $ ep <> "/app#/login") $ "Click here to start reading"
 
 
+-- Password Resetting ----------------------------------------------
+forgotPassword :: Pool RethinkDBHandle -> EmailAddress -> IO ()
+forgotPassword h email = do
+  token <- Invite.generateCode
+  print token
+  User.addResetToken h email token
+  env <- readAllEnv
+  sendMail [email] (passwordEmail (endpoint env) token)
 
+resetPassword :: Pool RethinkDBHandle -> Text -> Text -> Handler ()
+resetPassword h token pw = do
+  mu <- liftIO $ User.findByToken h token
+  case mu of
+    Nothing -> left $ err400 { errBody = "Invalid Token" }
+    Just u  -> do
+      mhash <- liftIO $ hashPassword pw
+      case mhash of
+        Nothing -> left $ err400 { errBody = "Could not hash password"}
+        Just hash -> do
+          let user = u { User.hashedPassword = hash, User.resetToken = Nothing }
+          liftIO $ User.save h (User.id user) user
+          return $ ()
 
+-- you need the token in the url, at least
+passwordEmail :: Endpoint -> Text -> Email
+passwordEmail ep token = Email "Reset your password" $ do
+  logoPage ep $ do
+    h3 "Reset your password"
+    p $ do
+      a ! href (textValue $ ep <> "/app#/password/reset/" <> token) $ "Click here to reset your password"
 
 
 -- Validation --------------------------------------------------

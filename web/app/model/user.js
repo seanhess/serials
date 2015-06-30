@@ -1,5 +1,6 @@
 // @flow
 
+
 import {Promise} from 'es6-promise'
 
 import {Get, Post, Put, Delete, url} from '../api'
@@ -127,3 +128,15 @@ export function userApiURL(id:?string):string {
 }
 
 
+///////////////////////////////////////////////////
+
+//:<|> "password" :> ReqBody EmailAddress :> Post ()
+//:<|> "password" :> Capture "token" Text :> ReqBody Text :> Post ()
+
+export function forgotPassword(email:string):Promise<void> {
+  return Post(url('auth', 'password'), JSON.stringify(email))
+}
+
+export function resetPassword(token:string, password:string):Promise<void> {
+  return Post(url('auth', 'password', token), JSON.stringify(password))
+}

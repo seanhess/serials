@@ -25,11 +25,11 @@ import Database.RethinkDB.Time (now)
 
 import Safe (headMay)
 import Serials.Model.Lib.Crud
+import Serials.Model.Types (EmailAddress(..))
 import System.Random (randomIO, randomRIO)
 
 import Numeric (showIntAtBase)
 
-type EmailAddress = Text
 type InviteCode = Text
 
 data Signup = Signup {
@@ -64,10 +64,9 @@ invite e = do
   code <- generateCode
   time <- getCurrentTime
   let id = emailId e
-  return $ Invite id id code Nothing Nothing time
+  return $ Invite id (EmailAddress id) code Nothing Nothing time
 
-
-----------------------------------------------o
+----------------------------------------------
 
 codeIndexName = "code"
 codeIndex     = Index codeIndexName
@@ -82,8 +81,8 @@ add h inv = do
 remove :: Pool RethinkDBHandle -> Text -> IO ()
 remove h code = runPool h $ table # getAll codeIndex [expr code] # delete
 
-emailId :: Text -> EmailAddress
-emailId = toLower
+emailId :: EmailAddress -> Text
+emailId (EmailAddress e) = toLower e
 
 all :: Pool RethinkDBHandle -> IO [Invite]
 all h = runPool h $ table # orderBy [asc "id"]

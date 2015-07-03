@@ -3,7 +3,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 
-import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scan, validate, DefaultImageUrl, ScanResult} from '../model/source'
+import {Source, SourceModel, emptySource, emptyScan, Status, defaultImageUrl, scan, validate, DefaultImageUrl, ScanResult, allTags, TagCount} from '../model/source'
 import {Chapter, emptyChapter, emptyTitle} from '../model/chapter'
 import {findChanges, Change}  from '../model/change'
 import {Alerts} from '../model/alert'
@@ -18,6 +18,8 @@ import {coverStyle, SourceCover} from '../cover'
 import {makeUpdate, checked} from '../data/update'
 import {displayIf} from '../style'
 import {transitionTo, Routes} from '../router'
+import {TagsInput} from './tags'
+import {identity} from 'lodash'
 
 export class SourceEdit extends React.Component {
 
@@ -25,6 +27,7 @@ export class SourceEdit extends React.Component {
     source: Source;
     changes: Array<Change>;
     params: {id: string};
+    tags: Array<TagCount>;
   };
 
   state: {
@@ -43,6 +46,7 @@ export class SourceEdit extends React.Component {
     return {
       source: SourceModel.find(params.id),
       changes: findChanges(params.id),
+      tags: allTags(),
     }
   }
 
@@ -175,7 +179,7 @@ export class SourceEdit extends React.Component {
           </div>
         </div>
 
-        <BookDetails source={source} update={update} />
+        <BookDetails tags={this.props.tags} source={source} update={update} />
         <ImageDetails source={source} update={update} />
 
         <div style={displayIf(Users.isAdmin())}>
@@ -228,6 +232,7 @@ export class BookDetails extends React.Component {
     source: Source;
     update: Function;
     disabled: boolean;
+    tags: Array<TagCount>;
   };
 
   render():React.Element {
@@ -283,6 +288,12 @@ export class BookDetails extends React.Component {
         onChange={update((s, v) => s.url = v)}
       />
 
+      <label>Tags</label>
+      <TagsInput
+        tags={this.props.tags}
+        value={source.tags}
+        onChange={update((s, v) => s.tags = v, identity)}
+      />
 
     </FormSection>
   }

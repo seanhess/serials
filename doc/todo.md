@@ -1,12 +1,6 @@
-NEXT
-- √ switch to stack and ghc 7.10
-- √ switch to rethinkdb 2.0
-- √ get it all working on the real server
-- √ admin can see proposed books and check them off as lookin' good
-- √ use fanfiction as the source for that draco book
-- √ password reset
-- able to add books without setting root selector
-- add a few discovery features
+- tagging system
+- show tags in discovery
+- description
 
 Bugs
 ----
@@ -20,16 +14,16 @@ Milestone: Better Library
 -------------------------
 - [x] Users can edit books
 - [x] Users can add  books
-- [ ] Admin audit queue / full change history
-- [ ] Password reset
+- [x] Admin audit queue / full change history
+- [x] Password reset
+- [x] Simpler submission
 
-- [ ] Search by author or title
+- [x] Search by author or title
 - [ ] Search by tag
 - [ ] Track total number of subscribers
 - [ ] Show more in the library: subscribed
 - [ ] Sort by # subscribers
 
-Tweaks
 ------
 - [x] better top bar. Menu button? Slide out?
 
@@ -146,7 +140,8 @@ MIGRATIONS
 - [x] r.db('serials').table('sources').update({hidden: false})
 - [x] r.db('serials').table('invites').update({created: "2015-06-03T20:38:21.623Z"})
 - [x] r.db('serials').table('subscriptions').update({subscribed: true})
-- [ ] r.db('serials').table('sources').update({chapters:[]})
+- [x] r.db('serials').table('sources').update({chapters:[]})
+- [ ] r.db('serials').table('sources').update({tags:[]})
 
 Communities
 ------------

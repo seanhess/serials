@@ -21,6 +21,7 @@ import Data.ByteString (ByteString)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Text.Lazy as TL
+import Data.HashMap.Strict (HashMap)
 
 import GHC.Generics
 
@@ -31,7 +32,7 @@ import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.AddHeaders
 import Network.Wai.Middleware.Static
 
-import Serials.Model.Source (Source(..))
+import Serials.Model.Source (Source(..), TagCount(..))
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.User (User(..), SecureUser(..), secure)
 import Serials.Model.Invite (Invite(..))
@@ -252,6 +253,7 @@ type API =
 
   :<|> "admin" :> AuthProtected :> AdminAPI
 
+  :<|> "tags"      :> Get [TagCount]
   :<|> "settings"    :> AuthToken :> Get AppSettings
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
   :<|> "status" :> Get AppStatus
@@ -270,6 +272,8 @@ server h version env root =
 
    :<|> proxyApp
    :<|> protected hasClaimAdmin (adminServer h)
+
+   :<|> getTags
 
    :<|> liftIO . settings
    :<|> settingsText
@@ -295,6 +299,8 @@ server h version env root =
     printVar key a = ""
 
     status = liftIO $ appStatus h
+
+    getTags = liftIO $ Source.allTags h
 
 rootApp :: Pool RethinkDBHandle -> IO Application
 rootApp h = scottyApp $ do

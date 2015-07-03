@@ -36,7 +36,7 @@ import Serials.Scan (importSourceId, scanSourceResult, ScanResult, allChapters)
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 
 type SourcesAPI =
-       Get [SourceThumbnail]
+        QueryParam "tag" Text :> Get [SourceThumbnail]
    :<|> AuthToken :> ReqBody Source :> Post Text
 
    :<|> "scan" :> ReqBody Source :> Post ScanResult
@@ -63,9 +63,12 @@ sourcesServer h =
   sourcesDel :: Text -> Handler ()
   sourcesDel id   = liftIO $ Source.delete h id
 
-  -- i need to serialize them WITHOUT all the fancy fields
-  sourcesGetAll :: Handler [SourceThumbnail]
-  sourcesGetAll = liftIO $ map SourceThumbnail <$> Source.list h
+  sourcesGetAll :: Maybe Text -> Handler [SourceThumbnail]
+  sourcesGetAll mt = liftIO $ map SourceThumbnail <$> getSources
+    where
+    getSources = case mt of
+                  Nothing -> Source.list h
+                  Just t  -> Source.findByTag h t
 
   sourcesPost :: Maybe Text -> Source -> Handler Text
   sourcesPost mt s = do

@@ -10,7 +10,7 @@ type Route = {
   }
 }
 
-export function loadAll(routes:Array<Route>, params:any, onData:(data:any)=>void) {
+export function loadAll(routes:Array<Route>, params:Object, query:Object, onData:(data:any)=>void) {
   var data = {loaded: false};
 
   routes
@@ -18,7 +18,7 @@ export function loadAll(routes:Array<Route>, params:any, onData:(data:any)=>void
     .forEach(function(route) {
 
       // ok, they're allowed to do more than one, right?
-      var promises = route.handler.load(params)
+      var promises = route.handler.load(params, query)
 
       return map(promises, function(promise, name) {
 
@@ -64,7 +64,7 @@ export function run(ren:Function, onUrlChange:Function = nothing):Function {
     render()
 
     // render again every time any of the promises resolve
-    loadAll(state.routes, state.params, render)
+    loadAll(state.routes, state.params, state.query, render)
   }
 }
 
@@ -77,5 +77,5 @@ export function render(data:any = lastData) {
 
 // global reload
 export function reloadHandler() {
-  loadAll(lastState.routes, lastState.params, render)
+  loadAll(lastState.routes, lastState.params, lastState.query, render)
 }

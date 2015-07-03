@@ -11,11 +11,13 @@ import Data.Text (Text, unpack)
 import Data.Aeson (ToJSON(..), FromJSON, Value(..), toJSON)
 import Data.Pool
 import Data.Time
+import Data.List (sort, group, sortBy)
 import qualified Data.HashMap.Strict as HashMap
+import Data.HashMap.Strict (HashMap)
 
 import GHC.Generics
-import qualified Database.RethinkDB.NoClash as R
-import Database.RethinkDB.NoClash hiding (table, status, toJSON, Change, Object, Null)
+import qualified Database.RethinkDB as R
+import Database.RethinkDB.NoClash hiding (table, status, toJSON, Change, Object, Null, group)
 
 import Serials.Model.Lib.Crud
 import Serials.Model.Chapter (Chapter(..))
@@ -29,6 +31,15 @@ data Status = Complete | Active | Disabled | Abandoned | Proposed deriving (Show
 instance FromJSON Status
 instance ToJSON Status
 
+type Tag = Text
+
+data TagCount = TagCount {
+  tagName :: Text,
+  tagCount :: Int
+} deriving (Eq, Show, Generic)
+
+instance ToJSON TagCount
+
 data Source = Source {
   id :: Text,
   url :: Text,
@@ -36,6 +47,8 @@ data Source = Source {
   author :: Text,
   authorUrl :: Text,
   hidden :: Bool,
+
+  tags :: [Tag],
 
   changeId :: Maybe Text,
 
@@ -70,6 +83,8 @@ instance ToJSON SourceThumbnail where
     where (Object obj) = toJSON source
 
 table = R.table "sources"
+tagIndexName = "tags"
+tagIndex     = Index tagIndexName
 
 list :: Pool RethinkDBHandle -> IO [Source]
 list h = runPool h $ table # orderBy [asc "id"]
@@ -77,10 +92,20 @@ list h = runPool h $ table # orderBy [asc "id"]
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe Source)
 find h id = runPool h $ table # get (expr id)
 
+findByTag :: Pool RethinkDBHandle -> Tag -> IO [Source]
+findByTag h tag = runPool h $ table # getAll tagIndex [expr tag]
+
+-- either way this is slow right? So just get all the tags and tally it yourself
+allTags :: Pool RethinkDBHandle -> IO [TagCount]
+allTags h = do
+    tss <- runPool h $ table # R.map (!"tags") :: IO [[Tag]]
+    let grouped = group $ sort $ concat tss
+        counts  = map (\ts -> TagCount (head ts) (length ts)) grouped
+    return $ sortBy (\a b -> compare (tagCount b) (tagCount a)) counts
 
 insert :: Pool RethinkDBHandle -> Source -> IO Text
 insert h s = do
-    r <- runPool h $ table   # create s
+    r <- runPool h $ table # create s
     return $ generatedKey r
 
 save :: Pool RethinkDBHandle -> Text -> Source -> IO (Either RethinkDBError ())
@@ -94,6 +119,7 @@ delete = docsRemove table
 init :: Pool RethinkDBHandle -> IO ()
 init h = do
     initDb $ runPool h $ tableCreate table
+    initDb $ runPool h $ table # ex indexCreate ["multi" := True] (tagIndexName) (!expr tagIndexName)
 
 isActive :: Source -> Bool
 isActive = (== Active) . status

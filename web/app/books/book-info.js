@@ -11,6 +11,8 @@ import {SourceStatus, Status, emptySource, Source} from '../model/source'
 import {Chapter} from '../model/chapter'
 import {Colors, displayIf} from '../style'
 
+import {Routes} from '../router'
+
 export class BookInfo extends React.Component {
 
   props: {
@@ -25,8 +27,14 @@ export class BookInfo extends React.Component {
     return <div>
       <div style={{color: statusColor(source.status)}}>{source.status}</div>
       <div style={{color: '#888'}}>Updated {toDateString(lastChapter.added)}</div>
+      <div>Tags: {source.tags.map(this.renderTag.bind(this))}</div>
     </div>
+  }
 
+  renderTag(tag:string):React.Element {
+    return <span style={{display: 'inline-block', marginRight: 5}}>
+      <Link to={Routes.library} query={{tag}}>{tag}</Link>
+    </span>
   }
 }
 

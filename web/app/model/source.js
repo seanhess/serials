@@ -23,6 +23,7 @@ export type Source = {
   id: string;
   importSettings: ImportSettings;
   name: string;
+  tags: Array<string>;
   author: string;
   authorUrl: string;
   hidden: boolean;
@@ -77,13 +78,26 @@ export function scan(source:Source):Promise<ScanResult> {
 
 //////////////////////////////////////////////////////////
 
+export type TagCount = {
+  tagName: string;
+  tagCount: number;
+}
+
+export function allTags():Promise<Array<TagCount>> {
+  return Get(url('tags'))
+}
+
+//////////////////////////////////////////////////////////
+
 export function isNotHidden(source:Source):boolean {
   return source.hidden !== true
 }
 
 export var SourceModel = {
-  findAll() {
-    return Get(url('sources'))
+  findAll(tag?:string) {
+    var u = url('sources')
+    if (tag) u += "?tag="+tag
+    return Get(u)
   },
 
   findRecommended():Promise<Array<Source>> {
@@ -118,6 +132,7 @@ export function emptySource(imageUrl:string = ""):Source {
     author: "",
     authorUrl: "",
     hidden: false,
+    tags: [],
     url: "",
     imageUrl: imageUrl,
     imageArtist: null,

@@ -53,12 +53,17 @@ toDatumNoId = stripId . toDatum
 
 -------------------------------------------------
 
-runDb :: (Expr a, Result r) => a -> RethinkIO r
-runDb e = do
-    h <- ask
-    liftIO $ run h e
+--runDb :: (Expr a, Result r) => a -> RethinkIO r
+--runDb e = do
+    --h <- ask
+    --liftIO $ run h e
 
-type RethinkIO = ReaderT RethinkDBHandle IO
+runDb :: (Expr query, Result r) => query -> RethinkIO r
+runDb q = do
+    p <- ask
+    liftIO $ withResource p $ \h -> run h q
+
+type RethinkIO = ReaderT (Pool RethinkDBHandle) IO
 
 -------------------------------------------------------
 
@@ -116,3 +121,6 @@ docsSave table h id s = runPool h $ table # get (expr id) # replace (const (toDa
 
 docsRemove :: Table -> Pool RethinkDBHandle -> Text -> IO ()
 docsRemove table h id = runPool h $ table # get (expr id) # delete
+
+--------------------------------------------------------------------
+

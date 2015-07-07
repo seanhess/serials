@@ -86,14 +86,20 @@ table = R.table "sources"
 tagIndexName = "tags"
 tagIndex     = Index tagIndexName
 
+-- could I pass in both the table and the database connection?
+-- sure... why not?
+-- then I could do the magic sauce... 
+-- runr $ table # orderBy [asc "id"]
+-- well, just start with the database connection
+
 list :: Pool RethinkDBHandle -> IO [Source]
 list h = runPool h $ table # orderBy [asc "id"]
 
 find :: Pool RethinkDBHandle -> Text -> IO (Maybe Source)
 find h id = runPool h $ table # get (expr id)
 
-findByTag :: Pool RethinkDBHandle -> Tag -> IO [Source]
-findByTag h tag = runPool h $ table # getAll tagIndex [expr tag]
+findByTag :: Tag -> RethinkIO [Source]
+findByTag tag = runDb $ table # getAll tagIndex [expr tag]
 
 -- either way this is slow right? So just get all the tags and tally it yourself
 allTags :: Pool RethinkDBHandle -> IO [TagCount]

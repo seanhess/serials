@@ -33,6 +33,7 @@ import qualified Serials.Model.Chapter as Chapter
 import qualified Serials.Model.Change as Change
 import Serials.Scan (importSourceId, scanSourceResult, ScanResult, allChapters)
 
+
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 
 type SourcesAPI =
@@ -63,12 +64,15 @@ sourcesServer h =
   sourcesDel :: Text -> Handler ()
   sourcesDel id   = liftIO $ Source.delete h id
 
+  -- do I want to operate in a different monad here?
+  -- what would that look like? 
+  -- it would be pretty cool, but super fancy...
   sourcesGetAll :: Maybe Text -> Handler [SourceThumbnail]
-  sourcesGetAll mt = liftIO $ map SourceThumbnail <$> getSources
+  sourcesGetAll mt = map SourceThumbnail <$> getSources
     where
     getSources = case mt of
-                  Nothing -> Source.list h
-                  Just t  -> Source.findByTag h t
+                  Nothing -> liftIO $ Source.list h
+                  Just t  -> liftDb h $ Source.findByTag t
 
   sourcesPost :: Maybe Text -> Source -> Handler Text
   sourcesPost mt s = do

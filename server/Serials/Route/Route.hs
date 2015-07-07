@@ -5,15 +5,21 @@
 module Serials.Route.Route where
 
 import Control.Applicative
+import Control.Monad.Reader (runReaderT)
 import Control.Monad.Trans.Either
 import Control.Monad.IO.Class (liftIO)
 
+import Data.Pool (Pool)
 import Data.Monoid
 import Data.Text (Text, unpack)
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Text.Lazy as TL
 import qualified Database.RethinkDB as RethinkDB
+import Database.RethinkDB (RethinkDBHandle)
+
+
+import Serials.Model.Lib.Crud (RethinkIO)
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 import qualified Servant
@@ -61,3 +67,7 @@ liftErr toErr action = do
 
 liftErrText :: ServantErr -> IO (Either Text res) -> EitherT ServantErr IO res
 liftErrText err = liftErr (errText err)
+
+liftDb :: Pool RethinkDBHandle -> RethinkIO a -> Handler a
+liftDb h a = liftIO $ runReaderT a h
+

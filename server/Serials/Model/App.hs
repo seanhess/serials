@@ -4,6 +4,7 @@
 module Serials.Model.App where
 
 import Control.Applicative
+import Control.Monad.IO.Class (liftIO)
 
 import Data.Aeson
 import Data.Pool
@@ -23,6 +24,8 @@ import qualified Serials.Model.Chapter as Chapter
 import Serials.Model.Source (Source)
 import Serials.Model.Scan (Scan)
 import qualified Serials.Model.Scan as Scan
+
+import Serials.AppMonad
 
 import System.Environment
 
@@ -49,10 +52,10 @@ data ScannedSource = ScannedSource {
 } deriving (Generic)
 instance ToJSON ScannedSource
 
-appStatus :: Pool RethinkDBHandle -> IO AppStatus
-appStatus h = do
-  dbh <- checkDbHealth h
-  scans <- lastScans h
+appStatus :: App AppStatus
+appStatus = do
+  dbh <- checkDbHealth
+  scans <- lastScans
   return $ AppStatus dbh (isOkScans scans) scans
 
 health :: Text -> Bool -> Maybe Text
@@ -60,15 +63,15 @@ health msg healthy = if healthy then Just msg else Nothing
 
 ------------------------------------------------------
 
-checkDbHealth :: Pool RethinkDBHandle -> IO Bool
-checkDbHealth h = do
-  r <- runPool h $ table "sources" # status :: IO (Either RethinkDBError Datum)
+checkDbHealth :: App Bool
+checkDbHealth = do
+  r <- runDb $ table "sources" # status :: App (Either RethinkDBError Datum)
   return $ True
 
-lastScans :: Pool RethinkDBHandle -> IO [ScannedSource]
-lastScans h = do
-  sources <- Source.list h
-  time <- getCurrentTime
+lastScans :: App [ScannedSource]
+lastScans = do
+  sources <- Source.list
+  time <- liftIO $ getCurrentTime
   let scans = map scannedSource $ filter Source.isActive sources
   return scans
 
@@ -78,21 +81,7 @@ isOkScans ss = all (isJust . lastScan) ss
 scannedSource :: Source -> ScannedSource
 scannedSource s = ScannedSource (Source.id s) (Source.name s) (Source.status s) (Source.lastScan s)
 
---------------------------------------------------------
-
-type Endpoint = Text
-
-data AppEnvironment = Dev | Production deriving (Show, Generic, Read)
-instance ToJSON AppEnvironment
-
-data Env = Env {
-  port :: Int,
-  db :: (String, Integer),
-  mandrill :: Text,
-  endpoint :: Endpoint,
-  environment :: AppEnvironment,
-  authSecret :: Text
-} deriving (Show)
+----------------------------------------------------------------
 
 readAllEnv :: IO Env
 readAllEnv = do

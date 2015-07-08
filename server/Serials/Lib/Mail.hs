@@ -9,6 +9,8 @@ module Serials.Lib.Mail (
 
 import Prelude hiding (div)
 
+import Control.Monad.Reader
+
 import System.Environment
 import Data.Monoid ((<>))
 import Data.Maybe (isJust)
@@ -26,8 +28,8 @@ import qualified Serials.Model.User as U
 import Serials.Model.Invite (Invite)
 import qualified Serials.Model.Invite as I
 
-import Serials.Model.App (readAllEnv, Env(..), Endpoint)
 import Serials.Model.Types (EmailAddress(..), emailValue)
+import Serials.AppMonad
 
 import Text.Blaze.Html5 hiding (style, map)
 import Text.Blaze.Html5.Attributes
@@ -40,10 +42,10 @@ data Email = Email {
 isValidAddress :: EmailAddress -> Bool
 isValidAddress = isValid . encodeUtf8 . emailValue
 
-sendMail :: [EmailAddress] -> Email -> IO ()
+sendMail :: [EmailAddress] -> Email -> App ()
 sendMail to (Email subj msg) = do
-  env <- readAllEnv
-  runMandrill (mandrill env) $ do
+  md <- asks (mandrill . env)
+  runMandrill md $ do
     let from = fromJust $ emailAddress "webfiction@orbit.al"
         tos  = map (fromJust . emailAddress . encodeUtf8 . emailValue) to
     res <- sendEmail (newHtmlMessage from tos subj msg)

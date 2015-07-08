@@ -12,8 +12,10 @@ import Data.Monoid ((<>))
 import Data.Pool
 import Control.Applicative
 
-import Control.Monad.Trans.Reader
+import Control.Monad.Reader
 import Control.Monad.Trans (liftIO)
+
+import Serials.AppMonad
 
 -------------------------------------------------
 
@@ -53,24 +55,17 @@ toDatumNoId = stripId . toDatum
 
 -------------------------------------------------
 
---runDb :: (Expr a, Result r) => a -> RethinkIO r
---runDb e = do
-    --h <- ask
-    --liftIO $ run h e
-
-runDb :: (Expr query, Result r) => query -> RethinkIO r
+runDb :: (Expr query, Result r) => query -> App r
 runDb q = do
-    p <- ask
-    liftIO $ withResource p $ \h -> run h q
-
-type RethinkIO = ReaderT (Pool RethinkDBHandle) IO
+    pool <- asks conn
+    liftIO $ withResource pool $ \h -> run h q
 
 -------------------------------------------------------
 
-initDb :: IO (Either RethinkDBError Datum) -> IO ()
+initDb :: App (Either RethinkDBError Datum) -> App ()
 initDb action = do
     r <- action
-    putStrLn $ "[INIT] " <> case r of
+    liftIO $ putStrLn $ "[INIT] " <> case r of
       Left err -> errorMessage err
       Right d  -> show d
 
@@ -92,8 +87,8 @@ connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
 
 -- DB -----------------------------------------------------------
 
-createDb :: Pool RethinkDBHandle -> IO ()
-createDb p = initDb $ runPool p $ dbCreate $ serialsDbName
+createDb :: App ()
+createDb = initDb $ runDb $ dbCreate $ serialsDbName
 
 serialsDb :: Database
 serialsDb = db serialsDbName
@@ -105,22 +100,22 @@ serialsDbName = "serials"
 
 ------------------------------------------------------------------
 
-docsList :: FromDatum a => Table -> Pool RethinkDBHandle -> IO [a]
-docsList table h = runPool h $ table # orderBy [asc "id"]
+docsList :: FromDatum a => Table -> App [a]
+docsList table = runDb $ table # orderBy [asc "id"]
 
-docsFind :: FromDatum a => Table -> Pool RethinkDBHandle -> Text -> IO (Maybe a)
-docsFind table h id = runPool h $ table # get (expr id)
+docsFind :: FromDatum a => Table -> Text -> App (Maybe a)
+docsFind table id = runDb $ table # get (expr id)
 
-docsInsert :: ToDatum a => Table -> Pool RethinkDBHandle -> a -> IO Text
-docsInsert table h s = do
-    r <- runPool h $ table # create s
+docsInsert :: ToDatum a => Table -> a -> App Text
+docsInsert table s = do
+    r <- runDb $ table # create s
     return $ generatedKey r
 
-docsSave :: ToDatum a => Table -> Pool RethinkDBHandle -> Text -> a -> IO ()
-docsSave table h id s = runPool h $ table # get (expr id) # replace (const (toDatum s))
+docsSave :: ToDatum a => Table -> Text -> a -> App ()
+docsSave table id s = runDb $ table # get (expr id) # replace (const (toDatum s))
 
-docsRemove :: Table -> Pool RethinkDBHandle -> Text -> IO ()
-docsRemove table h id = runPool h $ table # get (expr id) # delete
+docsRemove :: Table -> Text -> App ()
+docsRemove table id = runDb $ table # get (expr id) # delete
 
 --------------------------------------------------------------------
 

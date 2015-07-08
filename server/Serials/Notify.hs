@@ -6,6 +6,8 @@ module Serials.Notify where
 import Prelude hiding (div)
 
 import Control.Monad
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader
 
 import Data.Pool (Pool)
 import Data.Monoid ((<>))
@@ -22,7 +24,6 @@ import Serials.Model.Source (Source)
 import qualified Serials.Model.Source as Source
 import Serials.Model.User (User)
 import qualified Serials.Model.User as User
-import Serials.Model.App (readAllEnv, Env(..))
 
 import Serials.Lib.Mail (Email(..), sendMail)
 import Serials.Link.Link (contentText, Content)
@@ -30,15 +31,17 @@ import Serials.Link.Link (contentText, Content)
 import Text.Blaze.Html5 hiding (style, map)
 import Text.Blaze.Html5.Attributes
 
+import Serials.AppMonad
+
 -- notify people of all the new chapters
-notifyChapters :: Pool RethinkDBHandle -> Source -> [Chapter] -> IO ()
-notifyChapters h s cs = do
-    us <- usersSubscribed h (Source.id s)
-    env <- readAllEnv
-    let es = map (notifyEmail (endpoint env) s) cs
+notifyChapters :: Source -> [Chapter] -> App ()
+notifyChapters s cs = do
+    us <- usersSubscribed (Source.id s)
+    ep <- asks (endpoint . env)
+    let es = map (notifyEmail ep s) cs
     mapM_ (notifyUsers us) es
 
-notifyUsers :: [User] -> Email -> IO ()
+notifyUsers :: [User] -> Email -> App ()
 notifyUsers us e = sendMail (map User.email us) e
 
 -- this'll be the main email they get

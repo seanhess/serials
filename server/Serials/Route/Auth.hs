@@ -14,6 +14,7 @@ import Crypto.BCrypt (validatePassword)
 import Control.Applicative ((<$>))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
+import Control.Monad.Except
 
 import Data.Text (Text, pack, toLower)
 import qualified Data.Text as T
@@ -39,13 +40,14 @@ import Network.Wai
 import Safe (headMay)
 import Servant
 import Servant.Server.Internal
+import Servant.Server.Internal.Enter
 import Serials.Lib.ServantCookie
-import Serials.Route.Route
+import Serials.AppMonad
 
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)
 import qualified Serials.Model.User as User hiding (User())
-import Serials.Model.App (readAllEnv, Env(..))
+import Serials.Model.App (readAllEnv)
 
 import Web.JWT (JSON, JWTClaimsSet(..), claims, unregisteredClaims, Secret, secret)
 import Web.Cookie
@@ -60,16 +62,20 @@ data UserLogin = UserLogin {
 instance FromJSON UserLogin
 instance ToJSON UserLogin
 
+data Connected a = Connected (Pool RethinkDBHandle) a
+
 -------------------------------------------------------------------
 
 type AuthLookup = JWTClaimsSet -> Bool
 
 data AuthProtected
 
-data Connected a = Connected (Pool RethinkDBHandle) a
 
 protected :: AuthLookup -> server -> (AuthLookup, server)
 protected look server = (look, server)
+
+--instance (Enter typ arg ret) => Enter (AuthLookup, rest) where
+    --enter (al, rest) = enter rest
 
 -- make it only allow an admin for now
 instance HasServer rest => HasServer (AuthProtected :> rest) where
@@ -89,28 +95,28 @@ instance HasServer rest => HasServer (AuthProtected :> rest) where
 
 -----------------------------------------------------------------------
 
-checkCurrentAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe User)
-checkCurrentAuth h mjwt = case mjwt of
+checkCurrentAuth :: Maybe Text -> App (Maybe User)
+checkCurrentAuth mjwt = case mjwt of
   Nothing -> return Nothing
   Just jwt -> do
-    secret <- jwtSecret
-    mt <- verifyJwt secret jwt -- IO
+    secret <- liftIO $ jwtSecret
+    mt <- liftIO $ verifyJwt secret jwt -- IO
     case mt of -- Maybe
       Nothing -> return Nothing
       Just t  -> do
         case subject t of -- Maybe
           Nothing -> return Nothing
           Just s  -> do
-            User.find h $ pack $ show s
+            User.find $ pack $ show s
 
 hasClaimAdmin :: JWTClaimsSet -> Bool
 hasClaimAdmin cs = case Map.lookup "admin" $ unregisteredClaims cs of
                      (Just (Aeson.Bool True)) -> True
                      _ -> False
 
-userLogin :: Pool RethinkDBHandle -> UserLogin -> IO (Either Text User)
-userLogin h u = do
-  mu <- User.findByEmail h $ toLower $ email u
+userLogin :: UserLogin -> App (Either Text User)
+userLogin u = do
+  mu <- User.findByEmail $ toLower $ email u
   case mu of
     Nothing -> return $ Left "Invalid email address"
     Just user -> do
@@ -153,7 +159,7 @@ addAuthHeader secret claims a = addHeader header a
   expTime = toUTCTime $ fromJust $ exp claims
   expires = formatTimeRFC822 expTime
 
-addAuth :: User -> Handler (Headers CookieHeader SecureUser)
+addAuth :: User -> App (Headers CookieHeader SecureUser)
 addAuth u = do
   claims <- liftIO $ userClaims u
   secret <- liftIO $ jwtSecret
@@ -168,9 +174,9 @@ parseToken mc = do
   token <- lookup "token" $ parseCookiesText $ encodeUtf8 cookie
   return $ token
 
-checkAuth :: Pool RethinkDBHandle -> Maybe Text -> IO (Maybe SecureUser)
-checkAuth h mt = do
-    secure <$> checkCurrentAuth h mt
+checkAuth :: Maybe Text -> App (Maybe SecureUser)
+checkAuth mt = do
+    secure <$> checkCurrentAuth mt
 
 ----------------------------------------------------------------
 
@@ -180,9 +186,9 @@ formatTimeRFC822 = pack . formatTime defaultTimeLocale "%a, %d %b %Y %X %z"
 
 ------------------------------------------------------------------
 
-currentUser :: Pool RethinkDBHandle -> Maybe Text -> Handler SecureUser
-currentUser h mt = do
-  mu <- liftIO $ checkAuth h mt
+currentUser :: Maybe Text -> App SecureUser
+currentUser mt = do
+  mu <- checkAuth mt
   case mu of
-    Nothing -> EitherT $ return $ Left $ err401 { errBody = "Unauthorized" }
+    Nothing -> throwError $ err401 { errBody = "Unauthorized" }
     Just user -> return $ user

@@ -8,6 +8,7 @@ import Prelude hiding (id)
 import Control.Applicative
 import Control.Monad.Trans.Either
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader
 import Crypto.BCrypt (hashPasswordUsingPolicy, HashingPolicy(..))
 
 import Data.Text (Text, pack, unpack, toLower)
@@ -23,7 +24,7 @@ import Data.Monoid ((<>))
 import GHC.Generics
 import Database.RethinkDB.NoClash (RethinkDBHandle, FromDatum(..), ToDatum(..))
 
-import Serials.Route.Route
+import Serials.Route.App
 
 import qualified Serials.Model.User as User
 import Serials.Model.User (User)
@@ -31,7 +32,8 @@ import qualified Serials.Model.Invite as Invite
 import Serials.Lib.Mail
 import Serials.Model.Invite (Invite)
 import Serials.Model.Types (EmailAddress(..))
-import Serials.Model.App (readAllEnv, Env(..), Endpoint)
+import Serials.Model.App (readAllEnv)
+import Serials.AppMonad
 
 import Servant.Server
 
@@ -52,16 +54,16 @@ instance ToJSON UserSignup
 instance FromDatum UserSignup
 instance ToDatum UserSignup
 
-signup :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text User)
-signup h u = validate (validateSignup h u) $ do
-  time <- getCurrentTime
-  mhash <- hashPassword (password u)
+signup :: UserSignup -> App (Either Text User)
+signup u = validate (validateSignup u) $ do
+  time <- liftIO $ getCurrentTime
+  mhash <- liftIO $ hashPassword (password u)
   case mhash of
     Nothing -> return $ Left "Could not hash user password"
     Just hash -> do
       let user = newUser u time hash
-      createdUser <- User.insert h user
-      Invite.markUsed h (code u) (User.id createdUser)
+      createdUser <- User.insert user
+      Invite.markUsed (code u) (User.id createdUser)
       sendWelcomeEmail createdUser
       return $ Right createdUser
 
@@ -87,10 +89,10 @@ hashPassword pw = do
 
 -- Email -----------------------------------------------------------
 
-sendWelcomeEmail :: User -> IO ()
+sendWelcomeEmail :: User -> App ()
 sendWelcomeEmail u = do
-  env <- readAllEnv
-  sendMail [User.email u] (welcomeEmail (endpoint env) u)
+  ep <- asks (endpoint . env)
+  sendMail [User.email u] (welcomeEmail ep u)
 
 welcomeEmail :: Endpoint -> User -> Email
 welcomeEmail ep u = Email "Your account is active!" $ do
@@ -101,27 +103,26 @@ welcomeEmail ep u = Email "Your account is active!" $ do
 
 
 -- Password Resetting ----------------------------------------------
-forgotPassword :: Pool RethinkDBHandle -> EmailAddress -> IO ()
-forgotPassword h email = do
-  token <- Invite.generateCode
-  print token
-  User.addResetToken h email token
-  env <- readAllEnv
-  sendMail [email] (passwordEmail (endpoint env) token)
+forgotPassword :: EmailAddress -> App ()
+forgotPassword email = do
+  token <- liftIO $ Invite.generateCode
+  User.addResetToken email token
+  ep <- askEndpoint
+  sendMail [email] (passwordEmail ep token)
 
-resetPassword :: Pool RethinkDBHandle -> Text -> Text -> Handler ()
-resetPassword h token pw = do
-  mu <- liftIO $ User.findByToken h token
+resetPassword :: Text -> Text -> App (Either Text ())
+resetPassword token pw = do
+  mu <- User.findByToken token
   case mu of
-    Nothing -> left $ err400 { errBody = "Invalid Token" }
+    Nothing -> return $ Left "Invalid Token"
     Just u  -> do
       mhash <- liftIO $ hashPassword pw
       case mhash of
-        Nothing -> left $ err400 { errBody = "Could not hash password"}
+        Nothing -> return $ Left "Could not hash password"
         Just hash -> do
           let user = u { User.hashedPassword = hash, User.resetToken = Nothing }
-          liftIO $ User.save h (User.id user) user
-          return $ ()
+          User.save (User.id user) user
+          return $ Right ()
 
 -- you need the token in the url, at least
 passwordEmail :: Endpoint -> Text -> Email
@@ -134,7 +135,7 @@ passwordEmail ep token = Email "Reset your password" $ do
 
 -- Validation --------------------------------------------------
 -- maybe there's a library function for this
-validate :: IO (Either Text ()) -> IO (Either Text a) -> IO (Either Text a)
+validate :: (Monad m) => m (Either Text ()) -> m (Either Text a) -> m (Either Text a)
 validate validator rest = do
   result <- validator
   case result of
@@ -147,16 +148,16 @@ validatePassword u =
   then Left "Password and Password Confirmation do not match"
   else validateRequired "Password" (password u)
 
-validateEmail :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
-validateEmail h u = do
-  existUser <- User.findByEmail h $ toLower $ email u
+validateEmail :: UserSignup -> App (Either Text ())
+validateEmail u = do
+  existUser <- User.findByEmail $ toLower $ email u
   return $ if isJust existUser
     then Left "User already exists with that email"
     else Right ()
 
-validateInvite :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
-validateInvite h u = do
-  mInvite <- Invite.find h (code u)
+validateInvite :: UserSignup -> App (Either Text ())
+validateInvite u = do
+  mInvite <- Invite.find (code u)
   case mInvite of
     Nothing -> return $ Left "Invite not found"
     Just invite ->
@@ -170,8 +171,8 @@ validateRequired name txt =
   then Left $ name <> " is required"
   else Right ()
 
-validateSignup :: Pool RethinkDBHandle -> UserSignup -> IO (Either Text ())
-validateSignup h u = do
+validateSignup :: UserSignup -> App (Either Text ())
+validateSignup u = do
   errs <- lefts <$> sequence validators
   return $ case errs of
     []   -> Right ()
@@ -182,7 +183,7 @@ validateSignup h u = do
       return $ validateRequired "First Name" (firstName u),
       return $ validateRequired "Last Name" (firstName u),
       return $ validatePassword u,
-      validateEmail h u,
-      validateInvite h u
+      validateEmail u,
+      validateInvite u
     ]
 

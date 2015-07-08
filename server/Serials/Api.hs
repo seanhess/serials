@@ -10,6 +10,8 @@ module Serials.Api where
 import Control.Applicative
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Either
+import Control.Monad.Except
+import Control.Monad.Reader
 
 import Data.Aeson
 import Data.Monoid
@@ -48,14 +50,14 @@ import Serials.Model.App
 import Serials.Model.Lib.Crud
 import Serials.Scan
 import qualified Serials.Admin as Admin
-import Serials.Read.Test (proxyApp)
 import Serials.Lib.Mail (Email(..))
 
-import Serials.Route.Route
+import Serials.AppMonad
+import Serials.Route.App
 import Serials.Route.Auth
 import Serials.Route.Invite
-import Serials.Route.UserSignup (UserSignup, forgotPassword, resetPassword)
-import Serials.Route.Sources (SourcesAPI, sourcesServer, ChangesAPI, changesServer)
+import Serials.Route.UserSignup
+import Serials.Route.Sources
 import qualified Serials.Route.UserSignup as UserSignup
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
@@ -81,8 +83,8 @@ type AdminAPI =
        "private" :> Get String -- example to see a few routes in here. Remove when we add more.
   :<|> "import-log" :> Capture "n" Int :> Get Admin.Log
 
-adminServer :: Pool RethinkDBHandle -> Server AdminAPI
-adminServer h = getPrivate :<|> importLog
+adminServer :: ServerT AdminAPI App
+adminServer = getPrivate :<|> importLog
 
   where
 
@@ -115,55 +117,56 @@ type AdminUserAPI =
        Get [SecureUser]
   :<|> Capture "id" Text :> Delete ()
 
-adminUsersServer :: Pool RethinkDBHandle -> Server AdminUserAPI
-adminUsersServer h = usersGet :<|> usersDel
+adminUsersServer :: ServerT AdminUserAPI App
+adminUsersServer = usersGet :<|> usersDel
 
   where
 
-  usersGet :: Handler [SecureUser]
-  usersGet = liftIO $ secure <$> User.list h
+  usersGet :: App [SecureUser]
+  usersGet = secure <$> User.list
 
-  usersDel :: Text -> Handler ()
-  usersDel id = liftIO $ User.remove h id
+  usersDel :: Text -> App ()
+  usersDel id = User.remove id
 
 
-usersServer :: Pool RethinkDBHandle -> Server UsersAPI
-usersServer h =
+usersServer :: ServerT UsersAPI App
+usersServer =
         signup
    :<|> userGet
    :<|> userBooksGet
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
     -- this sucks. It has to be last or it "protects" everything in here. 
-   :<|> protected hasClaimAdmin (adminUsersServer h)
+   :<|> protected hasClaimAdmin (adminUsersServer)
 
   where
 
-  signup :: UserSignup -> Handler (Headers CookieHeader SecureUser)
+-- what does that mean?
+  signup :: UserSignup -> App (Headers CookieHeader SecureUser)
   signup s = do
-    u <- liftErrText err400 $ liftIO $ UserSignup.signup h s
+    u <- isInvalidText $ UserSignup.signup s
     addAuth u
 
-  userGet :: Text -> Handler SecureUser
-  userGet id   = liftE $ secure <$> User.find h id
+  userGet :: Text -> App SecureUser
+  userGet id = isNotFound $ secure <$> User.find id
 
-  userBooksGet :: Text -> Handler [Source]
-  userBooksGet uid = liftIO $ Subscription.booksByUser h uid
+  userBooksGet :: Text -> App [Source]
+  userBooksGet uid = Subscription.booksByUser uid
 
-  userSubsGet :: Text -> Handler [Subscription]
-  userSubsGet uid = liftIO $ Subscription.subsByUser h uid
+  userSubsGet :: Text -> App [Subscription]
+  userSubsGet uid = Subscription.subsByUser uid
 
-  userSubGet :: Text -> Text -> Handler (Maybe Subscription)
-  userSubGet uid sid = liftIO $ Subscription.find h uid sid
+  userSubGet :: Text -> Text -> App (Maybe Subscription)
+  userSubGet uid sid = Subscription.find uid sid
 
-  userSubPut :: Text -> Text -> Subscription -> Handler ()
-  userSubPut uid sid sub = liftIO $ Subscription.save h uid sid sub
+  userSubPut :: Text -> Text -> Subscription -> App ()
+  userSubPut uid sid sub = Subscription.save uid sid sub
 
-  userSubPost :: Text -> Text -> Handler ()
-  userSubPost uid sid = liftIO $ Subscription.add h uid sid
+  userSubPost :: Text -> Text -> App ()
+  userSubPost uid sid = Subscription.add uid sid
 
-  userSubDel :: Text -> Text -> Handler ()
-  userSubDel uid sid = liftIO $ Subscription.remove h uid sid
+  userSubDel :: Text -> Text -> App ()
+  userSubDel uid sid = Subscription.remove uid sid
 
 
 -- Auth -----------------------------------------------------
@@ -180,33 +183,32 @@ type AuthAPI =
   :<|> "password" :> Capture "token" Text :> ReqBody Text :> Post ()
 
 
-authServer :: Pool RethinkDBHandle -> Server AuthAPI
-authServer h = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
+authServer :: ServerT AuthAPI App
+authServer = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
 
   where
 
-  login :: UserLogin -> Handler (Headers CookieHeader SecureUser)
+  login :: UserLogin -> App (Headers CookieHeader SecureUser)
   login u = do
-    u <- liftErrText err401 $ liftIO $ userLogin h u
+    u <- isInvalidText $ userLogin u
     addAuth u
 
   -- TODO expire the users' token
-  logout :: Handler (Headers CookieHeader ())
+  logout :: App (Headers CookieHeader ())
   logout = return clearAuthHeader
 
-  current :: Maybe Text -> Handler SecureUser
-  current mt = liftE $ checkAuth h mt
+  current :: Maybe Text -> App SecureUser
+  current mt = isNotFound $ checkAuth mt
 
   jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
     Just t  -> verifyClaims t
 
-  forgot :: EmailAddress -> Handler ()
-  forgot email = liftIO $ forgotPassword h email
+  forgot :: EmailAddress -> App ()
+  forgot email = forgotPassword email
 
-  reset :: Text -> Text -> Handler()
-  reset token pw = resetPassword h token pw
-
+  reset :: Text -> Text -> App()
+  reset token pw = isInvalidText $ resetPassword token pw
 
 -- Invites ----------------------------------------
 
@@ -217,96 +219,108 @@ type InvitesAPI =
   :<|> Capture "code" Text :> Delete ()
   :<|> Capture "code" Text :> "sent" :> Post ()
 
-invitesServer :: Pool RethinkDBHandle -> Server InvitesAPI
-invitesServer h = list :<|> add :<|> find :<|> remove :<|> send
+invitesServer :: ServerT InvitesAPI App
+invitesServer = list :<|> add :<|> find :<|> remove :<|> send
 
   where
 
-  add :: EmailAddress -> Handler ()
-  add e = EitherT $ inviteAddEmail h e
+  add :: EmailAddress -> App ()
+  add e = isInvalidText $ inviteAddEmail e
 
-  list :: Handler [Invite]
-  list = liftIO $ Invite.all h
+  list :: App [Invite]
+  list = Invite.all
 
-  find :: Text -> Handler Invite
-  find code = liftE $ Invite.find h code
+  find :: Text -> App Invite
+  find code = isNotFound $ Invite.find code
 
-  remove :: Text -> Handler ()
-  remove code = liftIO $ Invite.remove h code
+  remove :: Text -> App ()
+  remove code = Invite.remove code
 
-  send :: Text -> Handler ()
-  send code = liftIO $ inviteSend h code
-
-
+  send :: Text -> App ()
+  send code = inviteSend code
 
 
+type ExampleAPI = AuthProtected :> Get String
+
+exampleServerT :: ServerT ExampleAPI App
+exampleServerT = protected hasClaimAdmin (hello)
+  where
+  hello = return "Hello"
+
+exampleServer :: AppConfig -> Server ExampleAPI
+exampleServer config = enter (Nat $ (runAppT config)) exampleServerT
 
 
 -- Server ----------------------------------------------------
 
-type API =
+type MainAPI =
+  "status" :> Get AppStatus
 
-       "sources"   :> SourcesAPI
-  :<|> "changes"   :> ChangesAPI
-  :<|> "users"     :> UsersAPI
-  :<|> "auth"      :> AuthAPI
-  :<|> "invites"   :> InvitesAPI
+  -- :<|> "sources"   :> SourcesAPI
+  :<|> "changes"     :> ChangesAPI
+  -- :<|> "users"     :> UsersAPI
+  -- :<|> "auth"      :> AuthAPI
+  :<|> "invites"     :> InvitesAPI
 
-  :<|> "proxy" :> Raw
+  :<|> "admin"       :> AuthProtected :> AdminAPI
 
-  :<|> "admin" :> AuthProtected :> AdminAPI
-
-  :<|> "tags"      :> Get [TagCount]
+  :<|> "tags"        :> Get [TagCount]
   :<|> "settings"    :> AuthToken :> Get AppSettings
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
-  :<|> "status" :> Get AppStatus
 
-  :<|> Raw
+  -- :<|> Raw
 
-server :: Pool RethinkDBHandle -> String -> Env -> Application -> Server API
-server h version env root =
+apiServer :: ServerT MainAPI App
+apiServer =
 
-        sourcesServer h
-   :<|> changesServer h
+   status
 
-   :<|> usersServer h
-   :<|> authServer h
-   :<|> invitesServer h
+   -- :<|> sourcesServer
+   :<|> changesServer
 
-   :<|> proxyApp
-   :<|> protected hasClaimAdmin (adminServer h)
+   -- :<|> usersServer
+   -- :<|> authServer
+   :<|> invitesServer
+
+   :<|> protected hasClaimAdmin (adminServer)
 
    :<|> getTags
 
-   :<|> liftIO . settings
+   :<|> settings
    :<|> settingsText
 
-   :<|> status
-
-   :<|> root
+   -- :<|> root
 
   where
 
-    settingsText :: Maybe Text -> Handler Text
-    settingsText mc = liftIO $ do
+    settingsText :: Maybe Text -> App Text
+    settingsText mc = do
       s <- settings mc
       let json = TL.toStrict $ TLE.decodeUtf8 $ encode s :: Text
       return $ "var SETTINGS=" <> (json)
 
-    settings :: Maybe Text -> IO AppSettings
+    settings :: Maybe Text -> App AppSettings
     settings mc = do
-      user <- checkAuth h mc
-      return $ AppSettings "Serials" version user (endpoint env) (environment env)
+      user <- checkAuth mc
+      e    <- asks env
+      v    <- asks version
+      return $ AppSettings "Serials" v user (endpoint e) (environment e)
 
     printVar :: ToJSON a => Text -> a -> Text
     printVar key a = ""
 
-    status = liftIO $ appStatus h
+    status = appStatus
 
-    getTags = liftIO $ Source.allTags h
+    getTags = Source.allTags
 
-rootApp :: Pool RethinkDBHandle -> IO Application
-rootApp h = scottyApp $ do
+server :: AppConfig -> Server MainAPI
+server config = undefined -- enter (Nat $ (runAppT config)) apiServer
+
+-- (serverApp root)
+-- (runAppT config)
+
+rootApp :: AppConfig -> IO Application
+rootApp c = scottyApp $ do
   middleware $ staticPolicy (noDots >-> addBase "web")
 
   get "/app"   $ file "./web/app.html"
@@ -314,24 +328,26 @@ rootApp h = scottyApp $ do
   get "/"      $ file "./web/index.html"
 
   -- test to see what emails look like
-  get "/emails/invite" $ do
-    -- get an invite, the first one?
-    invs <- liftIO $ Invite.all h
-    env <- liftIO $ readAllEnv
-    let (Email _ body) = inviteEmail (head invs) (endpoint env)
-    html $ renderHtml body
+  --get "/emails/invite" $ do
+    ---- get an invite, the first one?
+    ---- I can't actually call these without the entire environment, right?
+    --res <- liftIO $ runAppT
+    --invs <- liftIO $ runAppT c $ Invite.all
+    --env <- liftIO $ readAllEnv
+    --let (Email _ body) = inviteEmail (head invs) (endpoint env)
+    --html $ renderHtml body
 
-  get "/emails/welcome" $ do
-    -- get an invite, the first one?
-    us <- liftIO $ User.list h
-    env <- liftIO $ readAllEnv
-    let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
-    html $ renderHtml body
+  --get "/emails/welcome" $ do
+    ---- get an invite, the first one?
+    --us <- liftIO $ runAppT c $ User.list
+    --env <- liftIO $ readAllEnv
+    --let (Email _ body) = UserSignup.welcomeEmail (endpoint env) (head us)
+    --html $ renderHtml body
 
 
 data AppSettings = AppSettings {
   appName :: Text,
-  version :: String,
+  appVersion :: Text,
   user :: Maybe SecureUser,
   appEndpoint :: Text,
   appEnvironment :: AppEnvironment
@@ -348,21 +364,25 @@ stack app = heads $ cors' $ app
     heads = addHeaders [("X-Source", "Contribute at http://github.com/seanhess/serials")]
     cors' = cors (const $ Just corsResourcePolicy)
 
-api :: Proxy API
+api :: Proxy MainAPI
 api = Proxy
 
-runApi :: Int -> Pool RethinkDBHandle -> String -> Env -> IO ()
-runApi port p version env = do
-  env <- readAllEnv
-  root <- rootApp p
-  createDb p
-  Source.init p
-  Change.init p
-  User.init p
-  Invite.init p
-  Subscription.init p
+runApi :: AppConfig -> IO ()
+runApi config = do
+
+  let p = port $ env config
+  root <- rootApp config
+
+  res <- runEitherT $ runAppT config $ do
+    createDb
+    Source.init
+    Change.init
+    User.init
+    Invite.init
+    Subscription.init
+
   putStrLn $ "Starting..."
-  run port $ stack $ serve api (server p version env root)
+  run p $ stack $ serve api (server config)
   return ()
 
 -- Cors ---------------------------------------------------------

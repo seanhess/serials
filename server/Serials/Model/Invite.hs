@@ -7,6 +7,7 @@ import Prelude hiding (id, lookup, dropWhile, filter, drop)
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.IO.Class (liftIO)
 
 import Data.Aeson (ToJSON, FromJSON, Value(..), (.:), parseJSON)
 import Data.Char (intToDigit, chr)
@@ -27,6 +28,8 @@ import Safe (headMay)
 import Serials.Model.Lib.Crud
 import Serials.Model.Types (EmailAddress(..))
 import System.Random (randomIO, randomRIO)
+
+import Serials.AppMonad
 
 import Numeric (showIntAtBase)
 
@@ -73,40 +76,40 @@ codeIndex     = Index codeIndexName
 
 table = R.table "invites"
 
-add :: Pool RethinkDBHandle -> Invite -> IO Invite
-add h inv = do
-    r <- runPool h $ table # ex insert [returnChanges] (toDatum $ inv)
+add :: Invite -> App Invite
+add inv = do
+    r <- runDb $ table # ex insert [returnChanges] (toDatum $ inv)
     return . fromJust $ writeChangeNew r
 
-remove :: Pool RethinkDBHandle -> Text -> IO ()
-remove h code = runPool h $ table # getAll codeIndex [expr code] # delete
+remove :: Text -> App ()
+remove code = runDb $ table # getAll codeIndex [expr code] # delete
 
 emailId :: EmailAddress -> Text
 emailId (EmailAddress e) = toLower e
 
-all :: Pool RethinkDBHandle -> IO [Invite]
-all h = runPool h $ table # orderBy [asc "id"]
+all :: App [Invite]
+all = runDb $ table # orderBy [asc "id"]
 
-find :: Pool RethinkDBHandle -> InviteCode -> IO (Maybe Invite)
-find h code = do
-    is <- runPool h $ table # getAll codeIndex [expr code]
+find :: InviteCode -> App (Maybe Invite)
+find code = do
+    is <- runDb $ table # getAll codeIndex [expr code]
     return $ headMay is
 
-markUsed :: Pool RethinkDBHandle -> InviteCode -> Text -> IO ()
-markUsed h code userId = do
-  time <- getCurrentTime
+markUsed :: InviteCode -> Text -> App ()
+markUsed code userId = do
+  time <- liftIO $ getCurrentTime
   let signup = Signup userId time
-  runPool h $ table # getAll codeIndex [expr code] # update (const ["signup" := toDatum signup])
+  runDb $ table # getAll codeIndex [expr code] # update (const ["signup" := toDatum signup])
 
-markSent :: Pool RethinkDBHandle -> InviteCode -> IO ()
-markSent h code = do
-    time <- getCurrentTime
-    runPool h $ table # getAll codeIndex [expr code] # update (const ["sent" := formatISO8601 time])
+markSent :: InviteCode -> App ()
+markSent code = do
+    time <- liftIO $ getCurrentTime
+    runDb $ table # getAll codeIndex [expr code] # update (const ["sent" := formatISO8601 time])
 
-init :: Pool RethinkDBHandle -> IO ()
-init h = do
-    initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (codeIndexName) (!expr codeIndexName)
+init :: App ()
+init = do
+    initDb $ runDb $ tableCreate table
+    initDb $ runDb $ table # indexCreate (codeIndexName) (!expr codeIndexName)
 
 --------------------------------------
 -- code

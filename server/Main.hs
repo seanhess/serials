@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Data.Char
@@ -5,13 +7,16 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid
 import Data.Text (pack, Text)
 
+import Control.Monad.IO.Class (liftIO)
 import Control.Applicative
+import Control.Monad.Trans.Either
 
 import Serials.Link
 import Serials.Api
 import Serials.Scan
 import Serials.Model.Lib.Crud
 import Serials.Model.App
+import Serials.AppMonad
 
 import System.Environment
 import Network.URI
@@ -39,18 +44,22 @@ usage = putStrLn $ "Usage: `serials scan` or `serials api`"
 mainApi :: IO ()
 mainApi = do
     putStrLn "-- SERIALS API ----------------"
-    env <- readAllEnv
-    print env
-    p <- connectDbPool (db env)
-    runApi (port env) p generatedVersion env
+    config <- initConfig
+    runApi config
 
 mainScan :: [String] -> IO ()
 mainScan ids = do
     putStr "[SCAN] | "
-    env <- readAllEnv
-    p <- connectDbPool (db env)
-    case ids of
-      [] -> importAllSources p
-      is -> mapM_ (importSourceId p) (map pack is)
+    config <- initConfig
+    res <- runEitherT $ runAppT config $ do
+      case ids of
+        [] -> importAllSources
+        is -> mapM_ (importSourceId) (map pack is)
     return ()
 
+initConfig :: IO AppConfig
+initConfig = do
+  env <- readAllEnv
+  print env
+  p <- connectDbPool (envDb env)
+  return $ AppConfig "serials" (pack generatedVersion) env p

@@ -21,7 +21,8 @@ import Database.RethinkDB.NoClash hiding (Change)
 
 import GHC.Generics
 
-import Serials.Route.Route
+import Serials.AppMonad
+import Serials.Route.App
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser, AuthProtected, protected, hasClaimAdmin)
 
 import Serials.Model.Source (Source(..), SourceThumbnail(..))
@@ -51,8 +52,8 @@ type SourcesAPI =
 
 type SourcesAdminAPI = Capture "id" Text :> Delete ()
 
-sourcesServer :: Pool RethinkDBHandle -> Server SourcesAPI
-sourcesServer h =
+sourcesServerT :: ServerT SourcesAPI App
+sourcesServerT =
          sourcesGetAll :<|> sourcesPost
     :<|> sourceScan
     :<|> sourcesGet :<|> sourcesPut
@@ -61,45 +62,45 @@ sourcesServer h =
 
   where
 
-  sourcesDel :: Text -> Handler ()
-  sourcesDel id   = liftIO $ Source.delete h id
+  sourcesDel :: Text -> App ()
+  sourcesDel id = Source.delete id
 
   -- do I want to operate in a different monad here?
   -- what would that look like? 
   -- it would be pretty cool, but super fancy...
-  sourcesGetAll :: Maybe Text -> Handler [SourceThumbnail]
+  sourcesGetAll :: Maybe Text -> App [SourceThumbnail]
   sourcesGetAll mt = map SourceThumbnail <$> getSources
     where
     getSources = case mt of
-                  Nothing -> liftIO $ Source.list h
-                  Just t  -> liftDb h $ Source.findByTag t
+                  Nothing -> Source.list
+                  Just t  -> Source.findByTag t
 
-  sourcesPost :: Maybe Text -> Source -> Handler Text
+  sourcesPost :: Maybe Text -> Source -> App Text
   sourcesPost mt s = do
-    user <- currentUser h mt
+    user <- currentUser mt
 
     -- save the source
-    sourceId <- liftIO $ Source.insert h s
+    sourceId <- Source.insert s
 
     -- save the change, with the new source id attached
     time <- liftIO $ getCurrentTime
     let s' = s { Source.id = sourceId }
         c = change Nothing s' time user
-    cid <- liftIO $ Change.insert h c
+    cid <- Change.insert c
 
     return sourceId
 
 
 
-  sourcesGet :: Text -> Handler Source
-  sourcesGet id   = liftE  $ Source.find h id
+  sourcesGet :: Text -> App Source
+  sourcesGet id = isNotFound $ Source.find id
 
-  sourcesPut :: Text -> Maybe Text -> Source -> Handler ()
+  sourcesPut :: Text -> Maybe Text -> Source -> App ()
   sourcesPut sourceId mt source = do
 
-    user <- currentUser h mt
+    user <- currentUser mt
 
-    old <- liftE $ Source.find h sourceId
+    old <- isNotFound $ Source.find sourceId
 
     -- if they are equal just return a 200 status code
     if old == source
@@ -109,18 +110,20 @@ sourcesServer h =
       -- save the change
       time <- liftIO $ getCurrentTime
       let c = change (Source.changeId old) source time user
-      cid <- liftIO $ Change.insert h c
+      cid <- Change.insert c
 
       -- save the source
       let source' = source { changeId = Just cid }
-      liftE $ Source.save h sourceId source'
+      isError $ Source.save sourceId source'
 
-  changesGet :: Text -> Handler [Change]
-  changesGet id = liftIO $ Change.findBySourceId h id
+  changesGet :: Text -> App [Change]
+  changesGet id = Change.findBySourceId id
 
-  sourceScan :: Source -> Handler ScanResult
+  sourceScan :: Source -> App ScanResult
   sourceScan source = liftIO $ scanSourceResult source
 
+--sourcesServer :: AppConfig -> Server SourcesAPI
+--sourcesServer config = enter (Nat $ (runAppT config)) sourcesServerT
 
 ---------------------------------------------------------------
 
@@ -128,13 +131,18 @@ type ChangesAPI =
        Get [Change]
   :<|> Capture "id" Text :> Get Change
 
-changesServer :: Pool RethinkDBHandle -> Server ChangesAPI
-changesServer h = getAll :<|> getOne
+changesServerT :: ServerT ChangesAPI App
+changesServerT = getAll :<|> getOne
 
   where
 
-  getAll :: Handler [Change]
-  getAll = liftIO $ Change.list h
+  getAll :: App [Change]
+  getAll = Change.list
 
-  getOne :: Text -> Handler Change
-  getOne id = liftE $ Change.findById h id
+  getOne :: Text -> App Change
+  getOne id = isNotFound $ Change.findById id
+
+
+--changesServer :: AppConfig -> Server ChangesAPI
+--changesServer config = enter (Nat $ (runAppT config)) changesServerT
+changesServer = changesServerT

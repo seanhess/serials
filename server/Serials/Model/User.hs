@@ -29,6 +29,8 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Types (EmailAddress(..))
 import Serials.Lib.JWT
 
+import Serials.AppMonad
+
 import Web.JWT (JWTClaimsSet)
 
 data User = User {
@@ -64,46 +66,46 @@ emailIndex = Index emailIndexName
 resetIndexName = "resetToken"
 resetIndex = Index resetIndexName
 
-list :: Pool RethinkDBHandle -> IO [User]
-list h = runPool h $ table # orderBy [asc "id"]
+list :: App [User]
+list = runDb $ table # orderBy [asc "id"]
 
-find :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
-find h id = runPool h $ table # get (expr id)
+find :: Text -> App (Maybe User)
+find id = runDb $ table # get (expr id)
 
-save :: Pool RethinkDBHandle -> Text -> User -> IO ()
+save ::Text -> User -> App ()
 save = docsSave table
 
-findByEmail :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
-findByEmail h email = do
-  us <- runPool h $ table # getAll emailIndex [expr email]
+findByEmail :: Text -> App (Maybe User)
+findByEmail email = do
+  us <- runDb $ table # getAll emailIndex [expr email]
   return $ headMay us
 
-remove :: Pool RethinkDBHandle -> Text -> IO ()
-remove h id = runPool h $ table # get (expr id) # delete
+remove :: Text -> App ()
+remove id = runDb $ table # get (expr id) # delete
 
 secure :: (Functor m) => m User -> m SecureUser
 secure = fmap SecureUser
 
-insert :: Pool RethinkDBHandle -> User -> IO User
-insert h u = do
-    r <- runPool h $ table # create u
+insert :: User -> App User
+insert u = do
+    r <- runDb $ table # create u
     let user = u {id = generatedKey r}
     return $ user
 
 --------------------------------------------------
 
-addResetToken :: Pool RethinkDBHandle -> EmailAddress -> Text -> IO ()
-addResetToken h (EmailAddress e) token = runPool h $ table # getAll emailIndex [expr e] # update (const ["resetToken" := expr token])
+addResetToken :: EmailAddress -> Text -> App ()
+addResetToken (EmailAddress e) token = runDb $ table # getAll emailIndex [expr e] # update (const ["resetToken" := expr token])
 
-findByToken :: Pool RethinkDBHandle -> Text -> IO (Maybe User)
-findByToken h token = do
-  us <- runPool h $ table # getAll resetIndex [expr token]
+findByToken :: Text -> App (Maybe User)
+findByToken token = do
+  us <- runDb $ table # getAll resetIndex [expr token]
   return $ headMay us
 
 --------------------------------------------------
 
-init :: Pool RethinkDBHandle -> IO ()
-init h = do
-    initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # indexCreate (emailIndexName) (!expr emailIndexName)
-    initDb $ runPool h $ table # indexCreate (resetIndexName) (!expr resetIndexName)
+init :: App ()
+init = do
+    initDb $ runDb $ tableCreate table
+    initDb $ runDb $ table # indexCreate (emailIndexName) (!expr emailIndexName)
+    initDb $ runDb $ table # indexCreate (resetIndexName) (!expr resetIndexName)

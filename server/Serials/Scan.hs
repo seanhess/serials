@@ -5,6 +5,12 @@ module Serials.Scan where
 
 import Prelude hiding (id, lookup)
 
+import Control.Applicative
+import Control.Concurrent
+import Control.Monad
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Exception
+
 import Data.Aeson (ToJSON)
 import Data.Char (isAlphaNum)
 import Data.Text (Text)
@@ -18,11 +24,6 @@ import Data.Time
 import Data.List (nubBy)
 import Debug.Trace
 
-import Control.Applicative
-import Control.Concurrent
-import Control.Monad
-import Control.Exception
-
 import GHC.Generics
 
 import Serials.Model.Lib.Crud
@@ -35,6 +36,7 @@ import Serials.Model.Source (Source(..), Status(..))
 import Serials.Model.Scan (Scan(..))
 
 import Serials.Notify
+import Serials.AppMonad
 
 import System.IO
 
@@ -71,10 +73,10 @@ linkToChapter sid time n content =
   makeId (Link url _) = Chapter.urlId url
   makeId (Title text) = sid <> Text.filter isAlphaNum text
 
-importSourceId :: Pool RethinkDBHandle -> Text -> IO ()
-importSourceId h sourceId = do
-    Just source <- Source.find h sourceId
-    importSource h source
+importSourceId :: Text -> App ()
+importSourceId sourceId = do
+    Just source <- Source.find sourceId
+    importSource source
 
 scanSourceResult :: Source -> IO ScanResult
 scanSourceResult source = do
@@ -97,30 +99,30 @@ scanResult source time content = ScanResult scan all new ups
 
   sid = Source.id source
 
-importSource :: Pool RethinkDBHandle -> Source -> IO ()
-importSource h source = do
+importSource :: Source -> App ()
+importSource source = do
 
   -- update last scan saying it started
-  Source.clearLastScan h sid
+  Source.clearLastScan sid
 
-  content <- scanSourceContent source
-  time <- getCurrentTime
+  content <- liftIO $ scanSourceContent source
+  time <- liftIO $ getCurrentTime
 
   let ScanResult scan all new ups = scanResult source time content
 
   let source' = source { chapters = all, lastScan = Just scan }
 
-  mapM (log " updated ") ups
-  mapM (log "     new ") new
+  liftIO $ mapM (log " updated ") ups
+  liftIO $ mapM (log "     new ") new
 
   -- notify all
   -- skip this step if all the chapters are new.
   -- or if the book is inactive
   when (length new < length all && Source.status source == Active) $ do
-    notifyChapters h source new
+    notifyChapters source new
 
   -- this means it actually completed, so go last?
-  checkErr $ Source.save h sid source'
+  checkErr $ Source.save sid source'
 
   where
     sid = Source.id source
@@ -130,20 +132,20 @@ importSource h source = do
 scanShowSource :: Source -> String
 scanShowSource s = show (Source.id s) <> " " <> show (Source.status s) <> " " <> show (Source.name s)
 
-importAllSources :: Pool RethinkDBHandle -> IO ()
-importAllSources h = do
-    time <- getCurrentTime
-    putStr $ show time <> " | "
-    hSetBuffering stdout LineBuffering
-    sources <- Source.list h
+importAllSources :: App ()
+importAllSources = do
+    time <- liftIO $ getCurrentTime
+    liftIO $ putStr $ show time <> " | "
+    liftIO $ hSetBuffering stdout LineBuffering
+    sources <- Source.list
     let active = filter Source.isActive sources
         inactive = filter (not . Source.isActive) sources
     --mapM_ (skipSource) inactive
-    putStr $ (show $ length active) <> "/" <> (show $ length sources) <> " sources"
-    putStrLn ""
+    liftIO $ putStr $ (show $ length active) <> "/" <> (show $ length sources) <> " sources"
+    liftIO $ putStrLn ""
 
     -- importSource can return some information
-    mapM_ (importSource h) active
+    mapM_ (importSource) active
 
     -- for now, don't do it in parallel
     --runException (Just 5) $ map (importSource h) sources
@@ -177,10 +179,10 @@ isMergeType r = (== r) . fst
 
 ---------------------------------------------------------------
 
-checkErr :: Show a => IO (Either a b) -> IO ()
+checkErr :: Show a => App (Either a b) -> App ()
 checkErr action = do
     res <- action
     case res of
-      Left err -> throwIO $ (userError $ show err)
+      Left err -> liftIO $ throwIO $ (userError $ show err)
       Right _  -> return ()
     return ()

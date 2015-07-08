@@ -23,6 +23,7 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.Scan (Scan(..))
 import Serials.Link.Import (ImportSettings)
+import Serials.AppMonad
 
 instance FromJSON ImportSettings
 instance ToJSON ImportSettings
@@ -92,40 +93,38 @@ tagIndex     = Index tagIndexName
 -- runr $ table # orderBy [asc "id"]
 -- well, just start with the database connection
 
-list :: Pool RethinkDBHandle -> IO [Source]
-list h = runPool h $ table # orderBy [asc "id"]
+list :: App [Source]
+list = docsList table
 
-find :: Pool RethinkDBHandle -> Text -> IO (Maybe Source)
-find h id = runPool h $ table # get (expr id)
+find :: Text -> App (Maybe Source)
+find = docsFind table
 
-findByTag :: Tag -> RethinkIO [Source]
+findByTag :: Tag -> App [Source]
 findByTag tag = runDb $ table # getAll tagIndex [expr tag]
 
 -- either way this is slow right? So just get all the tags and tally it yourself
-allTags :: Pool RethinkDBHandle -> IO [TagCount]
-allTags h = do
-    tss <- runPool h $ table # R.map (!"tags") :: IO [[Tag]]
+allTags :: App [TagCount]
+allTags = do
+    tss <- runDb $ table # R.map (!"tags") :: App [[Tag]]
     let grouped = group $ sort $ concat tss
         counts  = map (\ts -> TagCount (head ts) (length ts)) grouped
     return $ sortBy (\a b -> compare (tagCount b) (tagCount a)) counts
 
-insert :: Pool RethinkDBHandle -> Source -> IO Text
-insert h s = do
-    r <- runPool h $ table # create s
-    return $ generatedKey r
+insert :: Source -> App Text
+insert = docsInsert table
 
-save :: Pool RethinkDBHandle -> Text -> Source -> IO (Either RethinkDBError ())
-save h id s = do
-    er <- runPool h $ table # get (expr id) # replace (const (toDatum s)) :: IO (Either RethinkDBError WriteResponse)
+save :: Text -> Source -> App (Either RethinkDBError ())
+save id s = do
+    er <- runDb $ table # get (expr id) # replace (const (toDatum s)) :: App (Either RethinkDBError WriteResponse)
     return $ fmap (return ()) er
 
-delete :: Pool RethinkDBHandle -> Text -> IO ()
+delete :: Text -> App ()
 delete = docsRemove table
 
-init :: Pool RethinkDBHandle -> IO ()
-init h = do
-    initDb $ runPool h $ tableCreate table
-    initDb $ runPool h $ table # ex indexCreate ["multi" := True] (tagIndexName) (!expr tagIndexName)
+init :: App ()
+init = do
+    initDb $ runDb $ tableCreate table
+    initDb $ runDb $ table # ex indexCreate ["multi" := True] (tagIndexName) (!expr tagIndexName)
 
 isActive :: Source -> Bool
 isActive = (== Active) . status
@@ -142,8 +141,8 @@ deleteChapters h sourceId = runPool h $ table
 
 ------------------------------------------------------------------------------------
 
-updateLastScan :: Pool RethinkDBHandle -> Text -> Scan -> IO (Either RethinkDBError WriteResponse)
-updateLastScan h sourceId s = runPool h $ table # get (expr sourceId) # update (const ["lastScan" := (toDatum s)])
+updateLastScan :: Text -> Scan -> App (Either RethinkDBError WriteResponse)
+updateLastScan sourceId s = runDb $ table # get (expr sourceId) # update (const ["lastScan" := (toDatum s)])
 
-clearLastScan :: Pool RethinkDBHandle -> Text -> IO ()
-clearLastScan h sourceId = runPool h $ table # get (expr sourceId) # update (const ["lastScan" := Null])
+clearLastScan :: Text -> App ()
+clearLastScan sourceId = runDb $ table # get (expr sourceId) # update (const ["lastScan" := Null])

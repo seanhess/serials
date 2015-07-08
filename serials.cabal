@@ -73,6 +73,7 @@
         blaze-html,
         iso8601-time,
         scotty,
-        old-locale
+        old-locale,
+        mmorph
 
 

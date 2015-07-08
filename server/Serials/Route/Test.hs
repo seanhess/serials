@@ -8,87 +8,101 @@ module Serials.Route.Test where
 
 import Control.Monad.Trans (lift)
 import Control.Monad.Trans.Either
-import Control.Monad.Trans.Reader
-import Control.Monad.Reader.Class (MonadReader)
+import Control.Monad.Except
+import Control.Monad.Reader
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Data.Monoid
+import Data.Text (Text, pack)
+import Data.Text.Lazy (fromStrict)
+import Data.Text.Lazy.Encoding (encodeUtf8, decodeUtf8)
 import Data.Aeson
+import Data.ByteString.Lazy (ByteString)
 import Servant.Server
 import Servant
 import Database.RethinkDB.NoClash
 import System.Environment
 
--- I should have some kind of error messages
+data AppError = Invalid Text | NotFound | ServerError Text
+
 newtype App a = App {
-  runApp :: ReaderT Int IO a
-} deriving (Monad, Functor, Applicative, MonadReader Int)
-
--- different kinds of things
--- unauthorized
-
--- could I handle it with the a though? Like before?
-
--- 404 Missing (Maybe)
--- 400 Invalid "you gave me bad input"   ()
--- 500 Error "some kind of server error" (Either Text a) (or could be an exception?)
-
--- but these are servant specific
--- Unauthorized
--- Forbidden
-
--- my thing should allow me to return different kinds of errors that I can handle in different ways
--- let's use some kind of error handling whatzit?
+  runApp :: ReaderT Int (ExceptT AppError IO) a
+} deriving (Monad, Functor, Applicative, MonadReader Int, MonadError AppError, MonadIO)
 
 type TestAPI =
          "a" :> Get '[JSON] String
     :<|> "b" :> Get '[JSON] String
-
---test2 :: EitherT ServantErr IO String
---test2 = return "asdf"
-
---testServer :: Int -> Server TestAPI
---testServer code = test :<|> test2
-  --where
-    --test :: EitherT ServantErr IO String
-    --test = liftIO $ runReaderT (runApp giveMeAMessage) code
+    :<|> "c" :> Get '[JSON] String
 
 giveMeAMessage :: App String
-giveMeAMessage = App $ do
+giveMeAMessage = do
     code <- ask
-    name <- liftIO $ getProgName
+    name <- getProgName'
+    throwError $ Invalid "Goooo"
     return $ show code <> name
 
----------------------------------------------------------------
--- how do I do this?
+testWoot :: App (Maybe String)
+testWoot = return $ Nothing
 
+testErr :: App (Either String String)
+testErr = return $ Left "Oh no!"
+
+getProgName' :: MonadIO m => m String
+getProgName' = liftIO $ getProgName
+
+woot :: IO String
+woot = return "hello"
+
+---------------------------------------------------------------
+
+-- return a 404 if Nothing
+isNotFound :: App (Maybe a) -> App a
+isNotFound action = do
+    res <- action
+    case res of
+      Nothing -> throwError $ NotFound
+      Just v  -> return v
+
+-- map to a generic error
+isError :: Show e => App (Either e a) -> App a
+isError action = do
+    res <- action
+    case res of
+      Left e -> throwError $ ServerError $ pack $ show e
+      Right v -> return v
+
+-- wow, it's IN My monad here! that's swell
 testServerT ::ServerT TestAPI App
-testServerT = test :<|> test
+testServerT = getA :<|> getB :<|> getC
   where
 
-    test :: App String
-    test = giveMeAMessage
+    getA :: App String
+    getA = giveMeAMessage
+    -- you can also lift IO functions
+    --getA = liftIO $ woot
+
+    -- I can map app functions that return Maybes and Eithers to 
+    -- app exceptions using little functions like this
+    getB :: App String
+    getB = isNotFound $ testWoot
+
+    getC :: App String
+    getC = isError $ testErr
 
 -- see this is awesome because I can easily map error codes here
 -- especially if they are different types?
-runReaderApp :: Int -> App a -> EitherT ServantErr IO a
-runReaderApp code action = do
-    res <- liftIO $ runReaderT (runApp action) code
-    return res
+runAppT :: Int -> App a -> EitherT ServantErr IO a
+runAppT code action = do
+    res <- liftIO $ runExceptT $ runReaderT (runApp action) code
+
+    -- branch based on the error or value
+    EitherT $ return $ case res of
+      Left (Invalid text) -> Left err400 { errBody = textToBSL text }
+      Left (NotFound)     -> Left err404
+      Left (ServerError text) -> Left err500 { errBody = textToBSL text }
+      Right a  -> Right a
+
+textToBSL :: Text -> ByteString
+textToBSL = encodeUtf8 . fromStrict
 
 testServer' :: Int -> Server TestAPI
-testServer' code = enter (Nat $ (runReaderApp code)) testServerT
-
---type ReaderAPI = "a" :> Get '[JSON] Int
-            -- :<|> "b" :> Get '[JSON] String
-
---readerServerT :: ServerT ReaderAPI (Reader String)
---readerServerT = return 1797 :<|> asdf
-  --where
-
-  --asdf :: EitherT ServantErr (Reader String String)
-  --asdf = ask
-
---readerServer :: Server ReaderAPI
---readerServer = enter (Nat $ return . (`runReader` "hi")) readerServerT
-
-
+testServer' code = enter (Nat $ (runAppT code)) testServerT

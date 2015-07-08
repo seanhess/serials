@@ -41,9 +41,7 @@ newtype App a = App {
 runAppT :: AppConfig -> App a -> EitherT ServantErr IO a
 runAppT config action = do
     res <- liftIO $ runExceptT $ runReaderT (runApp action) config
-    EitherT $ return $ case res of
-      Left err -> Left err
-      Right v  -> Right v
+    EitherT $ return res
 
 --------------------------------------------------------
 

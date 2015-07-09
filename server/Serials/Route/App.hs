@@ -41,26 +41,26 @@ type ReqBody a = Servant.ReqBody '[JSON] a
 
 ---------------------------------------------------------------------
 
-isNotFound :: App (Maybe a) -> App a
-isNotFound action = do
+checkNotFound :: App (Maybe a) -> App a
+checkNotFound action = do
     res <- action
     case res of
       Nothing -> throwError $ err404
       Just v  -> return v
 
 -- map to a generic error
-isError :: Show e => App (Either e a) -> App a
-isError action = do
+checkError :: Show e => App (Either e a) -> App a
+checkError action = do
     res <- action
     case res of
       Left e -> throwError $ err500 { errBody = BL.pack $ show e }
       Right v -> return v
 
-isInvalidText :: App (Either Text a) -> App a
-isInvalidText action = do
+checkErrorText :: ServantErr -> App (Either Text a) -> App a
+checkErrorText err action = do
     res <- action
     case res of
-      Left e -> throwError $ err400 { errBody = TLE.encodeUtf8 $ TL.fromStrict e }
+      Left e -> throwError $ err { errBody = TLE.encodeUtf8 $ TL.fromStrict e }
       Right v -> return v
 
 -- what if it could return an invalid error OR an application error?

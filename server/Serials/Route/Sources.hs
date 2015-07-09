@@ -23,7 +23,7 @@ import GHC.Generics
 
 import Serials.AppMonad
 import Serials.Route.App
-import Serials.Route.Auth (AuthToken, checkAuth, currentUser, AuthProtected, protected, hasClaimAdmin)
+import Serials.Route.Auth (AuthToken, checkAuth, currentUser, hasClaimAdmin, Auth, RoleAdmin)
 
 import Serials.Model.Source (Source(..), SourceThumbnail(..))
 import Serials.Model.Change (Change(..), change)
@@ -48,17 +48,18 @@ type SourcesAPI =
 
    :<|> Capture "id" Text :> "changes" :> Get [Change]
 
-   :<|> AuthProtected :> SourcesAdminAPI
+   -- TODO auth protected!
+   :<|> Auth RoleAdmin :> SourcesAdminAPI
 
 type SourcesAdminAPI = Capture "id" Text :> Delete ()
 
-sourcesServerT :: ServerT SourcesAPI App
-sourcesServerT =
+sourcesServer :: ServerT SourcesAPI App
+sourcesServer =
          sourcesGetAll :<|> sourcesPost
     :<|> sourceScan
     :<|> sourcesGet :<|> sourcesPut
     :<|> changesGet
-    :<|> protected hasClaimAdmin (sourcesDel)
+    :<|> sourcesDel
 
   where
 
@@ -93,14 +94,14 @@ sourcesServerT =
 
 
   sourcesGet :: Text -> App Source
-  sourcesGet id = isNotFound $ Source.find id
+  sourcesGet id = checkNotFound $ Source.find id
 
   sourcesPut :: Text -> Maybe Text -> Source -> App ()
   sourcesPut sourceId mt source = do
 
     user <- currentUser mt
 
-    old <- isNotFound $ Source.find sourceId
+    old <- checkNotFound $ Source.find sourceId
 
     -- if they are equal just return a 200 status code
     if old == source
@@ -114,7 +115,7 @@ sourcesServerT =
 
       -- save the source
       let source' = source { changeId = Just cid }
-      isError $ Source.save sourceId source'
+      checkError $ Source.save sourceId source'
 
   changesGet :: Text -> App [Change]
   changesGet id = Change.findBySourceId id
@@ -122,17 +123,14 @@ sourcesServerT =
   sourceScan :: Source -> App ScanResult
   sourceScan source = liftIO $ scanSourceResult source
 
---sourcesServer :: AppConfig -> Server SourcesAPI
---sourcesServer config = enter (Nat $ (runAppT config)) sourcesServerT
-
 ---------------------------------------------------------------
 
 type ChangesAPI =
        Get [Change]
   :<|> Capture "id" Text :> Get Change
 
-changesServerT :: ServerT ChangesAPI App
-changesServerT = getAll :<|> getOne
+changesServer :: ServerT ChangesAPI App
+changesServer = getAll :<|> getOne
 
   where
 
@@ -140,9 +138,6 @@ changesServerT = getAll :<|> getOne
   getAll = Change.list
 
   getOne :: Text -> App Change
-  getOne id = isNotFound $ Change.findById id
+  getOne id = checkNotFound $ Change.findById id
 
 
---changesServer :: AppConfig -> Server ChangesAPI
---changesServer config = enter (Nat $ (runAppT config)) changesServerT
-changesServer = changesServerT

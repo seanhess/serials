@@ -35,12 +35,12 @@ data AppConfig = AppConfig {
 } deriving (Show)
 
 newtype App a = App {
-  runApp :: ReaderT AppConfig (ExceptT ServantErr IO) a
+  unApp :: ReaderT AppConfig (ExceptT ServantErr IO) a
 } deriving (Monad, Functor, Applicative, MonadReader AppConfig, MonadError ServantErr, MonadIO)
 
-runAppT :: AppConfig -> App a -> EitherT ServantErr IO a
-runAppT config action = do
-    res <- liftIO $ runExceptT $ runReaderT (runApp action) config
+runApp :: AppConfig -> App a -> EitherT ServantErr IO a
+runApp config action = do
+    res <- liftIO $ runExceptT $ runReaderT (unApp action) config
     EitherT $ return res
 
 --------------------------------------------------------

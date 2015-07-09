@@ -51,7 +51,7 @@ mainScan :: [String] -> IO ()
 mainScan ids = do
     putStr "[SCAN] | "
     config <- initConfig
-    res <- runEitherT $ runAppT config $ do
+    res <- runEitherT $ runApp config $ do
       case ids of
         [] -> importAllSources
         is -> mapM_ (importSourceId) (map pack is)

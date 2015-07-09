@@ -111,7 +111,7 @@ type UsersAPI =
   :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Post ()
   :<|> Capture "id" Text :> "subs" :> Capture "id" Text :> Delete ()
 
-  :<|> AuthProtected :> AdminUserAPI
+  :<|> Auth RoleAdmin :> AdminUserAPI
 
 type AdminUserAPI =
        Get [SecureUser]
@@ -137,18 +137,18 @@ usersServer =
    :<|> userSubsGet :<|> userSubGet :<|> userSubPut :<|> userSubPost :<|> userSubDel
 
     -- this sucks. It has to be last or it "protects" everything in here. 
-   :<|> protected hasClaimAdmin (adminUsersServer)
+   :<|> adminUsersServer
 
   where
 
 -- what does that mean?
   signup :: UserSignup -> App (Headers CookieHeader SecureUser)
   signup s = do
-    u <- isInvalidText $ UserSignup.signup s
+    u <- checkErrorText err400 $ UserSignup.signup s
     addAuth u
 
   userGet :: Text -> App SecureUser
-  userGet id = isNotFound $ secure <$> User.find id
+  userGet id = checkNotFound $ secure <$> User.find id
 
   userBooksGet :: Text -> App [Source]
   userBooksGet uid = Subscription.booksByUser uid
@@ -190,7 +190,7 @@ authServer = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
 
   login :: UserLogin -> App (Headers CookieHeader SecureUser)
   login u = do
-    u <- isInvalidText $ userLogin u
+    u <- checkErrorText err401 $ userLogin u
     addAuth u
 
   -- TODO expire the users' token
@@ -198,7 +198,7 @@ authServer = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
   logout = return clearAuthHeader
 
   current :: Maybe Text -> App SecureUser
-  current mt = isNotFound $ checkAuth mt
+  current mt = checkNotFound $ checkAuth mt
 
   jwt mt = liftIO $ case mt of
     Nothing -> return Nothing
@@ -208,7 +208,7 @@ authServer = current :<|> logout :<|> login :<|> jwt :<|> forgot :<|> reset
   forgot email = forgotPassword email
 
   reset :: Text -> Text -> App()
-  reset token pw = isInvalidText $ resetPassword token pw
+  reset token pw = checkErrorText err400 $ resetPassword token pw
 
 -- Invites ----------------------------------------
 
@@ -225,13 +225,13 @@ invitesServer = list :<|> add :<|> find :<|> remove :<|> send
   where
 
   add :: EmailAddress -> App ()
-  add e = isInvalidText $ inviteAddEmail e
+  add e = checkErrorText err400 $ inviteAddEmail e
 
   list :: App [Invite]
   list = Invite.all
 
   find :: Text -> App Invite
-  find code = isNotFound $ Invite.find code
+  find code = checkNotFound $ Invite.find code
 
   remove :: Text -> App ()
   remove code = Invite.remove code
@@ -240,15 +240,15 @@ invitesServer = list :<|> add :<|> find :<|> remove :<|> send
   send code = inviteSend code
 
 
-type ExampleAPI = AuthProtected :> Get String
+type ExampleAPI = Auth RoleAdmin :> Get String
 
-exampleServerT :: ServerT ExampleAPI App
-exampleServerT = protected hasClaimAdmin (hello)
+exampleServerT :: Application -> ServerT ExampleAPI App
+exampleServerT root = hello
   where
   hello = return "Hello"
 
-exampleServer :: AppConfig -> Server ExampleAPI
-exampleServer config = enter (Nat $ (runAppT config)) exampleServerT
+exampleServer :: AppConfig -> Application -> Server ExampleAPI
+exampleServer config root = enter (Nat $ (runApp config)) (exampleServerT root)
 
 
 -- Server ----------------------------------------------------
@@ -256,40 +256,36 @@ exampleServer config = enter (Nat $ (runAppT config)) exampleServerT
 type MainAPI =
   "status" :> Get AppStatus
 
-  -- :<|> "sources"   :> SourcesAPI
+  :<|> "sources"   :> SourcesAPI
   :<|> "changes"     :> ChangesAPI
-  -- :<|> "users"     :> UsersAPI
-  -- :<|> "auth"      :> AuthAPI
+  :<|> "users"     :> UsersAPI
+  :<|> "auth"      :> AuthAPI
   :<|> "invites"     :> InvitesAPI
 
-  :<|> "admin"       :> AuthProtected :> AdminAPI
+  :<|> "admin"       :> Auth RoleAdmin :> AdminAPI
 
   :<|> "tags"        :> Get [TagCount]
   :<|> "settings"    :> AuthToken :> Get AppSettings
   :<|> "settings.js" :> AuthToken :> Servant.Get '[PlainText] Text
-
-  -- :<|> Raw
 
 apiServer :: ServerT MainAPI App
 apiServer =
 
    status
 
-   -- :<|> sourcesServer
+   :<|> sourcesServer
    :<|> changesServer
 
-   -- :<|> usersServer
-   -- :<|> authServer
+   :<|> usersServer
+   :<|> authServer
    :<|> invitesServer
 
-   :<|> protected hasClaimAdmin (adminServer)
+   :<|> adminServer
 
    :<|> getTags
 
    :<|> settings
    :<|> settingsText
-
-   -- :<|> root
 
   where
 
@@ -314,10 +310,22 @@ apiServer =
     getTags = Source.allTags
 
 server :: AppConfig -> Server MainAPI
-server config = undefined -- enter (Nat $ (runAppT config)) apiServer
+server config = enter (Nat $ (runApp config)) apiServer
 
 -- (serverApp root)
 -- (runAppT config)
+
+------------------------------------------------------------
+
+type RootAPI = MainAPI :<|> Raw
+
+rootServer :: AppConfig -> Application -> Server RootAPI
+rootServer config root = server config :<|> root
+
+api :: Proxy RootAPI
+api = Proxy
+
+-----------------------------------------------------------
 
 rootApp :: AppConfig -> IO Application
 rootApp c = scottyApp $ do
@@ -364,16 +372,13 @@ stack app = heads $ cors' $ app
     heads = addHeaders [("X-Source", "Contribute at http://github.com/seanhess/serials")]
     cors' = cors (const $ Just corsResourcePolicy)
 
-api :: Proxy MainAPI
-api = Proxy
-
 runApi :: AppConfig -> IO ()
 runApi config = do
 
   let p = port $ env config
   root <- rootApp config
 
-  res <- runEitherT $ runAppT config $ do
+  res <- runEitherT $ runApp config $ do
     createDb
     Source.init
     Change.init
@@ -382,7 +387,7 @@ runApi config = do
     Subscription.init
 
   putStrLn $ "Starting..."
-  run p $ stack $ serve api (server config)
+  run p $ stack $ serve api (rootServer config root)
   return ()
 
 -- Cors ---------------------------------------------------------

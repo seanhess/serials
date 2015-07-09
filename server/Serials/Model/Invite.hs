@@ -29,7 +29,7 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Types (EmailAddress(..))
 import System.Random (randomIO, randomRIO)
 
-import Serials.AppMonad
+import Serials.Types
 
 import Numeric (showIntAtBase)
 

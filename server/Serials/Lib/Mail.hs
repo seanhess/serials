@@ -29,7 +29,7 @@ import Serials.Model.Invite (Invite)
 import qualified Serials.Model.Invite as I
 
 import Serials.Model.Types (EmailAddress(..), emailValue)
-import Serials.AppMonad
+import Serials.Types
 
 import Text.Blaze.Html5 hiding (style, map)
 import Text.Blaze.Html5.Attributes

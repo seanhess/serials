@@ -22,7 +22,7 @@ import qualified Database.RethinkDB as RethinkDB
 import Database.RethinkDB (RethinkDBHandle)
 
 
-import Serials.AppMonad
+import Serials.Types
 
 import Servant hiding (Get, Post, Put, Delete, ReqBody)
 import qualified Servant

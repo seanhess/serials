@@ -25,7 +25,7 @@ import Serials.Model.Source (Source)
 import Serials.Model.Scan (Scan)
 import qualified Serials.Model.Scan as Scan
 
-import Serials.AppMonad
+import Serials.Types
 
 import System.Environment
 

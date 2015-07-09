@@ -16,7 +16,7 @@ import Serials.Api
 import Serials.Scan
 import Serials.Model.Lib.Crud
 import Serials.Model.App
-import Serials.AppMonad
+import Serials.Types
 
 import System.Environment
 import Network.URI

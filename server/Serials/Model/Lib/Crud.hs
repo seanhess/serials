@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 
 module Serials.Model.Lib.Crud where
 
@@ -15,7 +17,7 @@ import Control.Applicative
 import Control.Monad.Reader
 import Control.Monad.Trans (liftIO)
 
-import Serials.AppMonad
+import Serials.Types
 
 -------------------------------------------------
 
@@ -55,9 +57,15 @@ toDatumNoId = stripId . toDatum
 
 -------------------------------------------------
 
-runDb :: (Expr query, Result r) => query -> App r
+class (MonadIO m) => RethinkIO m where
+  connPool :: m (Pool RethinkDBHandle)
+
+instance RethinkIO App where
+  connPool = asks conn
+
+runDb :: (Expr query, Result r, RethinkIO m) => query -> m r
 runDb q = do
-    pool <- asks conn
+    pool <- connPool
     liftIO $ withResource pool $ \h -> run h q
 
 -------------------------------------------------------

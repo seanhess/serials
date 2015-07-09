@@ -20,7 +20,7 @@ import qualified Serials.Model.User as User
 import qualified Serials.Model.Invite as Invite
 import Serials.Model.App (readAllEnv)
 import Serials.Model.Types (EmailAddress(..))
-import Serials.AppMonad
+import Serials.Types
 
 import Text.Blaze.Html5 hiding (style)
 import Text.Blaze.Html5.Attributes

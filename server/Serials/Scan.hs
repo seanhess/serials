@@ -36,7 +36,7 @@ import Serials.Model.Source (Source(..), Status(..))
 import Serials.Model.Scan (Scan(..))
 
 import Serials.Notify
-import Serials.AppMonad
+import Serials.Types
 
 import System.IO
 

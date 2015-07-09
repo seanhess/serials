@@ -21,7 +21,7 @@ import Database.RethinkDB.NoClash hiding (Change)
 
 import GHC.Generics
 
-import Serials.AppMonad
+import Serials.Types
 import Serials.Route.App
 import Serials.Route.Auth (AuthToken, checkAuth, currentUser, hasClaimAdmin, Auth, RoleAdmin)
 

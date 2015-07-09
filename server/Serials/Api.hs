@@ -52,7 +52,7 @@ import Serials.Scan
 import qualified Serials.Admin as Admin
 import Serials.Lib.Mail (Email(..))
 
-import Serials.AppMonad
+import Serials.Types
 import Serials.Route.App
 import Serials.Route.Auth
 import Serials.Route.Invite

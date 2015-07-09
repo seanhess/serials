@@ -23,7 +23,7 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Chapter (Chapter(..))
 import Serials.Model.Scan (Scan(..))
 import Serials.Link.Import (ImportSettings)
-import Serials.AppMonad
+import Serials.Types
 
 instance FromJSON ImportSettings
 instance ToJSON ImportSettings

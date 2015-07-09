@@ -31,7 +31,7 @@ import Serials.Link.Link (contentText, Content)
 import Text.Blaze.Html5 hiding (style, map)
 import Text.Blaze.Html5.Attributes
 
-import Serials.AppMonad
+import Serials.Types
 
 -- notify people of all the new chapters
 notifyChapters :: Source -> [Chapter] -> App ()

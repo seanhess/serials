@@ -33,7 +33,7 @@ import Serials.Lib.Mail
 import Serials.Model.Invite (Invite)
 import Serials.Model.Types (EmailAddress(..))
 import Serials.Model.App (readAllEnv)
-import Serials.AppMonad
+import Serials.Types
 
 import Servant.Server
 

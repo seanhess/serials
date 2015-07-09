@@ -15,7 +15,7 @@ import qualified Database.RethinkDB.NoClash as R
 
 import GHC.Generics
 
-import Serials.AppMonad
+import Serials.Types
 import Serials.Model.Source (Source(..))
 import Serials.Model.User (SecureUser(..))
 import qualified Serials.Model.User as User
@@ -52,7 +52,7 @@ init = do
     initDb $ runDb $ tableCreate table
     initDb $ runDb $ table # indexCreate (sourceIndexName) (\row -> expr (row ! "source" ! "id"))
 
-list :: App [Change]
+list :: (RethinkIO m) => m [Change]
 list = runDb $ table # orderBy [desc "createdAt"]
 
 findById :: Text -> App (Maybe Change)

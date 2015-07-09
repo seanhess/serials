@@ -29,7 +29,7 @@ import Serials.Model.Lib.Crud
 import Serials.Model.Types (EmailAddress(..))
 import Serials.Lib.JWT
 
-import Serials.AppMonad
+import Serials.Types
 
 import Web.JWT (JWTClaimsSet)
 

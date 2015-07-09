@@ -44,7 +44,7 @@ import Servant
 import Servant.Server.Internal
 import Servant.Server.Internal.Enter
 import Serials.Lib.ServantCookie
-import Serials.AppMonad
+import Serials.Types
 
 import Serials.Lib.JWT
 import Serials.Model.User (User (id, hashedPassword), SecureUser(..), secure)

@@ -31,7 +31,7 @@ import Serials.Model.Source (Source(..))
 import qualified Serials.Model.User as User
 import Serials.Model.User (User(..), SecureUser(..))
 
-import Serials.AppMonad
+import Serials.Types
 
 data Subscription = Subscription {
   id :: Text,

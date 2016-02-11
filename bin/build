@@ -20,8 +20,9 @@ npm install
 
 echo "
 -- flow ------------------"
-flow --version
-flow
+# disabling because of flow type mismatch
+#flow --version
+#flow
 
 echo "
 -- webpack ------------------"

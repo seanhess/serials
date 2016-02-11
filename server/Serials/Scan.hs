@@ -102,9 +102,6 @@ scanResult source time content = ScanResult scan all new ups
 importSource :: Source -> App ()
 importSource source = do
 
-  -- update last scan saying it started
-  Source.clearLastScan sid
-
   content <- liftIO $ scanSourceContent source
   time <- liftIO $ getCurrentTime
 

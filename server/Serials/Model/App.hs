@@ -29,6 +29,8 @@ import Serials.Types
 
 import System.Environment
 
+scanIntervalSeconds = 10 * 60
+
 data AppInfo = AppInfo {
   appName :: Text,
   appVersion :: Text
@@ -56,7 +58,8 @@ appStatus :: App AppStatus
 appStatus = do
   dbh <- checkDbHealth
   scans <- lastScans
-  return $ AppStatus dbh (isOkScans scans) scans
+  time <- liftIO $ getCurrentTime
+  return $ AppStatus dbh (all (isOkScan time) scans) scans
 
 health :: Text -> Bool -> Maybe Text
 health msg healthy = if healthy then Just msg else Nothing
@@ -75,8 +78,15 @@ lastScans = do
   let scans = map scannedSource $ filter Source.isActive sources
   return scans
 
-isOkScans :: [ScannedSource] -> Bool
-isOkScans ss = all (isJust . lastScan) ss
+isOkScan :: UTCTime -> ScannedSource -> Bool
+isOkScan time (ScannedSource _ _ status mscan) =
+  case mscan of
+    Nothing -> False
+    Just scan -> status /= Source.Active || isRecent time scan
+
+isRecent :: UTCTime -> Scan -> Bool
+isRecent time scan =
+    (diffUTCTime time (Scan.date scan)) < (2*scanIntervalSeconds)
 
 scannedSource :: Source -> ScannedSource
 scannedSource s = ScannedSource (Source.id s) (Source.name s) (Source.status s) (Source.lastScan s)

@@ -28,7 +28,7 @@ export class Sources extends React.Component {
 
     return <div>
       <h3>Sources</h3>
-      <a className="button" href="#/admin/sources/new">Add Source</a>
+      <a className="button" href="#/sources/new">Add Source</a>
 
       <label>Proposals</label>
       <SourceList sources={proposed} />

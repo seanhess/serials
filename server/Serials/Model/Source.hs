@@ -139,10 +139,3 @@ deleteChapters h sourceId = runPool h $ table
   empty = []
 
 
-------------------------------------------------------------------------------------
-
-updateLastScan :: Text -> Scan -> App (Either RethinkDBError WriteResponse)
-updateLastScan sourceId s = runDb $ table # get (expr sourceId) # update (const ["lastScan" := (toDatum s)])
-
-clearLastScan :: Text -> App ()
-clearLastScan sourceId = runDb $ table # get (expr sourceId) # update (const ["lastScan" := Null])

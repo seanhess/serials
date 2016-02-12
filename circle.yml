@@ -1,8 +1,8 @@
 dependencies:
   pre:
     - sudo apt-get -y -qq update; sudo apt-get -y -qq install wget unzip
-    - wget http://flowtype.org/downloads/flow-linux64-latest.zip
-    - unzip -o flow-linux64-latest.zip
+    - wget https://github.com/facebook/flow/releases/download/v0.12.0/flow-linux64-v0.12.0.zip
+    - unzip -o flow-linux64-v0.12.0.zip
     - mv ./flow/flow /home/ubuntu/bin
     - rm -rf ./flow
     - npm install -g webpack

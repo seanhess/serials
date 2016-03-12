@@ -46,14 +46,32 @@ Run Database
 
 Haskell Server
 
-    stack build
-    stack run
+    # enter the REPL
+    $ stack ghci
+
+    # Run the application (Ctrl-C to exit)
+    Main> mainApi
+
+    # Reload your code
+    Main> :r
+
+    # Alternatively, build and run the executable
+    $ stack build
+    $ stack exec serials api
+
 
 Front-end application
 
-    npm start
+    $ npm install
+    $ cs web && webpack
 
+You'll probably want to make yourself an admin by hand. Once you've signed up, go to [http://localhost:8080](http://localhost:8080) and enter the following query into the Data Explorer
+
+    r.db('serials').table('users').update({admin: true})
+
+<!--
+Hot Reloading
 Visit the hot reload server (front-end changes will update in-place)
-
     http://localhost:3000/
+-->
 
